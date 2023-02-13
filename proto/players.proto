@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package players;
+
+option go_package = "github.com/kainn9/grpc_game/proto";
+
+message PlayerReq {
+  string id = 1;
+  string input = 2;
+}
+
+message Player {
+  string id = 1;
+  double lx = 2;
+  double ly = 3;
+  double speedX = 4;     
+  double speedY = 5;
+  bool FacingRight = 8;
+  string world = 9;
+  bool jumping = 10;
+}
+
+message PlayerResp {
+  repeated Player players = 1;
+}
+
+
+service PlayersService {
+  rpc PlayerLocation (stream PlayerReq) returns (stream PlayerResp);
+}
