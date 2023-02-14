@@ -4,42 +4,20 @@ import (
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
-)
-
-// Player Sprites(for now)
-var (
-	playerSpriteIdleLeft  *ebiten.Image
-	playerSpriteIdleRight *ebiten.Image
-
-	playerSpriteWalkingRight *ebiten.Image
-	playerSpriteWalkingLeft  *ebiten.Image
-	playerSpriteJumpLeft     *ebiten.Image
-	playerSpriteJumpRight    *ebiten.Image
+	r "github.com/kainn9/grpc_game/client/roles"
 )
 
 type Player struct {
-	Animations  []Animation
 	SpeedX      float64
 	SpeedY      float64
 	X           float64
 	Y           float64
 	FacingRight bool
 	Jumping     bool
-}
-
-/*
-Animation "system"(lol) will need to be redone better...
-Will probably start to tackle when adding NPC's
-or having various player sprites
-*/
-type Animation struct {
-	FrameOX     int
-	FrameOY     int
-	FrameWidth  int
-	FrameHeight int
-	FrameCount  int
-	Name        string
-	SpriteSheet *ebiten.Image
+	CC          string
+	CurrAttack  string
+	r.Role
+	currentAnimation *r.Animation
 }
 
 /*
@@ -47,68 +25,8 @@ Creates a player with the default Anims
 */
 func NewPlayer() *Player {
 
-	idleRight := Animation{
-		FrameOX:     0,
-		FrameOY:     0,
-		FrameWidth:  32,
-		FrameHeight: 48,
-		FrameCount:  8,
-		SpriteSheet: playerSpriteIdleRight,
-	}
-	idleLeft := Animation{
-		FrameOX:     0,
-		FrameOY:     0,
-		FrameWidth:  32,
-		FrameHeight: 48,
-		FrameCount:  8,
-		SpriteSheet: playerSpriteIdleLeft,
-	}
-
-	walkRight := Animation{
-		FrameOX:     0,
-		FrameOY:     0,
-		FrameWidth:  35,
-		FrameHeight: 48,
-		FrameCount:  8,
-		SpriteSheet: playerSpriteWalkingRight,
-	}
-
-	walkLeft := Animation{
-		FrameOX:     0,
-		FrameOY:     0,
-		FrameWidth:  35,
-		FrameHeight: 48,
-		FrameCount:  8,
-		SpriteSheet: playerSpriteWalkingLeft,
-	}
-
-	jumpLeft := Animation{
-		FrameOX:     0,
-		FrameOY:     0,
-		FrameWidth:  35,
-		FrameHeight: 48,
-		FrameCount:  1,
-		SpriteSheet: playerSpriteJumpLeft,
-	}
-
-	jumpRight := Animation{
-		FrameOX:     0,
-		FrameOY:     0,
-		FrameWidth:  35,
-		FrameHeight: 48,
-		FrameCount:  1,
-		SpriteSheet: playerSpriteJumpRight,
-	}
-
 	p := &Player{
-		Animations: []Animation{
-			idleRight,
-			idleLeft,
-			walkRight,
-			walkLeft,
-			jumpLeft,
-			jumpRight,
-		},
+		Role: *r.InitKnight(),
 	}
 	return p
 }
@@ -118,46 +36,62 @@ Renders a Player using their Anim's
 and game tick count
 */
 func DrawPlayer(world *World, p *Player, currentPlayer bool) {
-	currentAnimation := p.Animations[0]
 
-	/* TODO: gotta dry this up...
-	no need to keep calling:
-	i := (ticks / 5) % currentAnimation.FrameCount
-	over and over...
-	*/
-	i := (ticks / 5) % currentAnimation.FrameCount
+	defaultAnim := p.Animations["idleRight"]
 
-	s := playerSpriteIdleRight
+	if p.currentAnimation == nil {
+		p.currentAnimation = defaultAnim
+	}
+
+	prevAnim := defaultAnim
 
 	if !p.FacingRight {
-		s = playerSpriteIdleLeft
-		currentAnimation = p.Animations[1]
-		i = (ticks / 5) % currentAnimation.FrameCount
+
+		p.currentAnimation = p.Animations["idleLeft"]
+
 	}
 
 	if p.SpeedX > 0 && p.FacingRight {
-		s = playerSpriteWalkingRight
-		currentAnimation = p.Animations[2]
-		i = (ticks / 5) % currentAnimation.FrameCount
+
+		p.currentAnimation = p.Animations["walkRight"]
+
 	}
 
 	if p.SpeedX < 0 && !p.FacingRight {
-		s = playerSpriteWalkingLeft
-		currentAnimation = p.Animations[3]
-		i = (ticks / 5) % currentAnimation.FrameCount
+		p.currentAnimation = p.Animations["walkLeft"]
+
 	}
 
 	if p.Jumping && !p.FacingRight {
-		s = playerSpriteJumpLeft
-		currentAnimation = p.Animations[4]
-		i = (ticks / 5) % currentAnimation.FrameCount
+		p.currentAnimation = p.Animations["jumpLeft"]
+
 	}
 
 	if p.Jumping && p.FacingRight {
-		s = playerSpriteJumpRight
-		currentAnimation = p.Animations[5]
-		i = (ticks / 5) % currentAnimation.FrameCount
+		p.currentAnimation = p.Animations["jumpRight"]
+
 	}
+
+	if p.CurrAttack != "" {
+		if p.FacingRight {
+			p.currentAnimation = p.Animations[p.CurrAttack+"Right"]
+		} else {
+			p.currentAnimation = p.Animations[p.CurrAttack+"Left"]
+		}
+
+	}
+
+	if p.CC != "" {
+
+		if p.FacingRight {
+			p.currentAnimation = p.Animations[p.CC+"Right"]
+		} else {
+			p.currentAnimation = p.Animations[p.CC+"Left"]
+		}
+
+	}
+	i := (ticks / 5) % p.currentAnimation.FrameCount
+	s := p.currentAnimation.SpriteSheet
 
 	/*
 		Logic for rendering current and other players
@@ -171,13 +105,27 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	pcY := pc.Y
 	playerOps := &ebiten.DrawImageOptions{}
 
-	if currentPlayer {
-		playerOps = pc.Cam.GetTranslation(playerOps, x/2, y/2)
+	if currentPlayer && p.FacingRight {
+		playerOps = pc.Cam.GetTranslation(playerOps, (x/2)-p.HitBoxOffsetX, (y/2)-p.HitBoxOffsetY)
+
+	} else if currentPlayer && !p.FacingRight {
+		playerOps = pc.Cam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (y/2)-p.HitBoxOffsetY)
+
+	} else if p.FacingRight {
+		playerOps = pc.Cam.GetTranslation(playerOps, x-(pcX/2)-p.HitBoxOffsetX, y-(pcY/2)-p.HitBoxOffsetY)
+
 	} else {
-		playerOps = pc.Cam.GetTranslation(playerOps, x-(pcX/2), y-(pcY/2))
+		playerOps = pc.Cam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pcX/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pcY/2)-p.HitBoxOffsetY)
 	}
 
-	sx, sy := (currentAnimation.FrameOX)+i*(currentAnimation.FrameWidth), (currentAnimation.FrameOY)
-	sub := s.SubImage(image.Rect(sx, sy, sx+(currentAnimation.FrameWidth), sy+(currentAnimation.FrameHeight))).(*ebiten.Image)
+
+	// Render the Anims
+	sx, sy := (p.currentAnimation.FrameOX)+i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
+	sub := s.SubImage(image.Rect(sx, sy, sx+(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
+
+	if !p.FacingRight {
+		sx, sy = (p.currentAnimation.FrameOX)-i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
+		sub = s.SubImage(image.Rect(sx, sy, sx-(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
+	}
 	pc.Cam.Surface.DrawImage(sub, playerOps)
 }

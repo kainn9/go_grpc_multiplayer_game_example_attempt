@@ -11,6 +11,7 @@ import (
 	pb "github.com/kainn9/grpc_game/proto"
 	camera "github.com/melonfunction/ebiten-camera"
 	"github.com/pborman/uuid"
+	"github.com/solarlune/resolv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -43,8 +44,6 @@ creates PlayerController with/by
 */
 func NewPlayerController() *PlayerController {
 
-	LoadPlayerControllerSprites()
-
 	pid := uuid.New()
 
 	p := &PlayerController{
@@ -59,28 +58,15 @@ func NewPlayerController() *PlayerController {
 }
 
 /*
-Loads the default player sprites
-*/
-func LoadPlayerControllerSprites() {
-	playerSpriteIdleLeft = LoadImg("./sprites/knight/knightIdleLeft.png")
-	playerSpriteIdleRight = LoadImg("./sprites/knight/knightIdleRight.png")
-
-	playerSpriteWalkingRight = LoadImg("./sprites/knight/knightRunningRight.png")
-	playerSpriteWalkingLeft = LoadImg("./sprites/knight/knightRunningLeft.png")
-	playerSpriteJumpLeft = LoadImg("./sprites/knight/knightJumpLeft.png")
-	playerSpriteJumpRight = LoadImg("./sprites/knight/knightJumpRight.png")
-}
-
-/*
 Initializes stream with PID
 */
 func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
-		/*
+	/*
 		disable to skip ssl
 		or just run make genSSL
 		change value in ssl/ssl.sh
 	*/
-	tls := false 
+	tls := false
 	opts := []grpc.DialOption{}
 
 	if tls {
@@ -91,7 +77,7 @@ func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 		if err != nil {
 			log.Fatalf("Errr getting client cert %v\n", err)
 		}
-		
+
 		opts = append(opts, grpc.WithTransportCredentials(creds))
 
 	} else {
@@ -100,8 +86,6 @@ func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 		opts = append(opts, creds)
 	}
 
-
-	
 	conn, err := grpc.Dial(addr, opts...)
 
 	if err != nil {
@@ -127,7 +111,7 @@ func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 /*
 Listens for Player inputs during game update phase
 */
-func (pc *PlayerController) inputListener() {
+func (pc *PlayerController) InputListener() {
 
 	if inpututil.IsKeyJustPressed(ebiten.Key4) {
 		pc.inputHandler("swap")
@@ -135,6 +119,30 @@ func (pc *PlayerController) inputListener() {
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		freePlay = !freePlay
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+
+		// Notice the difference between left/Right ATK
+		// X values is the width/2 of the hitbox itself
+		// 43 - 38 = 5
+		atkRHbox := resolv.NewObject(pc.X+43, pc.Y+15, 10, 5, "hitBox")
+		atkLHbox := resolv.NewObject(pc.X-38, pc.Y+15, 10, 5, "hitBox")
+
+		playerHitBox := resolv.NewObject(pc.X, pc.Y, 18, 44, "hitBox")
+
+		hitBoxes := make([]*resolv.Object, 0)
+
+		hitBoxes = append(hitBoxes, playerHitBox)
+		hitBoxes = append(hitBoxes, atkRHbox)
+		hitBoxes = append(hitBoxes, atkLHbox)
+
+		pc.World.Init(DevWorldBuilder)
+
+		for _, b := range hitBoxes {
+			pc.World.Space.Add(b)
+		}
+
 	}
 
 	// Free Play Cam
@@ -213,6 +221,17 @@ func (pc *PlayerController) inputListener() {
 		pc.inputHandler("keyDown")
 		isPressing = true
 	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
+		pc.inputHandler("primaryAttack")
+		isPressing = true
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyZ) {
+		pc.inputHandler("gravBoost")
+		isPressing = true
+	}
+
 	if !isPressing {
 		pc.inputHandler("nada")
 	}
@@ -234,7 +253,7 @@ Logic to keep PlayerController camera
 following player w/o exposing level boundaries
 (needs to be cleaned up)
 */
-func (pc *PlayerController) setCameraPosition() {
+func (pc *PlayerController) SetCameraPosition() {
 	gw := pc.World.Width
 	gh := pc.World.Height
 
@@ -251,13 +270,16 @@ func (pc *PlayerController) setCameraPosition() {
 	xBoundTop := (pc.Y - ScreenHeight/2) < 0
 
 	if xBoundLeft && xBoundBottom {
-		pc.Cam.SetPosition((ScreenWidth/2)-x, (ScreenHeight/2)+(gh-pc.Y))
+		yOff := float64(gh) - float64(pc.Y)
+		pc.Cam.SetPosition((ScreenWidth/2)-x, y-((ScreenHeight/2)-yOff))
 
 	} else if xBoundLeft && xBoundTop {
 		pc.Cam.SetPosition((ScreenWidth/2)-x, (ScreenHeight/2)-y)
 
 	} else if xBoundRight && xBoundBottom {
-		pc.Cam.SetPosition(x, (ScreenHeight/2)+(gh-pc.Y))
+		yOff := float64(gh) - float64(pc.Y)
+		xOff := float64(gw - pc.X)
+		pc.Cam.SetPosition(x-((ScreenWidth/2)-xOff),  y-((ScreenHeight/2)-yOff))
 
 	} else if xBoundRight && xBoundTop {
 		xOff := float64(gw - pc.X)
@@ -278,7 +300,6 @@ func (pc *PlayerController) setCameraPosition() {
 		pc.Cam.SetPosition(x, (ScreenHeight/2)-y)
 	} else {
 		pc.Cam.SetPosition(x, y)
-
 	}
 }
 
@@ -301,7 +322,6 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	DrawPlayer(cw, p, true)
 }
 
-
 func (pc *PlayerController) GetState() {
 	world := pc.World
 	wTex := &world.WorldTex
@@ -315,13 +335,13 @@ func (pc *PlayerController) GetState() {
 
 			if err == io.EOF {
 				break
-			} 
+			}
 
 			if err != nil {
-				log.Fatalf("Setting World State Error %v\n", err);
+				log.Fatalf("Setting World State Error %v\n", err)
 				break
 			}
-			
+
 			// reg lock on insertion
 			wTex.Lock()
 			world.State = res.Players
@@ -329,3 +349,5 @@ func (pc *PlayerController) GetState() {
 		}
 	}()
 }
+
+
