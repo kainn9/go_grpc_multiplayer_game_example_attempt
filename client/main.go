@@ -6,26 +6,26 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	ut "github.com/kainn9/grpc_game/client/util"
 	"golang.org/x/image/font"
 )
 
 const (
-	ScreenWidth  = 640
-	ScreenHeight = 360
+	ScreenWidth  = 880
+	ScreenHeight = 480
 )
 
 var (
-	BuildTime string 
 	ticks     int
 	worldsMap = make(map[string]WorldData)
 	game      = NewGame()
-	addr = "localhost:50051"
+	addr      = "localhost:50051"
 )
 
 // dev mode stuff
 var (
-	rulerW         = LoadImg("./sprites/rulers/wRuler.png")
-	rulerH         = LoadImg("./sprites/rulers/hRuler.png")
+	rulerW         = ut.LoadImg("./sprites/rulers/wRuler.png")
+	rulerH         = ut.LoadImg("./sprites/rulers/hRuler.png")
 	devPreview     = false
 	useHeightRuler = false
 	devCamSpeed    = float64(2)
@@ -44,13 +44,13 @@ func (g *Game) Layout(outsideScreenWidth, outsideScreenHeight int) (int, int) {
 	return ScreenWidth, ScreenHeight
 }
 
-func (g *Game) IncrementTicks()  {
+func (g *Game) IncrementTicks() {
 	if ticks > 60 {
 		ticks = 1
 	} else {
-			ticks++
+		ticks++
 	}
-} 
+}
 
 func (g *Game) Update() error {
 
@@ -98,7 +98,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			need to come up with the right maffz
 			to make it consistent
 		*/
-		msg += fmt.Sprintf("X:%v\nY:%v\n", (pc.Cam.X + (ScreenWidth / 2) - 14), pc.Cam.Y+(ScreenHeight/2)+86)
+		msg += fmt.Sprintf("X:%v\nY:%v\n", (pc.Cam.X + (ScreenWidth / 2) + 185), pc.Cam.Y+(ScreenHeight/2)+1898-172)
 
 	} else {
 		msg += fmt.Sprintf("X:%v\nY:%v\n", pc.X, pc.Y)
@@ -111,8 +111,9 @@ Creates new game.
 */
 func NewGame() *Game {
 
-	worldsMap["main"] = *NewWorldData(848, 3200, mainWorldBg)
-	worldsMap["alt"] = *NewWorldData(800, 800, altWorldBg)
+
+	worldsMap["main"] = *NewWorldData(4000, 6000, mainWorldBg)
+	worldsMap["alt"] = *NewWorldData(848, 3200, altWorldBg)
 
 	// Set window things.
 	ebiten.SetWindowTitle("MultiPlayer Platformer!")
@@ -135,6 +136,9 @@ func NewGame() *Game {
 }
 
 func main() {
+
+	// TODO: MAKE THIS TOGGLE
+	ebiten.SetFullscreen(false)
 	/*
 		RunGame starts the main loop and runs the game. game's
 		Update function is called every tick to update the game logic.

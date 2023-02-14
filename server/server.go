@@ -112,10 +112,7 @@ func requestHandler(r *pb.PlayerReq, pid string) {
 
 	if activePlayers[pid] == nil {
 
-		cp = &Player{
-			Pid:      pid,
-			WorldKey: k,
-		}
+		cp = NewPlayer(pid, k)
 
 		mutex.Lock()
 		activePlayers[pid] = cp
@@ -126,7 +123,7 @@ func requestHandler(r *pb.PlayerReq, pid string) {
 	}
 
 	if cp.Object == nil {
-		AddPlayerToSpace(w.Space, cp)
+		AddPlayerToSpace(w.Space, cp, 1250, 3700)
 	}
 
 	w.Update(cp, r.Input)
@@ -152,6 +149,11 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 
 		jumping := curr.OnGround == nil && curr.WallSliding == nil
 
+		currAtk := ""
+		if curr.CurrAttack != nil && curr.CurrAttack.Type != "" {
+			currAtk = string(curr.CurrAttack.Type)
+		}
+
 		p := &pb.Player{
 			Id:          curr.Pid,
 			Lx:          curr.Object.X,
@@ -161,6 +163,8 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 			SpeedY:      curr.SpeedY,
 			World:       wk,
 			Jumping:     jumping,
+			CurrAttack:  currAtk,
+			CC:          string(curr.isCC()),
 		}
 
 		res.Players = append(res.Players, p)

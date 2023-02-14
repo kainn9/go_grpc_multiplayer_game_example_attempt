@@ -11,15 +11,21 @@ buildS:
 
 # Build client
 buildC:
-	go build -ldflags "-X main.BuildTime=true" -o bin/application ./client && cp -R ./client/sprites ./bin && cp -R ./client/backgrounds ./bin && chmod +x ./bin/application
+	go build -ldflags "-X util.BuildTime=true" -o bin/application ./client && cp -R ./client/sprites ./bin && cp -R ./client/backgrounds ./bin && chmod +x ./bin/application
 
 # run client
 runC:
 	cd ./client && 	go run .
 
+runCR:
+	cd ./client && 	go run . -race
+
 # run server
 runS:
 	cd ./server && 	go run . 
+
+runSR:
+	cd ./server && 	go run . -race
 
 genSSL:
 	cd ./ssl && chmod +x ssl.sh && ./ssl.sh

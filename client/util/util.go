@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"log"
@@ -10,15 +10,19 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-/*
-	Helper for loading relative images
-*/
-func LoadImg (path string) *ebiten.Image {
+var (
+	BuildTime string
+)
 
-	if (BuildTime == "true") {
+/*
+Helper for loading relative images
+*/
+func LoadImg(path string) *ebiten.Image {
+
+	if BuildTime == "true" {
 
 		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-		
+
 		if err != nil {
 			log.Fatalf("Asset Error: %v\n", err)
 		}
@@ -33,4 +37,3 @@ func LoadImg (path string) *ebiten.Image {
 	}
 	return img
 }
-

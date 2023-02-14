@@ -18,6 +18,8 @@ message Player {
   bool FacingRight = 8;
   string world = 9;
   bool jumping = 10;
+  string CurrAttack = 11;
+  string CC = 12;
 }
 
 message PlayerResp {
