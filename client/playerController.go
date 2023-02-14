@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"sync"
 
@@ -233,7 +234,7 @@ Logic to keep PlayerController camera
 following player w/o exposing level boundaries
 (needs to be cleaned up)
 */
-func (pc *PlayerController) camHandler() {
+func (pc *PlayerController) setCameraPosition() {
 	gw := pc.World.Width
 	gh := pc.World.Height
 
@@ -298,4 +299,33 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	}
 
 	DrawPlayer(cw, p, true)
+}
+
+
+func (pc *PlayerController) GetState() {
+	world := pc.World
+	wTex := &world.WorldTex
+	ptex := &pc.PlayerTex
+
+	go func() {
+		for {
+			ptex.Lock()
+			res, err := pc.Stream.Recv()
+			ptex.Unlock()
+
+			if err == io.EOF {
+				break
+			} 
+
+			if err != nil {
+				log.Fatalf("Setting World State Error %v\n", err);
+				break
+			}
+			
+			// reg lock on insertion
+			wTex.Lock()
+			world.State = res.Players
+			wTex.Unlock()
+		}
+	}()
 }

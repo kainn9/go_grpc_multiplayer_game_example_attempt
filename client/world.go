@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/color"
-	"io"
 	"log"
 	"sync"
 
@@ -14,66 +13,66 @@ import (
 
 var (
 	mainWorldBg = LoadImg("./backgrounds/mapMain.png")
-	altWorldBg = LoadImg("./backgrounds/mapAlt.png")
+	altWorldBg  = LoadImg("./backgrounds/mapAlt.png")
 )
 
 type World struct {
-	Game   *Game
-	Space  *resolv.Space
+	Game             *Game
+	Space            *resolv.Space
 	PlayerController *PlayerController
-	State []*pb.Player
-	WorldTex sync.RWMutex
+	State            []*pb.Player
+	WorldTex         sync.RWMutex
 	WorldData
 }
 
 type WorldData struct {
 	Height float64
-	Width float64
-	bg *ebiten.Image
+	Width  float64
+	bg     *ebiten.Image
 }
 
 /*
-	Builder func should call world.Space.Add()
-	to create geometry. When done clientSide,
-	its really just to preview where to place
-	the resolv objects /w freeplay and it won't 
-	trigger collisions or anything but you can 
-	than copy paste the builder function to 
-	the server and setup a world to use it for
-	physics
+Builder func should call world.Space.Add()
+to create geometry. When done clientSide,
+its really just to preview where to place
+the resolv objects /w freeplay and it won't
+trigger collisions or anything but you can
+than copy paste the builder function to
+the server and setup a world to use it for
+physics
 */
-type BuilderFunc func(*World, float64, float64) 
+type BuilderFunc func(*World, float64, float64)
 
 /*
-	Creates a New World 
+Creates a New World
 */
 func NewWorld(key string) *World {
 	w := &World{
-		WorldTex: sync.RWMutex{}, 
+		WorldTex: sync.RWMutex{},
 	}
 	w.WorldData = GetWorldData(key)
 	return w
 }
 
-func GetWorldData(worldKey string) WorldData{
+func GetWorldData(worldKey string) WorldData {
 	return worldsMap[worldKey]
 }
 
 func NewWorldData(height float64, width float64, bg *ebiten.Image) *WorldData {
-	wd:= &WorldData{
+	wd := &WorldData{
 		Height: height,
-		Width: width,
-			bg: bg,
+		Width:  width,
+		bg:     bg,
 	}
 	return wd
 }
 
 /*
-	Really only used for dev testing...
-	uses the builder function to place
-	resolv geometry that will get picked up
-	by world.draw() for previewing where to place
-	the resolv objects serverside
+Really only used for dev testing...
+uses the builder function to place
+resolv geometry that will get picked up
+by world.draw() for previewing where to place
+the resolv objects serverside
 */
 func (world *World) Init(worldBuilder BuilderFunc) {
 	log.Println("World Init")
@@ -88,25 +87,24 @@ func (world *World) Init(worldBuilder BuilderFunc) {
 }
 
 /*
-	Invokes world's update based receiver functions
+Invokes world's update based receiver functions
 */
 func Update(world *World) {
 	world.PlayerController.inputListener()
-	world.PlayerController.camHandler()
+	world.PlayerController.setCameraPosition()
+	world.PlayerController.GetState()
 }
 
-
 /*
-	Invokes world's draw based receiver functions
+Invokes world's draw based receiver functions
 */
 func (w *World) Draw(screen *ebiten.Image) {
 	w.DrawBg()
 	w.DrawPlayers()
 }
 
-
 /*
-	Renders the current world BG(based on worldData struct)
+Renders the current world BG(based on worldData struct)
 */
 func (w *World) DrawBg() {
 	pc := w.PlayerController
@@ -118,12 +116,10 @@ func (w *World) DrawBg() {
 	bgOpts = pc.Cam.GetTranslation(bgOpts, -x/2, -y/2)
 	pc.Cam.Surface.DrawImage(w.bg, bgOpts)
 
-
-
 	if devPreview {
 
 		for _, o := range w.Space.Objects() {
-			if o.HasTags("platform"){
+			if o.HasTags("platform") {
 				drawColor := color.RGBA{180, 100, 0, 255}
 				ebitenutil.DrawRect(w.bg, o.X, o.Y, o.W, o.H, drawColor)
 			} else {
@@ -136,33 +132,11 @@ func (w *World) DrawBg() {
 }
 
 /*
-	Renders the players from server response
+Renders the players from server response
 */
 func (world *World) DrawPlayers() {
-	pc := world.PlayerController
-	ptex := &pc.PlayerTex
+
 	wTex := &world.WorldTex
-
-	go func() {
-		for {
-			ptex.Lock()
-			res, err := pc.Stream.Recv()
-			ptex.Unlock()
-			if err == io.EOF {
-				break
-			} 
-
-			if err != nil {
-				log.Fatalf("Setting World State Error %v\n", err);
-				break
-			}
-			// reg lock on insertion
-			wTex.Lock()
-			world.State = res.Players
-			wTex.Unlock()
-		}
-	}()
-
 	/*
 		write only lock when rendering state
 		from map, as it mutated in the go routine
@@ -179,24 +153,21 @@ func (world *World) DrawPlayers() {
 		p.FacingRight = ps.FacingRight
 		p.Jumping = ps.Jumping
 
-
-
 		if ps.Id == world.PlayerController.Pid {
 			CurrentPlayerHandler(world.PlayerController, ps, p)
 		} else {
 			DrawPlayer(world, p, false)
 		}
-		
+
 	}
 	wTex.RUnlock()
 }
 
-
 /*
-	Helper to change world data when 
-	client receives the information that 
-	the currentPlayer is a different world/level 
-	then the current Game.CurrentWorld(string/key)
+Helper to change world data when
+client receives the information that
+the currentPlayer is a different world/level
+then the current Game.CurrentWorld(string/key)
 */
 func UpdateWorldData(w *World, new *WorldData, key string) {
 	w.WorldData = worldsMap[key]
@@ -204,12 +175,12 @@ func UpdateWorldData(w *World, new *WorldData, key string) {
 }
 
 /*
-	Fill in your own geometry here, toggle dev 
-	mode to true, and use free play to figure out 
-	where to place resolv objects on the serverside
-	(At least until I actually learn a system for level design haha)
+Fill in your own geometry here, toggle dev
+mode to true, and use free play to figure out
+where to place resolv objects on the serverside
+(At least until I actually learn a system for level design haha)
 */
-func DevWorldBuilder (world *World, gw float64, gh float64) {
+func DevWorldBuilder(world *World, gw float64, gh float64) {
 	world.Space.Add(
 		resolv.NewObject(0, 660, 800, 10, "solid"),
 	)

@@ -24,8 +24,8 @@ Ehhh, just barely. This thing is in its infancy and still in the POC stages.
 
 ### DEMO CLIENTS
 
-- [MAC CLIENT DEMO DOWNLOAD](https://github.com/kainn9/go_grpc_multiplayer_game_example_attempt/files/10719870/macDemo.zip)
-- [WINDOWS CLIENT DEMO DOWNLOAD](https://github.com/kainn9/go_grpc_multiplayer_game_example_attempt/files/10719872/windowsDemo.zip)
+- [MAC CLIENT DEMO DOWNLOAD](https://github.com/kainn9/go_grpc_multiplayer_game_example_attempt/files/10732813/mac_demo.zip)
+- [WINDOWS CLIENT DEMO DOWNLOAD](https://github.com/kainn9/go_grpc_multiplayer_game_example_attempt/files/10732810/windows_demo.zip)
 
 ^ you should be able to unzip the files and double click on `application` to run the client. Hopefully my server is still up 🤞.
 

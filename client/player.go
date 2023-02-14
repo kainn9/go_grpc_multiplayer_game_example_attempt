@@ -163,12 +163,12 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		Logic for rendering current and other players
 		inside the game camera
 	*/
-	x := float64(p.X)
-	y := float64(p.Y)
+	x := p.X
+	y := p.Y
 
 	pc := world.PlayerController
-	pcX := float64(pc.X)
-	pcY := float64(pc.Y)
+	pcX := pc.X
+	pcY := pc.Y
 	playerOps := &ebiten.DrawImageOptions{}
 
 	if currentPlayer {
@@ -180,5 +180,4 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	sx, sy := (currentAnimation.FrameOX)+i*(currentAnimation.FrameWidth), (currentAnimation.FrameOY)
 	sub := s.SubImage(image.Rect(sx, sy, sx+(currentAnimation.FrameWidth), sy+(currentAnimation.FrameHeight))).(*ebiten.Image)
 	pc.Cam.Surface.DrawImage(sub, playerOps)
-
 }

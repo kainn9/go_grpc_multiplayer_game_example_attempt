@@ -44,8 +44,17 @@ func (g *Game) Layout(outsideScreenWidth, outsideScreenHeight int) (int, int) {
 	return ScreenWidth, ScreenHeight
 }
 
+func (g *Game) IncrementTicks()  {
+	if ticks > 60 {
+		ticks = 1
+	} else {
+			ticks++
+	}
+} 
+
 func (g *Game) Update() error {
-	ticks++
+
+	g.IncrementTicks()
 	Update(g.World)
 	return nil
 }
