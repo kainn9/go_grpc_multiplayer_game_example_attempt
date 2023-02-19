@@ -9,8 +9,6 @@ import (
 	"golang.org/x/image/font"
 )
 
-
-
 type Game struct {
 	Debug        bool
 	ShowHelpText bool
@@ -24,6 +22,10 @@ func (g *Game) Layout(outsideScreenWidth, outsideScreenHeight int) (int, int) {
 	return ScreenWidth, ScreenHeight
 }
 
+/*
+	Game counter, capping at 60
+	to match ebiten TPS
+*/
 func (g *Game) IncrementTicks() {
 	if ticks > 60 {
 		ticks = 1
@@ -33,11 +35,11 @@ func (g *Game) IncrementTicks() {
 }
 
 func (g *Game) Update() error {
-
 	g.IncrementTicks()
 	Update(g.World)
 	return nil
 }
+
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	pc := g.World.PlayerController
@@ -47,6 +49,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	g.World.Draw(screen)
 
+
+
+	/*
+		TODO: clean this up/make a seperate dev client
+		Dev-Tool/FreePlay stuff:
+	*/
 	if freePlay {
 		opts := &ebiten.DrawImageOptions{}
 		opts = pc.PlayerCam.GetTranslation(opts, pc.PlayerCam.X, pc.PlayerCam.Y)
@@ -62,9 +70,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Blit!
 	pc.PlayerCam.Blit(screen)
 
-	// render debug stats after blit
-	// to be on highest z-index
-	msg := fmt.Sprintf("Arrow Keys to move, space to jump\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\n", ebiten.ActualTPS())
+	/*
+		TODO: clean this up/make a seperate dev client
+		render debug stats after blit
+		to be on highest z-index
+	*/
+	msg := fmt.Sprintf(
+		"Arrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress z for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\n",
+		ebiten.ActualTPS(),
+	)
 
 	if freePlay {
 
@@ -117,8 +131,7 @@ func NewGame() *Game {
 
 func main() {
 
-	// TODO: MAKE THIS TOGGLE
-	ebiten.SetFullscreen(false)
+	ebiten.SetFullscreen(fullScreen)
 	/*
 		RunGame starts the main loop and runs the game. game's
 		Update function is called every tick to update the game logic.

@@ -15,7 +15,7 @@ var (
 )
 
 /*
-Helper for loading relative images
+	Helper for loading relative images
 */
 func LoadImg(path string) *ebiten.Image {
 

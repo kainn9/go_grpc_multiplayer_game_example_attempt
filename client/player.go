@@ -101,12 +101,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	y := p.Y
 
 	pc := world.PlayerController
-	/*
-		TODO:
-		Sim to Player#DrawPlayer
-		These calcs need to be cleaned up
-		to be more clear...
-	*/
+
 	playerOps := &ebiten.DrawImageOptions{}
 
 	if currentPlayer && p.FacingRight {
