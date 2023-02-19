@@ -29,6 +29,7 @@ Ehhh, just barely. This thing is in its infancy and still in the POC stages.
 
 - https://szadiart.itch.io/2d-soulslike-character
 - https://itch.io/s/88510/ssworlds-bundle
+- https://greenpiccolo.bandcamp.com/track/ride-with-me
 
 ### TODO's:
 

@@ -1,6 +1,7 @@
 package util
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -18,7 +19,6 @@ var (
 	Helper for loading relative images
 */
 func LoadImg(path string) *ebiten.Image {
-
 	if BuildTime == "true" {
 
 		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -36,4 +36,25 @@ func LoadImg(path string) *ebiten.Image {
 		log.Fatal(err)
 	}
 	return img
+}
+
+func LoadMusic(path string) ([]byte , error){
+	if BuildTime == "true" {
+
+		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+
+		if err != nil {
+			log.Fatalf("Asset Error: %v\n", err)
+		}
+
+		path = dir + path
+		path = strings.ReplaceAll(path, "./", "/")
+	}
+
+	songBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return songBytes, nil
 }

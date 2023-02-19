@@ -1,6 +1,10 @@
 package main
 
-import ut "github.com/kainn9/grpc_game/client/util"
+import (
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	ut "github.com/kainn9/grpc_game/client/util"
+	"google.golang.org/grpc"
+)
 
 /*
 	Putting global scope client vars and consts here to avoid confusion
@@ -12,15 +16,16 @@ const (
 )
 
 var (
-	ticks     int
-	worldsMap = make(map[string]WorldData)
-	game      = NewGame()
-	addr      = "localhost:50051"
+	streamInit = false
+	ticks      int
+	worldsMap  = make(map[string]WorldData)
+	game       = NewGame()
+	addr       = "localhost:50051"
 	fullScreen = false
-	// I use this for demo my client
-	// addr = "ec2-54-144-156-228.compute-1.amazonaws.com:50051"
+	// Use This for irl network testing
+	// addr        = "ec2-3-83-121-221.compute-1.amazonaws.com:50051"
+	enablePPROF = false
 )
-
 
 // dev mode stuff
 var (
@@ -29,7 +34,7 @@ var (
 	devPreview     = false
 	useHeightRuler = false
 	devCamSpeed    = float64(2)
-	freePlay = false
+	freePlay       = false
 )
 
 var (
@@ -37,3 +42,6 @@ var (
 	altWorldBg  = ut.LoadImg("./backgrounds/mapAlt.png")
 )
 
+var audPlayer *audio.Player
+var volume128 int
+var connRef *grpc.ClientConn

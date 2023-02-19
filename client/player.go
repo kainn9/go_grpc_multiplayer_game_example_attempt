@@ -111,11 +111,11 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (y/2)-p.HitBoxOffsetY)
 
 	} else if p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(pc.PlayerCam.X)-p.HitBoxOffsetX + pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY - pc.yOff)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(pc.PlayerCam.X)-p.HitBoxOffsetX+pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY-pc.yOff)
 
 	} else {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pc.PlayerCam.X)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth) + pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY - pc.yOff)
-	
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pc.PlayerCam.X)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth)+pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY-pc.yOff)
+
 	}
 
 	// Render the Anims
@@ -126,6 +126,6 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		sx, sy = (p.currentAnimation.FrameOX)-i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
 		sub = s.SubImage(image.Rect(sx, sy, sx-(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
 	}
-	
+
 	pc.PlayerCam.Surface.DrawImage(sub, playerOps)
 }

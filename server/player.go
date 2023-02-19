@@ -69,6 +69,14 @@ func AddPlayerToSpace(space *resolv.Space, p *Player, x float64, y float64) *Pla
 Helper to disconnect player
 */
 func DisconnectPlayer(pid string, w *World) {
+
+
+	// stop server crash if client dc's
+	// before fulling loading/creating a player
+	if w.Players[pid] == nil {
+		return
+	}
+	
 	w.Space.Remove(w.Players[pid].Object)
 	delete(w.Players, pid)
 	delete(activePlayers, pid)

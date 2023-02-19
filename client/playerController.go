@@ -18,8 +18,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-
-
 type PlayerController struct {
 	Stream    pb.PlayersService_PlayerLocationClient
 	PlayerTex sync.RWMutex
@@ -41,31 +39,31 @@ type PlayerCamData struct {
 }
 
 /*
-	Establishes stream w/ server and
-	creates PlayerController with/by
+		Establishes stream w/ server and
+		creates PlayerController with/by
 
-  - loading player sprites
-  - generating pid
-  - inits camera
-  - has a mutex
-  - inits stream/connection with pid
+	  - loading player sprites
+	  - generating pid
+	  - inits camera
+	  - has a mutex
+	  - inits stream/connection with pid
 */
 func NewPlayerController() *PlayerController {
 
 	pid := uuid.New()
-	
-	cam :=  PlayerCam{
+
+	cam := PlayerCam{
 		Camera: camera.NewCamera(ScreenWidth, ScreenHeight, 0, 0, 0, 1),
 		PlayerCamData: PlayerCamData{
 			yOff: 0,
 			xOff: 0,
 		},
 	}
-	
+
 	p := &PlayerController{
 		Pid:       pid,
 		PlayerTex: sync.RWMutex{},
-		PlayerCam:      cam,
+		PlayerCam: cam,
 	}
 
 	p.Stream = p.NewStream()
@@ -74,7 +72,7 @@ func NewPlayerController() *PlayerController {
 }
 
 /*
-	Initializes stream with PID
+Initializes stream with PID
 */
 func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 	/*
@@ -108,6 +106,8 @@ func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 		log.Fatalf("Did not connect: %v", err)
 	}
 
+	connRef = conn
+
 	c := pb.NewPlayersServiceClient(conn)
 
 	// TODO: Delete OR Keep?
@@ -125,9 +125,34 @@ func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 }
 
 /*
-	Listens for Player inputs during game update phase
+handles volume for now
+*/
+func updateVolumeIfNeeded() {
+	if ebiten.IsKeyPressed(ebiten.KeyZ) {
+		volume128--
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyX) {
+		volume128++
+	}
+	if volume128 < 0 {
+		volume128 = 0
+	}
+	if 128 < volume128 {
+		volume128 = 128
+	}
+
+	if audPlayer != nil {
+		audPlayer.SetVolume(float64(volume128) / 128)
+	}
+
+}
+
+/*
+Listens for Player inputs during game update phase
 */
 func (pc *PlayerController) InputListener() {
+
+	updateVolumeIfNeeded()
 
 	if inpututil.IsKeyJustPressed(ebiten.Key0) {
 		fullScreen = !fullScreen
@@ -248,7 +273,7 @@ func (pc *PlayerController) InputListener() {
 		isPressing = true
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyZ) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
 		pc.inputHandler("gravBoost")
 		isPressing = true
 	}
@@ -259,8 +284,8 @@ func (pc *PlayerController) InputListener() {
 }
 
 /*
-	Used by Input listener/playerController
-	to stream the inputs to server
+Used by Input listener/playerController
+to stream the inputs to server
 */
 func (p *PlayerController) inputHandler(input string) {
 	go func() {
@@ -269,15 +294,19 @@ func (p *PlayerController) inputHandler(input string) {
 	}()
 }
 
-
 /*
 	TODO: SetCameraPosition() needs to be cleaned up...
-	
+
 	Logic to keep PlayerController camera
 	following player w/o exposing level boundaries
 	offsets are also used by DrawPlayer()
-	to render non PC players w/o cam
+	to render non PC players w/o player
 	jitters(TODO: it's a long story prob worth documenting).
+
+	Note: there is still cam jitters issue...its just that
+	the players used to also jitter
+
+	// Perhaps some predictive camera/client side camera movement should be done
 */
 
 func (pc *PlayerController) SetCameraPosition() {
@@ -296,91 +325,90 @@ func (pc *PlayerController) SetCameraPosition() {
 	xBoundRight := (pc.X + ScreenWidth/2) > gw
 	xBoundTop := (pc.Y - ScreenHeight/2) < 0
 
-	
 	if xBoundLeft && xBoundBottom {
 
-		pc.yOff = (ScreenHeight/2) - (gh - pc.Y)
-		pc.xOff = (ScreenWidth/2)-pc.X
+		pc.yOff = (ScreenHeight / 2) - (gh - pc.Y)
+		pc.xOff = (ScreenWidth / 2) - pc.X
 
-		ny := y-pc.yOff
-		nx := (ScreenWidth/2)-x
+		ny := y - pc.yOff
+		nx := (ScreenWidth / 2) - x
 
 		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft && xBoundTop {
 
-		pc.yOff = pc.Y - (ScreenHeight/2)
-		pc.xOff = (ScreenWidth/2)-pc.X
+		pc.yOff = pc.Y - (ScreenHeight / 2)
+		pc.xOff = (ScreenWidth / 2) - pc.X
 
-		nx := (ScreenWidth/2)-x
-		ny := (ScreenHeight/2)-y
+		nx := (ScreenWidth / 2) - x
+		ny := (ScreenHeight / 2) - y
 
 		pc.PlayerCam.SetPosition(nx, ny)
-		
+
 	} else if xBoundRight && xBoundBottom {
 
-		pc.xOff = (gw - pc.X)-(ScreenWidth/2)
-		pc.yOff = (ScreenHeight/2) - (gh - pc.Y)
+		pc.xOff = (gw - pc.X) - (ScreenWidth / 2)
+		pc.yOff = (ScreenHeight / 2) - (gh - pc.Y)
 
-		nx := x-((ScreenWidth/2) - (gw - pc.X))
-		ny := y-pc.yOff
+		nx := x - ((ScreenWidth / 2) - (gw - pc.X))
+		ny := y - pc.yOff
 
 		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundRight && xBoundTop {
 
-		pc.yOff = pc.Y - (ScreenHeight/2)
-		pc.xOff =  (gw - pc.X)-(ScreenWidth/2)
+		pc.yOff = pc.Y - (ScreenHeight / 2)
+		pc.xOff = (gw - pc.X) - (ScreenWidth / 2)
 
-		nx := x-((ScreenWidth/2) - (gw - pc.X))
-		ny := (ScreenHeight/2)-y
+		nx := x - ((ScreenWidth / 2) - (gw - pc.X))
+		ny := (ScreenHeight / 2) - y
 
 		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft {
 		pc.yOff = 0
-		pc.xOff = (ScreenWidth/2)-pc.X
+		pc.xOff = (ScreenWidth / 2) - pc.X
 
-		nx := (ScreenWidth/2)-x
+		nx := (ScreenWidth / 2) - x
 
 		pc.PlayerCam.SetPosition(nx, y)
 
 	} else if xBoundRight {
 		pc.yOff = 0
-		pc.xOff =  (gw - pc.X)-(ScreenWidth/2)
+		pc.xOff = (gw - pc.X) - (ScreenWidth / 2)
 
-		nx := x-((ScreenWidth/2) - (gw - pc.X))
-		
+		nx := x - ((ScreenWidth / 2) - (gw - pc.X))
+
 		pc.PlayerCam.SetPosition(nx, y)
 
 	} else if xBoundBottom {
-		pc.yOff = (ScreenHeight/2) - (gh - pc.Y)
+		pc.yOff = (ScreenHeight / 2) - (gh - pc.Y)
 		pc.xOff = 0
 
-		ny := y-pc.yOff
+		ny := y - pc.yOff
 
 		pc.PlayerCam.SetPosition(x, ny)
 
 	} else if xBoundTop {
-		pc.yOff = pc.Y - (ScreenHeight/2)
+		pc.yOff = pc.Y - (ScreenHeight / 2)
 		pc.xOff = 0
 
-		ny := (ScreenHeight/2)-y
+		ny := (ScreenHeight / 2) - y
 
 		pc.PlayerCam.SetPosition(x, ny)
 
 	} else {
 		pc.yOff = 0
 		pc.xOff = 0
-		
+
 		pc.PlayerCam.SetPosition(x, y)
-		
+
 	}
 }
 
 /*
-	Helper function for handling current player
-	state from server stream
+Helper function for handling current player
+state from server stream
 */
 func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	cw := pc.World
@@ -397,12 +425,17 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	DrawPlayer(cw, p, true)
 }
 
-func (pc *PlayerController) GetState() {
+func (pc *PlayerController) SubscribeToState() {
 	world := pc.World
 	wTex := &world.WorldTex
 	ptex := &pc.PlayerTex
 
+	if streamInit {
+		return
+	}
+
 	go func() {
+		streamInit = true
 		for {
 			ptex.Lock()
 			res, err := pc.Stream.Recv()
@@ -424,5 +457,3 @@ func (pc *PlayerController) GetState() {
 		}
 	}()
 }
-
-

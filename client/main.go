@@ -1,11 +1,20 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	_ "image/png"
+	"io/ioutil"
+	"log"
+
+	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	ut "github.com/kainn9/grpc_game/client/util"
 	"golang.org/x/image/font"
 )
 
@@ -18,16 +27,39 @@ type Game struct {
 	CurrentWorld string
 }
 
+func (g *Game) InitMusic() {
+	// TODO: Create Audio System
+
+	go func() {
+		volume128 = 128
+		sampleRate := 32000
+		songBytes, err := ut.LoadMusic("./audio/base.mp3")
+		if err != nil {
+			log.Fatalf("Error Loading Song: %v\n", err)
+		}
+
+		s, err := mp3.DecodeWithSampleRate(sampleRate, bytes.NewReader(songBytes))
+		if err != nil {
+			log.Fatalf("Error decoding Song Bytes: %v\n", err)
+		}
+		b, _ := ioutil.ReadAll(s)
+		audCtx := audio.NewContext(sampleRate)
+		audPlayer = audCtx.NewPlayerFromBytes(b)
+		audPlayer.Play()
+	}()
+
+}
+
 func (g *Game) Layout(outsideScreenWidth, outsideScreenHeight int) (int, int) {
 	return ScreenWidth, ScreenHeight
 }
 
 /*
-	Game counter, capping at 60
-	to match ebiten TPS
+Game counter, capping at 60
+to match ebiten TPS
 */
 func (g *Game) IncrementTicks() {
-	if ticks > 60 {
+	if ticks >= 60 {
 		ticks = 1
 	} else {
 		ticks++
@@ -40,7 +72,6 @@ func (g *Game) Update() error {
 	return nil
 }
 
-
 func (g *Game) Draw(screen *ebiten.Image) {
 	pc := g.World.PlayerController
 
@@ -48,8 +79,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	pc.PlayerCam.Surface.Clear()
 
 	g.World.Draw(screen)
-
-
 
 	/*
 		TODO: clean this up/make a seperate dev client
@@ -76,7 +105,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		to be on highest z-index
 	*/
 	msg := fmt.Sprintf(
-		"Arrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress z for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\n",
+		"Arrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress T for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress Z/X to controll volume\nCurr volume: %v\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\n",
+		volume128,
 		ebiten.ActualTPS(),
 	)
 
@@ -105,7 +135,6 @@ Creates new game.
 */
 func NewGame() *Game {
 
-
 	worldsMap["main"] = *NewWorldData(848, 3200, mainWorldBg)
 	worldsMap["alt"] = *NewWorldData(4000, 6000, altWorldBg)
 
@@ -130,6 +159,15 @@ func NewGame() *Game {
 }
 
 func main() {
+	// PPROF HANDLER
+	// Add a handler for the pprof endpoint at
+	// http: //localhost:6060/debug/pprof/
+	// enablePPROF toggled in global
+	if enablePPROF {
+		go func() {
+			http.ListenAndServe("localhost:6060", nil)
+		}()
+	}
 
 	ebiten.SetFullscreen(fullScreen)
 	/*
@@ -140,5 +178,15 @@ func main() {
 		the logical screen size by the function.
 		game's functions are called on the same goroutine.
 	*/
+
+	// Need to make Async, as attributes to 90% of startup time rn....
+
+	// so disabling music for now LOL
+	game.InitMusic()
 	ebiten.RunGame(game)
+
+	// TODO:
+	// does this work?
+	// low key was never closing client connection on close...
+	defer connRef.Close()
 }
