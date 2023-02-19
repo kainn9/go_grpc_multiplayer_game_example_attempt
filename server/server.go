@@ -123,7 +123,7 @@ func requestHandler(r *pb.PlayerReq, pid string) {
 	}
 
 	if cp.Object == nil {
-		AddPlayerToSpace(w.Space, cp, 1250, 3700)
+		AddPlayerToSpace(w.Space, cp, 612, 500)
 	}
 
 	w.Update(cp, r.Input)

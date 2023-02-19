@@ -92,9 +92,9 @@ func (cp *Player) WorldTransferHandler(input string) {
 		w, k := CurrentPlayerWorld(cp.Pid)
 
 		if k == "alt" {
-			ChangePlayersWorld(w, worldsMap["main"], cp, 1250, 3700)
+			ChangePlayersWorld(w, worldsMap["main"], cp, 612, 500)
 		} else {
-			ChangePlayersWorld(w, worldsMap["alt"], cp, 612, 500)
+			ChangePlayersWorld(w, worldsMap["alt"], cp, 1250, 3700)
 		}
 		return
 	}

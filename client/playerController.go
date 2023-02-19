@@ -26,10 +26,20 @@ type PlayerController struct {
 	Stream    pb.PlayersService_PlayerLocationClient
 	PlayerTex sync.RWMutex
 	World     *World
-	Cam       *camera.Camera
 	Pid       string
 	X         float64
 	Y         float64
+	PlayerCam
+}
+
+type PlayerCam struct {
+	*camera.Camera
+	PlayerCamData
+}
+
+type PlayerCamData struct {
+	yOff float64
+	xOff float64
 }
 
 /*
@@ -45,11 +55,19 @@ creates PlayerController with/by
 func NewPlayerController() *PlayerController {
 
 	pid := uuid.New()
-
+	
+	cam :=  PlayerCam{
+		Camera: camera.NewCamera(ScreenWidth, ScreenHeight, 0, 0, 0, 1),
+		PlayerCamData: PlayerCamData{
+			yOff: 0,
+			xOff: 0,
+		},
+	}
+	
 	p := &PlayerController{
 		Pid:       pid,
 		PlayerTex: sync.RWMutex{},
-		Cam:       camera.NewCamera(ScreenWidth, ScreenHeight, 0, 0, 0, 1),
+		PlayerCam:      cam,
 	}
 
 	p.Stream = p.NewStream()
@@ -148,7 +166,7 @@ func (pc *PlayerController) InputListener() {
 	// Free Play Cam
 	// Also an example of a "Cam Hack"
 	if freePlay {
-		cam := pc.Cam
+		cam := pc.PlayerCam
 
 		if ebiten.IsKeyPressed(ebiten.KeyRight) {
 			moveX := float64(cam.X + devCamSpeed)
@@ -248,11 +266,13 @@ func (p *PlayerController) inputHandler(input string) {
 	}()
 }
 
+
 /*
 Logic to keep PlayerController camera
 following player w/o exposing level boundaries
 (needs to be cleaned up)
 */
+
 func (pc *PlayerController) SetCameraPosition() {
 	gw := pc.World.Width
 	gh := pc.World.Height
@@ -269,37 +289,85 @@ func (pc *PlayerController) SetCameraPosition() {
 	xBoundRight := (pc.X + ScreenWidth/2) > gw
 	xBoundTop := (pc.Y - ScreenHeight/2) < 0
 
+	
 	if xBoundLeft && xBoundBottom {
-		yOff := float64(gh) - float64(pc.Y)
-		pc.Cam.SetPosition((ScreenWidth/2)-x, y-((ScreenHeight/2)-yOff))
+
+		pc.yOff = (ScreenHeight/2) - (gh - pc.Y)
+		pc.xOff = (ScreenWidth/2)-pc.X
+
+		ny := y-pc.yOff
+		nx := (ScreenWidth/2)-x
+
+		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft && xBoundTop {
-		pc.Cam.SetPosition((ScreenWidth/2)-x, (ScreenHeight/2)-y)
 
+		pc.yOff = pc.Y - (ScreenHeight/2)
+		pc.xOff = (ScreenWidth/2)-pc.X
+
+		nx := (ScreenWidth/2)-x
+		ny := (ScreenHeight/2)-y
+
+		pc.PlayerCam.SetPosition(nx, ny)
+		
 	} else if xBoundRight && xBoundBottom {
-		yOff := float64(gh) - float64(pc.Y)
-		xOff := float64(gw - pc.X)
-		pc.Cam.SetPosition(x-((ScreenWidth/2)-xOff),  y-((ScreenHeight/2)-yOff))
+
+		pc.xOff = (gw - pc.X)-(ScreenWidth/2)
+		pc.yOff = (ScreenHeight/2) - (gh - pc.Y)
+
+		nx := x-((ScreenWidth/2) - (gw - pc.X))
+		ny := y-pc.yOff
+
+		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundRight && xBoundTop {
-		xOff := float64(gw - pc.X)
-		pc.Cam.SetPosition(x-((ScreenWidth/2)-xOff), (ScreenHeight/2)-y)
+
+		pc.yOff = pc.Y - (ScreenHeight/2)
+		pc.xOff =  (gw - pc.X)-(ScreenWidth/2)
+
+		nx := x-((ScreenWidth/2) - (gw - pc.X))
+		ny := (ScreenHeight/2)-y
+
+		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft {
-		pc.Cam.SetPosition((ScreenWidth/2)-x, y)
+		pc.yOff = 0
+		pc.xOff = (ScreenWidth/2)-pc.X
+
+		nx := (ScreenWidth/2)-x
+
+		pc.PlayerCam.SetPosition(nx, y)
 
 	} else if xBoundRight {
-		xOff := float64(gw - pc.X)
-		pc.Cam.SetPosition(x-((ScreenWidth/2)-xOff), y)
+		pc.yOff = 0
+		pc.xOff =  (gw - pc.X)-(ScreenWidth/2)
+
+		nx := x-((ScreenWidth/2) - (gw - pc.X))
+		
+		pc.PlayerCam.SetPosition(nx, y)
 
 	} else if xBoundBottom {
-		yOff := float64(gh) - float64(pc.Y)
-		pc.Cam.SetPosition(x, y-((ScreenHeight/2)-yOff))
+		pc.yOff = (ScreenHeight/2) - (gh - pc.Y)
+		pc.xOff = 0
+
+		ny := y-pc.yOff
+
+		pc.PlayerCam.SetPosition(x, ny)
 
 	} else if xBoundTop {
-		pc.Cam.SetPosition(x, (ScreenHeight/2)-y)
+		pc.yOff = pc.Y - (ScreenHeight/2)
+		pc.xOff = 0
+
+		ny := (ScreenHeight/2)-y
+
+		pc.PlayerCam.SetPosition(x, ny)
+
 	} else {
-		pc.Cam.SetPosition(x, y)
+		pc.yOff = 0
+		pc.xOff = 0
+		
+		pc.PlayerCam.SetPosition(x, y)
+		
 	}
 }
 

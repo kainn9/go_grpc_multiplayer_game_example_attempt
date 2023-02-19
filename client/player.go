@@ -101,23 +101,27 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	y := p.Y
 
 	pc := world.PlayerController
-	pcX := pc.X
-	pcY := pc.Y
+	/*
+		TODO:
+		Sim to Player#DrawPlayer
+		These calcs need to be cleaned up
+		to be more clear...
+	*/
 	playerOps := &ebiten.DrawImageOptions{}
 
 	if currentPlayer && p.FacingRight {
-		playerOps = pc.Cam.GetTranslation(playerOps, (x/2)-p.HitBoxOffsetX, (y/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (x/2)-p.HitBoxOffsetX, (y/2)-p.HitBoxOffsetY)
 
 	} else if currentPlayer && !p.FacingRight {
-		playerOps = pc.Cam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (y/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (y/2)-p.HitBoxOffsetY)
 
 	} else if p.FacingRight {
-		playerOps = pc.Cam.GetTranslation(playerOps, x-(pcX/2)-p.HitBoxOffsetX, y-(pcY/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(pc.PlayerCam.X)-p.HitBoxOffsetX + pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY - pc.yOff)
 
 	} else {
-		playerOps = pc.Cam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pcX/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pcY/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pc.PlayerCam.X)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth) + pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY - pc.yOff)
+	
 	}
-
 
 	// Render the Anims
 	sx, sy := (p.currentAnimation.FrameOX)+i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
@@ -127,5 +131,6 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		sx, sy = (p.currentAnimation.FrameOX)-i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
 		sub = s.SubImage(image.Rect(sx, sy, sx-(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
 	}
-	pc.Cam.Surface.DrawImage(sub, playerOps)
+	
+	pc.PlayerCam.Surface.DrawImage(sub, playerOps)
 }

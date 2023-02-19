@@ -3,23 +3,12 @@ package main
 import (
 	"log"
 	"net"
-	"sync"
 
 	pb "github.com/kainn9/grpc_game/proto"
-	"github.com/solarlune/resolv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
 
-var (
-	mutex         sync.RWMutex
-	addr          string = ":50051"
-	mainW                = NewWorld(4000, 6000, MainWorldBuilder, "main")
-	altW                 = NewWorld(848, 3200, AltWorldBuilder, "alt")
-	worldsMap            = make(map[string]*World)
-	activePlayers        = make(map[string]*Player)
-	AOTP                 = make(map[*resolv.Object]*Player) // map of Attack resolv objects to Player struct
-)
 
 func main() {
 
