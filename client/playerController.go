@@ -129,6 +129,11 @@ func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 */
 func (pc *PlayerController) InputListener() {
 
+	if inpututil.IsKeyJustPressed(ebiten.Key0) {
+		fullScreen = !fullScreen
+		ebiten.SetFullscreen(fullScreen)
+	}
+
 	if inpututil.IsKeyJustPressed(ebiten.Key4) {
 		pc.inputHandler("swap")
 	}
