@@ -4,7 +4,7 @@ import "github.com/solarlune/resolv"
 
 type BuilderFunc func(*World, float64, float64)
 
-func AltWorldBuilder(world *World, gw float64, gh float64) {
+func MainWorldBuilder(world *World, gw float64, gh float64) {
 
 	world.Space.Add(
 		// bounds
@@ -47,7 +47,7 @@ func AltWorldBuilder(world *World, gw float64, gh float64) {
 	)
 }
 
-func MainWorldBuilder(world *World, gw float64, gh float64) {
+func AltWorldBuilder(world *World, gw float64, gh float64) {
 	world.Space.Add(
 
 

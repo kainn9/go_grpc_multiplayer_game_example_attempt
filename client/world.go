@@ -7,15 +7,11 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	ut "github.com/kainn9/grpc_game/client/util"
 	pb "github.com/kainn9/grpc_game/proto"
 	"github.com/solarlune/resolv"
 )
 
-var (
-	mainWorldBg = ut.LoadImg("./backgrounds/mapMain.png")
-	altWorldBg  = ut.LoadImg("./backgrounds/mapAlt.png")
-)
+
 
 type World struct {
 	Game             *Game
@@ -120,8 +116,8 @@ func (w *World) DrawBg() {
 	y := float64(pc.Y)
 
 	bgOpts := &ebiten.DrawImageOptions{}
-	bgOpts = pc.Cam.GetTranslation(bgOpts, -x/2, -y/2)
-	pc.Cam.Surface.DrawImage(w.bg, bgOpts)
+	bgOpts = pc.PlayerCam.GetTranslation(bgOpts, -x/2, -y/2)
+	pc.PlayerCam.Surface.DrawImage(w.bg, bgOpts)
 
 	if devPreview {
 

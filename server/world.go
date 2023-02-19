@@ -20,13 +20,7 @@ type World struct {
 	Name                  string
 }
 
-const (
-	defaultFriction = 0.5
-	defaultAccel    = 0.5 + defaultFriction
-	defaultMaxSpeed = 4.0
-	defaultJumpSpd  = 10.0
-	defaultGravity  = 0.75
-)
+
 
 /*
 Creates a New World and Initializes it
