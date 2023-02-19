@@ -6,6 +6,10 @@ import (
 	sr "github.com/kainn9/grpc_game/server/roles"
 )
 
+/*
+	File for Knight class
+	contains sprites/animation data
+*/
 var (
 	Knight *Role = InitKnight()
 )

@@ -29,19 +29,19 @@ type WorldData struct {
 }
 
 /*
-Builder func should call world.Space.Add()
-to create geometry. When done clientSide,
-its really just to preview where to place
-the resolv objects /w freeplay and it won't
-trigger collisions or anything but you can
-than copy paste the builder function to
-the server and setup a world to use it for
-physics
+	Builder func should call world.Space.Add()
+	to create geometry. When done clientSide,
+	its really just to preview where to place
+	the resolv objects /w freeplay and it won't
+	trigger collisions or anything but you can
+	than copy paste the builder function to
+	the server and setup a world to use it for
+	physics
 */
 type BuilderFunc func(*World, float64, float64)
 
 /*
-Creates a New World
+	Creates a New World
 */
 func NewWorld(key string) *World {
 	w := &World{
@@ -51,10 +51,16 @@ func NewWorld(key string) *World {
 	return w
 }
 
+/*
+	Returns world data using worldsMap + world key
+*/
 func GetWorldData(worldKey string) WorldData {
 	return worldsMap[worldKey]
 }
 
+/*
+	Used to create "world data" that can be embedded in world struct
+*/
 func NewWorldData(height float64, width float64, bg *ebiten.Image) *WorldData {
 	wd := &WorldData{
 		Height: height,
@@ -65,11 +71,13 @@ func NewWorldData(height float64, width float64, bg *ebiten.Image) *WorldData {
 }
 
 /*
-Really only used for dev testing...
-uses the builder function to place
-resolv geometry that will get picked up
-by world.draw() for previewing where to place
-the resolv objects serverside
+	TODO: clean this up/make a seperate dev client
+
+	Really only used for dev testing...
+	uses the builder function to place
+	resolv geometry that will get picked up
+	by world.draw() for previewing where to place
+	the resolv objects serverside
 */
 func (world *World) Init(worldBuilder BuilderFunc) {
 
@@ -88,7 +96,7 @@ func (world *World) Init(worldBuilder BuilderFunc) {
 }
 
 /*
-Invokes world's update based receiver functions
+	Invokes world's update based receiver functions
 */
 func Update(world *World) {
 	cp := world.PlayerController
@@ -99,7 +107,7 @@ func Update(world *World) {
 }
 
 /*
-Invokes world's draw based receiver functions
+	Invokes world's draw based receiver functions
 */
 func (w *World) Draw(screen *ebiten.Image) {
 	w.DrawBg()
@@ -107,7 +115,7 @@ func (w *World) Draw(screen *ebiten.Image) {
 }
 
 /*
-Renders the current world BG(based on worldData struct)
+	Renders the current world BG(based on worldData struct)
 */
 func (w *World) DrawBg() {
 	pc := w.PlayerController
@@ -137,7 +145,7 @@ func (w *World) DrawBg() {
 }
 
 /*
-Renders the players from server response
+	Renders players from server response
 */
 func (world *World) DrawPlayers() {
 
@@ -174,10 +182,10 @@ func (world *World) DrawPlayers() {
 }
 
 /*
-Helper to change world data when
-client receives the information that
-the currentPlayer is a different world/level
-then the current Game.CurrentWorld(string/key)
+	Helper to change world data when
+	client receives the information that
+	the currentPlayer is a different world/level
+	then the current Game.CurrentWorld(string/key)
 */
 func UpdateWorldData(w *World, new *WorldData, key string) {
 	w.WorldData = worldsMap[key]
@@ -185,12 +193,16 @@ func UpdateWorldData(w *World, new *WorldData, key string) {
 }
 
 /*
-Fill in your own geometry here, toggle dev
-mode to true, and use free play to figure out
-where to place resolv objects on the serverside
-(At least until I actually learn a system for level design haha)
+	TODO: clean this up/make a seperate dev client
+
+	Fill in your own geometry here, toggle dev
+	mode to true, and use free play to figure out
+	where to place resolv objects on the serverside
+	(At least until I actually learn a system for level design haha)
 */
 func DevWorldBuilder(world *World, gw float64, gh float64) {
+	// This is currently the geometry for the alt world
+	// which is a WIP...
 	world.Space.Add(
 
 		// bottom bounds
@@ -314,3 +326,6 @@ func DevWorldBuilder(world *World, gw float64, gh float64) {
 	)
 
 }
+
+
+

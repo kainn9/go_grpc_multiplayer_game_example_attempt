@@ -6,6 +6,10 @@ import (
 	"github.com/solarlune/resolv"
 )
 
+/*
+	Putting global scope server vars and consts here to avoid confusion
+*/
+
 
 const (
 	defaultFriction = 0.5

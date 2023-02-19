@@ -2,6 +2,12 @@ package roles
 
 import "github.com/hajimehoshi/ebiten/v2"
 
+/*
+	Root file for roles(player classes i.e., mage, knight, etc)
+
+	TODO: Questionable if this should be its own
+	package(creates scope issues)
+*/
 type PlayerType string
 
 type Role struct {

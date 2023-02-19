@@ -18,9 +18,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-var (
-	freePlay = false
-)
+
 
 type PlayerController struct {
 	Stream    pb.PlayersService_PlayerLocationClient
@@ -43,8 +41,8 @@ type PlayerCamData struct {
 }
 
 /*
-Establishes stream w/ server and
-creates PlayerController with/by
+	Establishes stream w/ server and
+	creates PlayerController with/by
 
   - loading player sprites
   - generating pid
@@ -76,7 +74,7 @@ func NewPlayerController() *PlayerController {
 }
 
 /*
-Initializes stream with PID
+	Initializes stream with PID
 */
 func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 	/*
@@ -127,7 +125,7 @@ func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 }
 
 /*
-Listens for Player inputs during game update phase
+	Listens for Player inputs during game update phase
 */
 func (pc *PlayerController) InputListener() {
 
@@ -256,8 +254,8 @@ func (pc *PlayerController) InputListener() {
 }
 
 /*
-Used by Input listener/playerController
-to stream the inputs to server
+	Used by Input listener/playerController
+	to stream the inputs to server
 */
 func (p *PlayerController) inputHandler(input string) {
 	go func() {
@@ -268,9 +266,13 @@ func (p *PlayerController) inputHandler(input string) {
 
 
 /*
-Logic to keep PlayerController camera
-following player w/o exposing level boundaries
-(needs to be cleaned up)
+	TODO: SetCameraPosition() needs to be cleaned up...
+	
+	Logic to keep PlayerController camera
+	following player w/o exposing level boundaries
+	offsets are also used by DrawPlayer()
+	to render non PC players w/o cam
+	jitters(TODO: it's a long story prob worth documenting).
 */
 
 func (pc *PlayerController) SetCameraPosition() {
@@ -372,8 +374,8 @@ func (pc *PlayerController) SetCameraPosition() {
 }
 
 /*
-Helper function for handling current player
-state from server stream
+	Helper function for handling current player
+	state from server stream
 */
 func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	cw := pc.World

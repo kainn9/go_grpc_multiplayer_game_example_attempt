@@ -1,14 +1,4 @@
-### ReadeME(WIP)
-
-## CREDZ
-
-- https://github.com/hajimehoshi/ebiten <-- 2D GOLANG GAME ENGINE
-- https://github.com/SolarLune/resolv <- collison lib for GO(commonly used w/ ebiten). The backend platformer "physics" is basically a rip from the world platformer exmaple in the repo
-
-### ASSETS Creds
-
-- https://szadiart.itch.io/2d-soulslike-character
-- https://itch.io/s/88510/ssworlds-bundle
+### Read Me(WIP)
 
 ## Disclaimer(2/13/23)
 
@@ -22,21 +12,6 @@ Professionally, I work primarily with TypeScript/Ruby for web development, and I
 
 Ehhh, just barely. This thing is in its infancy and still in the POC stages.
 
-### DEMO CLIENTS
-
-- [MAC CLIENT DEMO DOWNLOAD](https://github.com/kainn9/go_grpc_multiplayer_game_example_attempt/files/10732813/mac_demo.zip)
-- [WINDOWS CLIENT DEMO DOWNLOAD](https://github.com/kainn9/go_grpc_multiplayer_game_example_attempt/files/10732810/windows_demo.zip)
-
-^ you should be able to unzip the files and double click on `application` to run the client. Hopefully my server is still up 🤞.
-
-### Quick "GamePlay" Example(TODO)
-https://user-images.githubusercontent.com/85503587/218402441-765416f9-a8a7-4ec8-a18f-684a840cd22d.mp4
-
-
-
-### Quick World Building Example(its really bad lol)(TODO)
-https://user-images.githubusercontent.com/85503587/218402479-4cc569e5-97a0-4ee4-a434-65801021cf6b.mp4
-
 ### General Concept:
 
 - Client has bidirectional stream with server
@@ -45,8 +20,18 @@ https://user-images.githubusercontent.com/85503587/218402479-4cc569e5-97a0-4ee4-
 - Server streams back state to Client
 - Client renders state from Server
 
-### TODO: local environment setup
+## Code Creds
 
-(if using unix based, the makefile should be enough to get started for now)
+- https://github.com/hajimehoshi/ebiten <-- 2D GOLANG GAME ENGINE
+- https://github.com/SolarLune/resolv <- collison lib for GO(commonly used w/ ebiten). The backend platformer "physics" is basically a rip from the world platformer exmaple in the repo
 
-### TODO: Tests, Diagrams/Planning Docs, Goals/Roadmap(basically everything LOL).
+### Asset Creds
+
+- https://szadiart.itch.io/2d-soulslike-character
+- https://itch.io/s/88510/ssworlds-bundle
+
+### TODO's:
+
+- local seteup steps (if using unix based, the makefile should be enough to get started for now).
+- Docs/Tests/Diagrams(Basically everything lol)
+- Add up to date demo downloads/videos
