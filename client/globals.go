@@ -1,6 +1,9 @@
 package main
 
+// TODO move these out of Global Scope and into "config" structs
 import (
+	"time"
+
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	ut "github.com/kainn9/grpc_game/client/util"
 	"google.golang.org/grpc"
@@ -35,6 +38,8 @@ var (
 	useHeightRuler = false
 	devCamSpeed    = float64(2)
 	freePlay       = false
+	ping           = 0.0
+	reqT           = time.Now()
 )
 
 var (

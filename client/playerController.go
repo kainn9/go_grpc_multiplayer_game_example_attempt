@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 	"log"
-	"sync"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -19,12 +19,11 @@ import (
 )
 
 type PlayerController struct {
-	Stream    pb.PlayersService_PlayerLocationClient
-	PlayerTex sync.RWMutex
-	World     *World
-	Pid       string
-	X         float64
-	Y         float64
+	Stream pb.PlayersService_PlayerLocationClient
+	World  *World
+	Pid    string
+	X      float64
+	Y      float64
 	PlayerCam
 }
 
@@ -62,7 +61,6 @@ func NewPlayerController() *PlayerController {
 
 	p := &PlayerController{
 		Pid:       pid,
-		PlayerTex: sync.RWMutex{},
 		PlayerCam: cam,
 	}
 
@@ -290,6 +288,7 @@ to stream the inputs to server
 func (p *PlayerController) inputHandler(input string) {
 	go func() {
 		req := pb.PlayerReq{Id: p.Pid, Input: input}
+		reqT = time.Now()
 		p.Stream.Send(&req)
 	}()
 }
@@ -428,8 +427,6 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 func (pc *PlayerController) SubscribeToState() {
 	world := pc.World
 	wTex := &world.WorldTex
-	ptex := &pc.PlayerTex
-
 	if streamInit {
 		return
 	}
@@ -437,9 +434,7 @@ func (pc *PlayerController) SubscribeToState() {
 	go func() {
 		streamInit = true
 		for {
-			ptex.Lock()
 			res, err := pc.Stream.Recv()
-			ptex.Unlock()
 
 			if err == io.EOF {
 				break
@@ -449,11 +444,12 @@ func (pc *PlayerController) SubscribeToState() {
 				log.Fatalf("Setting World State Error %v\n", err)
 				break
 			}
-
+			ping = float64(time.Since(reqT))
 			// reg lock on insertion
 			wTex.Lock()
 			world.State = res.Players
 			wTex.Unlock()
+
 		}
 	}()
 }

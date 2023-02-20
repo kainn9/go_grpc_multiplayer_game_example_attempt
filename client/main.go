@@ -105,7 +105,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		to be on highest z-index
 	*/
 	msg := fmt.Sprintf(
-		"Arrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress T for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress Z/X to controll volume\nCurr volume: %v\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\n",
+		"PING: %v\n Arrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress T for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress Z/X to controll volume\nCurr volume: %v\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\n",
+		ping,
 		volume128,
 		ebiten.ActualTPS(),
 	)

@@ -1,5 +1,6 @@
 package main
 
+// TODO move these out of Global Scope and into "config" structs
 import (
 	"sync"
 
@@ -9,7 +10,6 @@ import (
 /*
 	Putting global scope server vars and consts here to avoid confusion
 */
-
 
 const (
 	defaultFriction = 0.5
@@ -28,4 +28,3 @@ var (
 	activePlayers        = make(map[string]*Player)
 	AOTP                 = make(map[*resolv.Object]*Player) // map of Attack resolv objects to Player struct
 )
-
