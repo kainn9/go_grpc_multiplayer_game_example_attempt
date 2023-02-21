@@ -16,7 +16,7 @@ var (
 )
 
 /*
-	Helper for loading relative images
+Helper for loading relative images
 */
 func LoadImg(path string) *ebiten.Image {
 	if BuildTime == "true" {
@@ -38,7 +38,7 @@ func LoadImg(path string) *ebiten.Image {
 	return img
 }
 
-func LoadMusic(path string) ([]byte , error){
+func LoadMusic(path string) ([]byte, error) {
 	if BuildTime == "true" {
 
 		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -58,3 +58,11 @@ func LoadMusic(path string) ([]byte , error){
 
 	return songBytes, nil
 }
+
+// Smoother Cam
+func CamLerp(a float64, b float64) float64 {
+	t := 0.125
+
+	return a*(1-t) + b*t
+}
+

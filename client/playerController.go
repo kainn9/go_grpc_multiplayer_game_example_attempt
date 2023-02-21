@@ -9,6 +9,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	pb "github.com/kainn9/grpc_game/proto"
+	r "github.com/kainn9/grpc_game/server/roles"
+	ut "github.com/kainn9/grpc_game/util"
 	camera "github.com/melonfunction/ebiten-camera"
 	"github.com/pborman/uuid"
 	"github.com/solarlune/resolv"
@@ -33,8 +35,8 @@ type PlayerCam struct {
 }
 
 type PlayerCamData struct {
-	yOff float64
-	xOff float64
+	playerCXpos float64
+	playerCYpos float64
 }
 
 /*
@@ -54,8 +56,8 @@ func NewPlayerController() *PlayerController {
 	cam := PlayerCam{
 		Camera: camera.NewCamera(ScreenWidth, ScreenHeight, 0, 0, 0, 1),
 		PlayerCamData: PlayerCamData{
-			yOff: 0,
-			xOff: 0,
+			playerCXpos: 0,
+			playerCYpos: 0,
 		},
 	}
 
@@ -239,7 +241,8 @@ func (pc *PlayerController) InputListener() {
 			devCamSpeed -= 1
 		}
 
-		pc.inputHandler("freePlay")
+		// Use Free play to reproduce main issue
+		// pc.inputHandler("freePlay")
 		return
 	}
 
@@ -270,6 +273,12 @@ func (pc *PlayerController) InputListener() {
 		pc.inputHandler("primaryAttack")
 		isPressing = true
 	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyG) {
+		pc.inputHandler(string(r.TestAttackKey))
+		isPressing = true
+	}
+
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
 		pc.inputHandler("gravBoost")
@@ -308,6 +317,7 @@ func (p *PlayerController) inputHandler(input string) {
 	// Perhaps some predictive camera/client side camera movement should be done
 */
 
+
 func (pc *PlayerController) SetCameraPosition() {
 	gw := pc.World.Width
 	gh := pc.World.Height
@@ -316,91 +326,111 @@ func (pc *PlayerController) SetCameraPosition() {
 		return
 	}
 
+	// used to in player#draw
+	// to avoid player jitters in millisecond/micro-pixel
+	// diff in player pos vs where they are being rendered on cam
+	pc.playerCXpos = pc.X
+	pc.playerCYpos= pc.Y
+
 	x := (pc.X / 2)
 	y := (pc.Y / 2)
 
+	// edges of level where we want to 
+	// stop centering the player in the cam
+	// to avoid showing empty space
 	xBoundLeft := (pc.X - ScreenWidth/2) < 0
 	xBoundBottom := (pc.Y + (ScreenHeight / 2)) > gh
 	xBoundRight := (pc.X + ScreenWidth/2) > gw
 	xBoundTop := (pc.Y - ScreenHeight/2) < 0
 
+
 	if xBoundLeft && xBoundBottom {
 
-		pc.yOff = (ScreenHeight / 2) - (gh - pc.Y)
-		pc.xOff = (ScreenWidth / 2) - pc.X
+		yOff := (ScreenHeight / 2) - (gh - pc.Y)
 
-		ny := y - pc.yOff
+		ny := y - yOff
 		nx := (ScreenWidth / 2) - x
+
+		nx = ut.CamLerp(pc.PlayerCam.X, nx)
+		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
 
 		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft && xBoundTop {
 
-		pc.yOff = pc.Y - (ScreenHeight / 2)
-		pc.xOff = (ScreenWidth / 2) - pc.X
-
 		nx := (ScreenWidth / 2) - x
 		ny := (ScreenHeight / 2) - y
+
+		nx = ut.CamLerp(pc.PlayerCam.X, nx)
+		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
 
 		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundRight && xBoundBottom {
 
-		pc.xOff = (gw - pc.X) - (ScreenWidth / 2)
-		pc.yOff = (ScreenHeight / 2) - (gh - pc.Y)
+		yOff := (ScreenHeight / 2) - (gh - pc.Y)
 
 		nx := x - ((ScreenWidth / 2) - (gw - pc.X))
-		ny := y - pc.yOff
+		ny := y - yOff
+
+		nx = ut.CamLerp(pc.PlayerCam.X, nx)
+		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
 
 		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundRight && xBoundTop {
 
-		pc.yOff = pc.Y - (ScreenHeight / 2)
-		pc.xOff = (gw - pc.X) - (ScreenWidth / 2)
-
 		nx := x - ((ScreenWidth / 2) - (gw - pc.X))
 		ny := (ScreenHeight / 2) - y
+
+		nx = ut.CamLerp(pc.PlayerCam.X, nx)
+		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
 
 		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft {
-		pc.yOff = 0
-		pc.xOff = (ScreenWidth / 2) - pc.X
 
 		nx := (ScreenWidth / 2) - x
 
-		pc.PlayerCam.SetPosition(nx, y)
+		nx = ut.CamLerp(pc.PlayerCam.X, nx)
+		ny := ut.CamLerp(pc.PlayerCam.Y, y)
+
+		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundRight {
-		pc.yOff = 0
-		pc.xOff = (gw - pc.X) - (ScreenWidth / 2)
 
 		nx := x - ((ScreenWidth / 2) - (gw - pc.X))
 
-		pc.PlayerCam.SetPosition(nx, y)
+		nx = ut.CamLerp(pc.PlayerCam.X, nx)
+		ny := ut.CamLerp(pc.PlayerCam.Y, y)
+
+		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundBottom {
-		pc.yOff = (ScreenHeight / 2) - (gh - pc.Y)
-		pc.xOff = 0
 
-		ny := y - pc.yOff
+		yOff := (ScreenHeight / 2) - (gh - pc.Y)
 
-		pc.PlayerCam.SetPosition(x, ny)
+		ny := y - yOff
+
+		nx := ut.CamLerp(pc.PlayerCam.X, x)
+		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
+
+		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else if xBoundTop {
-		pc.yOff = pc.Y - (ScreenHeight / 2)
-		pc.xOff = 0
 
 		ny := (ScreenHeight / 2) - y
 
-		pc.PlayerCam.SetPosition(x, ny)
+		nx := ut.CamLerp(pc.PlayerCam.X, x)
+		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
+
+		pc.PlayerCam.SetPosition(nx, ny)
 
 	} else {
-		pc.yOff = 0
-		pc.xOff = 0
+		nx := ut.CamLerp(pc.PlayerCam.X, x)
+		ny := ut.CamLerp(pc.PlayerCam.Y, y)
 
-		pc.PlayerCam.SetPosition(x, y)
+		pc.PlayerCam.SetPosition(nx, ny)
 
 	}
 }
@@ -411,8 +441,10 @@ state from server stream
 */
 func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	cw := pc.World
+
 	cw.PlayerController.X = ps.Lx
 	cw.PlayerController.Y = ps.Ly
+
 
 	if game.CurrentWorld != ps.World {
 
@@ -433,6 +465,7 @@ func (pc *PlayerController) SubscribeToState() {
 
 	go func() {
 		streamInit = true
+
 		for {
 			res, err := pc.Stream.Recv()
 
@@ -445,7 +478,7 @@ func (pc *PlayerController) SubscribeToState() {
 				break
 			}
 			ping = float64(time.Since(reqT))
-			// reg lock on insertion
+			// reg lock on insertion?
 			wTex.Lock()
 			world.State = res.Players
 			wTex.Unlock()

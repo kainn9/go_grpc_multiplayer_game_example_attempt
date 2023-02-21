@@ -2,13 +2,13 @@ package roles
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	ut "github.com/kainn9/grpc_game/client/util"
 	sr "github.com/kainn9/grpc_game/server/roles"
+	ut "github.com/kainn9/grpc_game/util"
 )
 
 /*
-	File for Knight class
-	contains sprites/animation data
+File for Knight class
+contains sprites/animation data
 */
 var (
 	Knight *Role = InitKnight()

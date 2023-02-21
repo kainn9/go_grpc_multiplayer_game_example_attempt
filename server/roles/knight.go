@@ -17,6 +17,26 @@ func KnightAttacks() map[AtKey]*Attack {
 		Type:     PrimaryAttackKey,
 	}
 
+
+
+
+	testWindup := &Windup{
+		Name: TestAttackKey,
+		Duration: 1000,
+	}
+
+	testMovement := &Movement{
+		Distance: 480,
+		Increment: 32,
+	}
+
+	atks[TestAttackKey] = &Attack{
+		Cooldown: 5,
+		Type:     TestAttackKey,
+		Windup: testWindup,
+		Movement: testMovement,
+	}
+
 	return atks
 
 }
@@ -26,7 +46,7 @@ func InitKnight() *Role {
 	r := &Role{
 		RoleType: KnightType,
 		Attacks:  KnightAttacks(),
-		HitBoxW:  18,
+		HitBoxW:  16,
 		HitBoxH:  44,
 	}
 

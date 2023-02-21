@@ -71,15 +71,27 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		p.currentAnimation = p.Animations["jumpRight"]
 
 	}
+	
 
 	if p.CurrAttack != "" {
+
 		if p.FacingRight {
 			p.currentAnimation = p.Animations[p.CurrAttack+"Right"]
 		} else {
 			p.currentAnimation = p.Animations[p.CurrAttack+"Left"]
 		}
 
+
+		// TEMP: until I add DASH attack ANIMS
+		if p.currentAnimation == nil {
+			if p.FacingRight {
+				p.currentAnimation = p.Animations["jumpRight"]
+			} else {
+				p.currentAnimation = p.Animations["jumpLeft"]
+			}
+		}
 	}
+
 
 	if p.CC != "" {
 
@@ -105,17 +117,16 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	playerOps := &ebiten.DrawImageOptions{}
 
 	if currentPlayer && p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (x/2)-p.HitBoxOffsetX, (y/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (pc.playerCXpos/2)-p.HitBoxOffsetX, (pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else if currentPlayer && !p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (y/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+pc.playerCXpos/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else if p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(pc.PlayerCam.X)-p.HitBoxOffsetX+pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY-pc.yOff)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(pc.playerCXpos/2)-p.HitBoxOffsetX, y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pc.PlayerCam.X)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth)+pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY-pc.yOff)
-
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pc.playerCXpos/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
 	}
 
 	// Render the Anims

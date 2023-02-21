@@ -17,7 +17,33 @@ type Attack struct {
 	OffsetY  float64
 	Duration int
 	Type     AtKey
+	*Windup
+	*Movement
 }
+
+type Windup struct {
+	Name AtKey
+	Duration int
+}
+
+type Movement struct {
+	Distance int
+	Increment int
+}
+
+type Hitbox struct {
+	Height float64
+	Width  float64
+	PlayerOffX  float64
+	PlayerOffY  float64
+}
+
+
+type Consequence struct {
+	Damage int
+	Effects []string
+}
+
 
 const (
 	KnightType PlayerType = "knight"
@@ -28,4 +54,5 @@ type AtKey string
 
 const (
 	PrimaryAttackKey AtKey = "primaryAtk"
+	TestAttackKey AtKey = "test2Atk"
 )

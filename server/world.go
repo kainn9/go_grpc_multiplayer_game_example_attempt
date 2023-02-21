@@ -1,109 +1,132 @@
 package main
 
 import (
+	"sync"
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
 	"github.com/solarlune/resolv"
-	"github.com/tanema/gween"
 )
 
-type World struct {
-	Space                 *resolv.Space
-	FloatingPlatform      *resolv.Object
-	FloatingPlatformTween *gween.Sequence
-	State                 *pb.PlayerResp
-	Height                float64
-	Width                 float64
-	Stream                pb.PlayersService_PlayerLocationServer
-	Players               map[string]*Player
-	Name                  string
+type world struct {
+	space   *resolv.Space   // A Resolv space for collision detection
+	height  float64         // The height of the game's world
+	width   float64         // The width of the game's world
+	players map[string]*player  // A map of players currently in the world
+	name    string          // The name of the world
+	events  []*pb.PlayerReq // An queue of events to be processed(world scoped)
+	mutex   sync.RWMutex    // A mutex to lock down resources when necessary(world scoped)
 }
 
-
-
-/*
-Creates a New World and Initializes it
-*/
-func NewWorld(height float64, width float64, worldBuilder BuilderFunc, name string) *World {
-	w := &World{
-		Width:   width,
-		Height:  height,
-		Players: make(map[string]*Player),
-		Name:    name,
+// creates a new game world.
+func newWorld(height float64, width float64, worldBuilder builderFunc, name string) *world {
+	w := &world{
+		name:    name,
+		width:   width,
+		height:  height,
+		players: make(map[string]*player),
+		mutex:   sync.RWMutex{},
+		events:  make([]*pb.PlayerReq, 0),
 	}
 
+	// Initialize the world with the specified builder function.
 	w.Init(worldBuilder)
 	return w
 }
 
-/*
-Initializes world physics using Resolv Lib,
-*World's attrs, and a builder func
-*/
-func (world *World) Init(worldBuilder BuilderFunc) {
-	gw := world.Width
-	gh := world.Height
+// initializes the game world.
+func (world *world) Init(worldBuilder builderFunc) {
+	gw := world.width
+	gh := world.height
 
-	// Define the world's Space. Here, a Space is essentially a grid (the game's width and height, or 640x360), made up of 16x16 cells. Each cell can have 0 or more Objects within it,
-	// and collisions can be found by checking the Space to see if the Cells at specific positions contain (or would contain) Objects. This is a broad, simplified approach to collision
-	// detection.
-	world.Space = resolv.NewSpace(int(gw), int(gh), 8, 8)
+	// Define the world's Resolv Space. A Space is essentially a grid made up of 16x16 cells.
+	// Each cell can have 0 or more Objects within it, and collisions can be found by checking the Space to see if the Cells at specific positions contain (or would contain) Objects.
+	// This is a broad, simplified approach to collision detection.
 
-	// Construct the solid level geometry. Note that the simple approach of checking cells in a Space for collision works simply when the geometry is aligned with the cells
+	// Generally, you want cells to be the size of the smallest collide-able objects in your game, 
+	// and you want to move Objects at a maximum speed of one cell size per collision check to avoid 
+	// missing any possible collisions.
+
+	world.space = resolv.NewSpace(int(gw), int(gh), cell, cell)
+
+	// Construct the solid level geometry. Note that the simple approach of checking cells in a Space for collision works simply when the geometry is aligned with the cells.
 	worldBuilder(world, gw, gh)
 }
 
-/*
-Currently where all game logic happens
-physics is basically a rip of the resolv example
+// A function to update the game world, where all game logic happens.
+// The physics are basically a rip of the Resolv example: https://github.com/SolarLune/resolv/blob/master/examples/worldPlatformer.go.
+func (world *world) Update(cp *player, input string) {
+	// Lock the server config mutex.
+	serverConfig.mutex.Lock()
+	defer serverConfig.mutex.Unlock()
 
-https://github.com/SolarLune/resolv/blob/master/examples/worldPlatformer.go
-*/
-func (world *World) Update(cp *Player, input string) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	if !cp.Object.HasTags("player") {
-		cp.Object.AddTags("player")
+	// Add the "player" tag to the player object if it doesn't already have it.
+	if !cp.object.HasTags("player") {
+		cp.object.AddTags("player")
 	}
 
-	// grav boost/buff
 	// TODO: Move make an actual buff system/tracker
-	if input == "gravBoost" && !cp.GravBoost {
+	// Implement a gravity boost/buff if the "gravBoost" input is received and the player doesn't have the buff already.
+	if input == "gravBoost" && !cp.gravBoost {
 		cp.jumpSpd = 15
-		cp.GravBoost = true
-		time.AfterFunc(20 * time.Second, func() { cp.jumpSpd = defaultJumpSpd })
-		time.AfterFunc(120 * time.Second, func() { cp.GravBoost = false })
+		cp.gravBoost = true
+		time.AfterFunc(20*time.Second, func() { cp.jumpSpd = gamePhys.defaultJumpSpd })
+		time.AfterFunc(120*time.Second, func() { cp.gravBoost = false })
 	}
 
+	// Handle player world transfers.
+	// ATM, this is spammable w/e for dev purposes
+	cp.worldTransferHandler(input)
 
-	cp.WorldTransferHandler(input)
 
-	cp.Gravity()
-	cp.JumpHandler(input)
-	cp.AttackHandler(input, world)
-	cp.AttackedHandler()
 
-	cp.HorizontalMovementHandler(input, world.Width)
-	cp.VerticalMovmentHandler(input, world)
+
+
+
+	// Can't do reg movement when attacking
+	if !cp.canAcceptInputs() {
+		cp.speedX = 0
+	} else {
+		// Handle player inputs
+		cp.horizontalMovementListener(input)
+		cp.jumpHandler(input)
+		cp.attackHandler(input, world)
+	}
+
+	if cp.attackMovement {
+		cp.movementPhase(cp.currAttack)
+	}
+
+	// Handle player getting attacked.
+	cp.attackedHandler()
+
+	// Handle player Phys and collisions.
+	
+	cp.gravityHandler()
+	cp.horizontalMovementHandler(input, world.width)
+	cp.verticalMovmentHandler(input, world)
+
+
 
 	// IDK where to put this yet...
+	// its wall slide stuff
+	// is it vertical is it horizontal?
+	// I think its technically vertical lol
 	wallNext := 1.0
-	if !cp.FacingRight {
+	if !cp.facingRight {
 		wallNext = -1
 	}
-
-	// If the wall next to the Player runs out, stop wall sliding.
-	if c := cp.Object.Check(wallNext, 0, "solid"); cp.WallSliding != nil && c == nil {
-		cp.WallSliding = nil
+	// If the wall next to the Player runs out, stop wall sliding
+	if c := cp.object.Check(wallNext, 0, "solid"); cp.wallSliding != nil && c == nil {
+		cp.wallSliding = nil
 	}
 
-	cp.Object.Update() // Update the player's position in the space.
+	cp.object.Update() // Update the player's position in the space.
 
 }
-
-func (w *World) removeAtk(a *resolv.Object) {
-	w.Space.Remove(a)
-	delete(AOTP, a)
+// removes attack object from resolv space and AOTP map
+func (w *world) removeAtk(a *resolv.Object) {
+	w.space.Remove(a)
+	delete(serverConfig.AOTP, a)
 }
+

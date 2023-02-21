@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
 	"google.golang.org/grpc/codes"
@@ -11,8 +12,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type Server struct {
+type server struct {
 	pb.PlayersServiceServer
+}
+
+type stalledWrapper struct {
+    stalled bool
 }
 
 /*
@@ -26,14 +31,17 @@ type Server struct {
 	to track which world the player is using these PIDs
 */
 
-func LocateFromPID(pid string) (world *World, worldKey string, err error) {
+func locateFromPID(pid string) (world *world, worldKey string, err error) {
 
-	player := activePlayers[pid]
+	player := serverConfig.activePlayers[pid]
 
 	if player != nil {
-		w := worldsMap[player.WorldKey]
+		w := serverConfig.worldsMap[player.worldKey]
 
-		return w, player.WorldKey, nil
+		if w != nil {
+			return w, player.worldKey, nil
+		}
+
 	}
 
 	return nil, "", errors.New("no match found")
@@ -46,36 +54,43 @@ is currently attached to. Unlike
 LocateFromPID this defaults to returning
 the main/starting world
 */
-func CurrentPlayerWorld(pid string) (*World, string) {
+func currentPlayerWorld(pid string) (*world, string) {
 
 	// adding new player to default world
 	// or setting current world to where
 	// the active player is located
-	w, k, err := LocateFromPID(pid)
+	w, k, err := locateFromPID(pid)
 
 	if err != nil {
-		return worldsMap["main"], "main"
+		return serverConfig.worldsMap["main"], "main"
 	}
 	return w, k
 }
 
-func (s *Server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) error {
-	// Available Maps
-	worldsMap["main"] = mainW
-	worldsMap["alt"] = altW
+func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) error {
 
 	md, _ := metadata.FromIncomingContext(stream.Context())
 	pid := md["pid"][0]
+	var prevReq *pb.PlayerReq
 
 	log.Printf("Player Connection Recieved %v\n", pid)
 
 	for {
-		w, _ := CurrentPlayerWorld(pid)
+
+
+		w, _ := currentPlayerWorld(pid)
+
+		
+
+    stalledWrapperInstance := stalledWrapper{stalled: true}
+
+    stalledWrapperInstance.stalledHandler(pid, prevReq)
+
 		req, err := stream.Recv()
 
 		if err == io.EOF {
 			log.Printf("EOF")
-			DisconnectPlayer(pid, w)
+			removePlayerFromGame(pid, w)
 			return nil
 		}
 
@@ -85,47 +100,61 @@ func (s *Server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 				log.Println("connection has been closed")
 				log.Printf("Removing player: %v\n", pid)
-				DisconnectPlayer(pid, w)
+				removePlayerFromGame(pid, w)
 
 			default:
 
 				log.Printf("Error while reading client stream %v\n", err)
 				log.Printf("Removing player: %v\n", pid)
-				DisconnectPlayer(pid, w)
+				removePlayerFromGame(pid, w)
 			}
 
 			return nil
 		}
+		prevReq = req
 
-		requestHandler(req, pid)
+		stalledWrapperInstance.stalled = false
+
+
+		initPlayer(req)
+
+
+		w.mutex.RLock()
+		w.events = append(w.events, req)
+		w.mutex.RUnlock()
+
 		responseHandler(stream, pid)
 
 	}
+
 }
 
-/*
-Handle incoming stream from client
-*/
-func requestHandler(r *pb.PlayerReq, pid string) {
-	var cp *Player
-	w, k := CurrentPlayerWorld(pid)
+func initPlayer(r *pb.PlayerReq) (*player, *world) {
+	var cp *player
+	pid := r.Id
 
-	if activePlayers[pid] == nil {
+	w, k := currentPlayerWorld(pid)
 
-		cp = NewPlayer(pid, k)
+	if serverConfig.activePlayers[pid] == nil {
 
-		mutex.Lock()
-		activePlayers[pid] = cp
-		w.Players[pid] = cp
-		mutex.Unlock()
+		cp = newPlayer(pid, k)
+
+		serverConfig.mutex.Lock()
+		serverConfig.activePlayers[pid] = cp
+		w.players[pid] = cp
+		serverConfig.mutex.Unlock()
 	} else {
-		cp = activePlayers[pid]
+		cp = serverConfig.activePlayers[pid]
 	}
 
-	if cp.Object == nil {
-		AddPlayerToSpace(w.Space, cp, 612, 500)
+	if cp.object == nil {
+		addPlayerToSpace(w.space, cp, 612, 500)
 	}
 
+	return cp, w
+}
+
+func requestHandler(cp *player, w *world, r *pb.PlayerReq) {
 	w.Update(cp, r.Input)
 }
 
@@ -137,30 +166,30 @@ side of stream) resides inside of
 */
 func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) {
 
-	mutex.Lock()
-	defer mutex.Unlock()
+	serverConfig.mutex.Lock()
+	defer serverConfig.mutex.Unlock()
 
-	w, wk := CurrentPlayerWorld(pid)
+	w, wk := currentPlayerWorld(pid)
 
 	res := &pb.PlayerResp{}
 
-	for k := range w.Players {
-		curr := w.Players[k]
+	for k := range w.players {
+		curr := w.players[k]
 
-		jumping := curr.OnGround == nil && curr.WallSliding == nil
+		jumping := curr.onGround == nil && curr.wallSliding == nil
 
 		currAtk := ""
-		if curr.CurrAttack != nil && curr.CurrAttack.Type != "" {
-			currAtk = string(curr.CurrAttack.Type)
+		if curr.currAttack != nil && curr.currAttack.Type != "" {
+			currAtk = string(curr.currAttack.Type)
 		}
 
 		p := &pb.Player{
-			Id:          curr.Pid,
-			Lx:          curr.Object.X,
-			Ly:          curr.Object.Y,
-			FacingRight: curr.FacingRight,
-			SpeedX:      curr.SpeedX,
-			SpeedY:      curr.SpeedY,
+			Id:          curr.pid,
+			Lx:          curr.object.X,
+			Ly:          curr.object.Y,
+			FacingRight: curr.facingRight,
+			SpeedX:      curr.speedX,
+			SpeedY:      curr.speedY,
 			World:       wk,
 			Jumping:     jumping,
 			CurrAttack:  currAtk,
@@ -175,3 +204,45 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 		log.Fatalf("Error while sending data to client: %v\n", err)
 	}
 }
+
+func  (s *stalledWrapper) stalledHandler(pid string, prevReq *pb.PlayerReq) {
+	// Maybe?
+	// stalledEvent := &pb.PlayerReq{
+	// 	Id:    pid,
+	// 	Input: "stalled",
+	// }
+	
+	go func() {
+		time.AfterFunc(17*time.Millisecond, func() {
+	
+
+			if s.stalled {
+				ticker := time.NewTicker(time.Second / 60)
+				defer ticker.Stop()
+
+
+
+				for range ticker.C {
+					// Questionable if prevRequest should be used.
+					if prevReq != nil && s.stalled {
+						
+
+						w, _, err := locateFromPID(pid)
+						if err != nil {
+							break
+						}
+
+						w.mutex.RLock()
+						w.events = append(w.events, prevReq)
+						w.mutex.RUnlock()
+					}
+				}
+			}
+		})
+	}()
+}
+
+
+
+
+

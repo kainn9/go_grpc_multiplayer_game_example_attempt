@@ -14,7 +14,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	ut "github.com/kainn9/grpc_game/client/util"
+	ut "github.com/kainn9/grpc_game/util"
 	"golang.org/x/image/font"
 )
 
@@ -105,7 +105,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		to be on highest z-index
 	*/
 	msg := fmt.Sprintf(
-		"PING: %v\n Arrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress T for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress Z/X to controll volume\nCurr volume: %v\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\n",
+		"PING(Calc is a bit busted rn): %v\nArrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress G for Dash Attack(WIP, takes one sec to fire and I have no windup anim yet/Attack part)\nPress T for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress Z/X to controll volume\nCurr volume: %v\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\n",
 		ping,
 		volume128,
 		ebiten.ActualTPS(),
