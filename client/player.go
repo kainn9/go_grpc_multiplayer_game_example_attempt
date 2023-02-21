@@ -111,11 +111,10 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (y/2)-p.HitBoxOffsetY)
 
 	} else if p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(pc.PlayerCam.X)-p.HitBoxOffsetX+pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY-pc.yOff)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(pc.X/2)-p.HitBoxOffsetX, y-(pc.Y/2)-p.HitBoxOffsetY)
 
 	} else {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pc.PlayerCam.X)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth)+pc.xOff, y-(pc.PlayerCam.Y)-p.HitBoxOffsetY-pc.yOff)
-
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pc.X/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pc.Y/2)-p.HitBoxOffsetY)
 	}
 
 	// Render the Anims

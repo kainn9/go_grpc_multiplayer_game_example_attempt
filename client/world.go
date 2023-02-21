@@ -103,6 +103,7 @@ Invokes world's update based receiver functions
 */
 func Update(world *World) {
 	cp := world.PlayerController
+
 	cp.SubscribeToState()
 	cp.InputListener()
 	cp.SetCameraPosition()

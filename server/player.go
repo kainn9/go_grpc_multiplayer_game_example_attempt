@@ -5,6 +5,7 @@ import (
 	"time"
 
 	r "github.com/kainn9/grpc_game/server/roles"
+	ut "github.com/kainn9/grpc_game/util"
 	"github.com/solarlune/resolv"
 )
 
@@ -70,16 +71,17 @@ Helper to disconnect player
 */
 func DisconnectPlayer(pid string, w *World) {
 
-
 	// stop server crash if client dc's
 	// before fulling loading/creating a player
 	if w.Players[pid] == nil {
 		return
 	}
-	
+
 	w.Space.Remove(w.Players[pid].Object)
+	mutex.Lock()
 	delete(w.Players, pid)
 	delete(activePlayers, pid)
+	mutex.Unlock()
 
 }
 
@@ -155,11 +157,10 @@ func (cp *Player) JumpHandler(input string) {
 }
 
 func (cp *Player) AttackHandler(input string, world *World) {
-	
+
 	if input == "primaryAttack" && cp.CurrAttack == nil {
 		cp.PrimaryAttack(world)
 	}
-
 
 }
 
@@ -179,12 +180,12 @@ func (cp *Player) AttackedHandler() {
 				}
 
 				if attacker.Object.X > cp.Object.X {
-					cp.SpeedY = 0
-					cp.KnockedBack = -100
+					// cp.SpeedY = 0
+					cp.KnockedBack = -8
 
 				} else {
-					cp.SpeedY = 0
-					cp.KnockedBack = 100
+					// cp.SpeedY = 0
+					cp.KnockedBack = 8
 				}
 
 				time.AfterFunc(1*time.Second, func() { cp.KnockedBack = 0 })
@@ -194,22 +195,22 @@ func (cp *Player) AttackedHandler() {
 
 	}
 
-	if cp.KnockedBack != 0 {
-		cp.SpeedX += cp.KnockedBack
-	}
+	cp.SpeedX += cp.KnockedBack
+
 }
 
 func (cp *Player) HorizontalMovementHandler(input string, worldWidth float64) {
 
 	// Can't move while attacking(for now)
-	if cp.CurrAttack != nil{
+	if cp.CurrAttack != nil {
 		cp.SpeedX = 0
 		return
 
 	}
 
 	if cp.KnockedBack != 0 {
-		cp.maxSpeed = 30
+		cp.maxSpeed = 8
+
 	} else {
 		cp.maxSpeed = defaultMaxSpeed
 		HorizontalMovementListener(input, cp)
@@ -260,7 +261,7 @@ func (cp *Player) HorizontalMovementHandler(input string, worldWidth float64) {
 	}
 
 	// Then we just apply the horizontal movement to the Player's Object.
-	newXPos := cp.Object.X + dx
+	newXPos := ut.AltLerp(cp.Object.X, cp.Object.X+dx)
 
 	if newXPos > 30 && newXPos < worldWidth-30 {
 		cp.Object.X = newXPos
@@ -321,7 +322,7 @@ func (cp *Player) VerticalMovmentHandler(input string, world *World) {
 		// To accomplish this sliding, we simply call Collision.SlideAgainstCell() to see if we can slide.
 		// We pass the first cell, and tags that we want to avoid when sliding (i.e. we don't want to slide into cells that contain other solid objects).
 
-		slide := check.SlideAgainstCell(check.Cells[0], "solid", "player")
+		slide := check.SlideAgainstCell(check.Cells[0], "solid")
 
 		// We further ensure that we only slide if:
 		// 1) We're jumping up into something (dy < 0),
@@ -330,7 +331,7 @@ func (cp *Player) VerticalMovmentHandler(input string, world *World) {
 		// 4) If the proposed slide is less than 8 pixels in horizontal distance. (This is a relatively arbitrary number that just so happens to be half the
 		// width of a cell. This is to ensure the player doesn't slide too far horizontally.)
 
-		if dy < 0 && check.Cells[0].ContainsTags("solid", "player") && slide != nil && math.Abs(slide.X()) <= 8 {
+		if dy < 0 && check.Cells[0].ContainsTags("solid") && slide != nil && math.Abs(slide.X()) <= 8 {
 
 			// If we are able to slide here, we do so. No contact was made, and vertical speed (dy) is maintained upwards.
 			cp.Object.X += slide.X()
@@ -397,8 +398,8 @@ func (cp *Player) VerticalMovmentHandler(input string, world *World) {
 	// Move the object on dy.
 	newYPos := cp.Object.Y + dy
 
-	if newYPos < world.Height - 10 && newYPos > 10 {
-			cp.Object.Y += dy
+	if newYPos < world.Height-10 && newYPos > 10 {
+		cp.Object.Y += dy
 	}
 
 }
@@ -418,30 +419,29 @@ func (cp *Player) isCC() CCString {
 	return None
 }
 
+func (cp *Player) PrimaryAttack(world *World) {
 
-func(cp *Player) PrimaryAttack(world *World) {
+	cs := cp.Object.Space
+	atk := cp.Attacks[r.PrimaryAttackKey]
+	cp.CurrAttack = atk
 
-		cs := cp.Object.Space
-		atk := cp.Attacks[r.PrimaryAttackKey]
-		cp.CurrAttack = atk
+	atkObj := resolv.NewObject(cp.Object.X+atk.OffsetX, cp.Object.Y+atk.OffsetY, atk.Width, atk.Height, "attack")
 
-		atkObj := resolv.NewObject(cp.Object.X+atk.OffsetX, cp.Object.Y+atk.OffsetY, atk.Width, atk.Height, "attack")
+	if !cp.FacingRight {
+		// modify to calc player width as origin is top left corner I think
+		atkObj = resolv.NewObject(cp.Object.X-(atk.OffsetX-atk.Width/2), cp.Object.Y+atk.OffsetY, atk.Width, atk.Height, "attack")
+	}
 
-		if !cp.FacingRight {
-			// modify to calc player width as origin is top left corner I think
-			atkObj = resolv.NewObject(cp.Object.X-(atk.OffsetX-atk.Width/2), cp.Object.Y+atk.OffsetY, atk.Width, atk.Height, "attack")
-		}
+	AOTP[atkObj] = cp
 
-		AOTP[atkObj] = cp
+	cp.CurrAttack = atk
 
-		cp.CurrAttack = atk
+	cs.Add(
+		atkObj,
+	)
 
-		cs.Add(
-			atkObj,
-		)
-
-		time.AfterFunc(time.Duration(atk.Duration)*time.Millisecond, func() {
-			world.removeAtk(atkObj)
-			cp.CurrAttack = nil
-		})
+	time.AfterFunc(time.Duration(atk.Duration)*time.Millisecond, func() {
+		world.removeAtk(atkObj)
+		cp.CurrAttack = nil
+	})
 }

@@ -20,8 +20,6 @@ type World struct {
 	Name                  string
 }
 
-
-
 /*
 Creates a New World and Initializes it
 */
@@ -61,8 +59,6 @@ physics is basically a rip of the resolv example
 https://github.com/SolarLune/resolv/blob/master/examples/worldPlatformer.go
 */
 func (world *World) Update(cp *Player, input string) {
-	mutex.Lock()
-	defer mutex.Unlock()
 
 	if !cp.Object.HasTags("player") {
 		cp.Object.AddTags("player")
@@ -73,10 +69,9 @@ func (world *World) Update(cp *Player, input string) {
 	if input == "gravBoost" && !cp.GravBoost {
 		cp.jumpSpd = 15
 		cp.GravBoost = true
-		time.AfterFunc(20 * time.Second, func() { cp.jumpSpd = defaultJumpSpd })
-		time.AfterFunc(120 * time.Second, func() { cp.GravBoost = false })
+		time.AfterFunc(20*time.Second, func() { cp.jumpSpd = defaultJumpSpd })
+		time.AfterFunc(120*time.Second, func() { cp.GravBoost = false })
 	}
-
 
 	cp.WorldTransferHandler(input)
 

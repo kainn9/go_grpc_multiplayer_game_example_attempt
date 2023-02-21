@@ -34,7 +34,10 @@ func LocateFromPID(pid string) (world *World, worldKey string, err error) {
 	if player != nil {
 		w := worldsMap[player.WorldKey]
 
-		return w, player.WorldKey, nil
+		if w != nil {
+			return w, player.WorldKey, nil
+		}
+
 	}
 
 	return nil, "", errors.New("no match found")
@@ -79,15 +82,30 @@ func (s *Server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 		// currently just reseting using DisconnectPlayer
 		// but should apply phyiscs/update player instead....
 		go func() {
-			time.AfterFunc(100*time.Millisecond, func() {
+			time.AfterFunc(17*time.Millisecond, func() {
+
 				if stalled {
 					ticker := time.NewTicker(time.Second / 60)
 					defer ticker.Stop()
 
+					stalledEvent := &pb.PlayerReq{
+						Id:    pid,
+						Input: "stalled",
+					}
+
 					for range ticker.C {
-						// Questtionable if prevRequest should be used.
+						// Questionable if prevRequest should be used.
 						if prevReq != nil && stalled {
-							requestHandler(prevReq)
+							// requestHandler(prevReq)
+
+							_, _, err := LocateFromPID(pid)
+							if err != nil {
+								break
+							}
+
+							kotex.RLock()
+							events = append(events, stalledEvent)
+							kotex.RUnlock()
 						}
 					}
 				}
@@ -122,16 +140,22 @@ func (s *Server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 		prevReq = req
 		stalled = false
 
-		requestHandler(req)
+		currentPlayerThinger(req)
 
-		log.Printf("REQ: %v\n", req)
+		// requestHandler(cp, w, prevReq)
+
+		// requestHandler(req)
+		kotex.RLock()
+		events = append(events, req)
+		kotex.RUnlock()
+
 		responseHandler(stream, pid)
 
 	}
 
 }
 
-func requestHandler(r *pb.PlayerReq) {
+func currentPlayerThinger(r *pb.PlayerReq) (*Player, *World) {
 	var cp *Player
 	pid := r.Id
 
@@ -153,6 +177,10 @@ func requestHandler(r *pb.PlayerReq) {
 		AddPlayerToSpace(w.Space, cp, 612, 500)
 	}
 
+	return cp, w
+}
+
+func requestHandler(cp *Player, w *World, r *pb.PlayerReq) {
 	w.Update(cp, r.Input)
 }
 

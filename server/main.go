@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net"
+	"sync"
+	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
 	"google.golang.org/grpc"
@@ -43,6 +45,8 @@ func main() {
 		opts = append(opts, grpc.Creds(creds))
 	}
 
+	centralTickLoop()
+
 	s := grpc.NewServer(opts...)
 
 	pb.RegisterPlayersServiceServer(s, &Server{})
@@ -51,6 +55,61 @@ func main() {
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v\n", err)
+	}
+
+}
+
+// TODO: Scope these to World/Arena
+var (
+	events = make([]*pb.PlayerReq, 0)
+	kotex  sync.RWMutex
+)
+
+func centralTickLoop() {
+	go func() {
+		ticker := time.NewTicker(time.Second / 60)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			// should this be concurrent?
+			processEventsPerTick()
+
+		}
+	}()
+}
+
+func processEventsPerTick() {
+	if len(events) > 25 {
+		log.Printf("LEN! 25 %v\n", len(events) > 25)
+		log.Printf("LEN! 50 %v\n", len(events) > 50)
+		log.Printf("LEN! 100 %v\n", len(events) > 100)
+	}
+
+	// iterate over the events while removing the current element
+	for i := 0; i < 100; i++ {
+
+		if len(events) == 0 || i > len(events)-1 {
+			break
+		}
+
+		// process event here
+		ev := events[i]
+
+		w, _, err := LocateFromPID(ev.Id)
+		if err == nil {
+
+			cp := w.Players[ev.Id]
+
+			if cp != nil {
+				requestHandler(cp, w, ev)
+			}
+
+		}
+
+		kotex.RLock()
+		events = append(events[:i], events[i+1:]...)
+		defer kotex.RUnlock()
+		i--
 	}
 
 }

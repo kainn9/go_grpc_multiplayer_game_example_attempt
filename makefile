@@ -11,7 +11,7 @@ buildS:
 
 # Build client
 buildC:
-	go build -ldflags "-X github.com/kainn9/grpc_game/client/util.BuildTime=true" -o bin/application ./client && cp -R ./client/sprites ./bin && cp -R ./client/backgrounds ./bin && cp -R ./client/audio ./bin && chmod +x ./bin/application
+	go build -ldflags "-X github.com/kainn9/grpc_game/util.BuildTime=true" -o bin/application ./client && cp -R ./client/sprites ./bin && cp -R ./client/backgrounds ./bin && cp -R ./client/audio ./bin && chmod +x ./bin/application
 
 # run client
 runC:

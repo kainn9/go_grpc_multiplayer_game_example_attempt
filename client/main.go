@@ -14,7 +14,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	ut "github.com/kainn9/grpc_game/client/util"
+	ut "github.com/kainn9/grpc_game/util"
 	"golang.org/x/image/font"
 )
 

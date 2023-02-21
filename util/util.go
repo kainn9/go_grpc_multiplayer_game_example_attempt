@@ -16,7 +16,7 @@ var (
 )
 
 /*
-	Helper for loading relative images
+Helper for loading relative images
 */
 func LoadImg(path string) *ebiten.Image {
 	if BuildTime == "true" {
@@ -38,7 +38,7 @@ func LoadImg(path string) *ebiten.Image {
 	return img
 }
 
-func LoadMusic(path string) ([]byte , error){
+func LoadMusic(path string) ([]byte, error) {
 	if BuildTime == "true" {
 
 		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -57,4 +57,23 @@ func LoadMusic(path string) ([]byte , error){
 	}
 
 	return songBytes, nil
+}
+
+// LOL?
+func DefaultLerp(a float64, b float64) float64 {
+	t := 0.3
+
+	return a*(1-t) + b*t
+}
+
+func AltLerp(a float64, b float64) float64 {
+	t := 0.9
+
+	return a*(1-t) + b*t
+}
+
+func Merp(a float64, b float64) float64 {
+	t := 0.5
+
+	return a*(1-t) + b*t
 }

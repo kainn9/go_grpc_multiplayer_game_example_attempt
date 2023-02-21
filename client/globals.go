@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
-	ut "github.com/kainn9/grpc_game/client/util"
+	ut "github.com/kainn9/grpc_game/util"
 	"google.golang.org/grpc"
 )
 
