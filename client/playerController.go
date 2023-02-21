@@ -239,7 +239,8 @@ func (pc *PlayerController) InputListener() {
 			devCamSpeed -= 1
 		}
 
-		pc.inputHandler("freePlay")
+		// Use Free play to reproduce main issue
+		// pc.inputHandler("freePlay")
 		return
 	}
 

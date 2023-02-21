@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-
 func main() {
 
 	lis, err := net.Listen("tcp", addr)
@@ -47,6 +46,8 @@ func main() {
 
 	s := grpc.NewServer(opts...)
 
+	EventsHandler()
+
 	pb.RegisterPlayersServiceServer(s, &Server{})
 
 	defer s.Stop()
@@ -55,4 +56,50 @@ func main() {
 		log.Fatalf("Failed to serve: %v\n", err)
 	}
 
+}
+
+func EventsHandler() {
+	go func() {
+		for {
+
+			if len(events) == 0 {
+				continue
+			}
+
+			event := events[0]
+			if event == nil {
+				continue
+			}
+
+			events = events[1:]
+
+			log.Printf("YO %v\n", event)
+			EventHandler(event)
+		}
+	}()
+}
+
+func EventHandler(r *pb.PlayerReq) {
+	var cp *Player
+	pid := r.Id
+
+	w, k := CurrentPlayerWorld(pid)
+
+	if activePlayers[pid] == nil {
+
+		cp = NewPlayer(pid, k)
+
+		mutex.Lock()
+		activePlayers[pid] = cp
+		w.Players[pid] = cp
+		mutex.Unlock()
+	} else {
+		cp = activePlayers[pid]
+	}
+
+	if cp.Object == nil {
+		AddPlayerToSpace(w.Space, cp, 612, 500)
+	}
+
+	w.Update(cp, r.Input)
 }

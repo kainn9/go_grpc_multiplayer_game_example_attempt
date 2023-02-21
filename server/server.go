@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
 	"google.golang.org/grpc/codes"
@@ -70,7 +71,21 @@ func (s *Server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 	log.Printf("Player Connection Recieved %v\n", pid)
 
 	for {
+		stalled := true
 		w, _ := CurrentPlayerWorld(pid)
+		// REMINDER!
+		// here, right b4 blocking stream.Recv() call
+		// use goroutine to create "timeout"
+		// currently just reseting using DisconnectPlayer
+		// but should apply phyiscs/update player instead....
+		go func() {
+			time.AfterFunc(1*time.Second, func() {
+				if stalled {
+					DisconnectPlayer(pid, w)
+				}
+			})
+		}()
+
 		req, err := stream.Recv()
 
 		if err == io.EOF {
@@ -96,37 +111,20 @@ func (s *Server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 			return nil
 		}
+		stalled = false
 
-		requestHandler(req, pid)
+		// REMINDER!
+		// This might be useless and seems to create more jitters
+		// probably undo this and focus on the STALLED bool approach
+		mutex.Lock()
+		events = append(events, req)
+		mutex.Unlock()
+
+		log.Printf("REQ: %v\n", req)
 		responseHandler(stream, pid)
 
 	}
-}
 
-/*
-Handle incoming stream from client
-*/
-func requestHandler(r *pb.PlayerReq, pid string) {
-	var cp *Player
-	w, k := CurrentPlayerWorld(pid)
-
-	if activePlayers[pid] == nil {
-
-		cp = NewPlayer(pid, k)
-
-		mutex.Lock()
-		activePlayers[pid] = cp
-		w.Players[pid] = cp
-		mutex.Unlock()
-	} else {
-		cp = activePlayers[pid]
-	}
-
-	if cp.Object == nil {
-		AddPlayerToSpace(w.Space, cp, 612, 500)
-	}
-
-	w.Update(cp, r.Input)
 }
 
 /*
