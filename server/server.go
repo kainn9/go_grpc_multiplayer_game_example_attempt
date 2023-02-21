@@ -67,7 +67,7 @@ func (s *Server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 	md, _ := metadata.FromIncomingContext(stream.Context())
 	pid := md["pid"][0]
-
+	var prevReq *pb.PlayerReq
 	log.Printf("Player Connection Recieved %v\n", pid)
 
 	for {
@@ -79,9 +79,17 @@ func (s *Server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 		// currently just reseting using DisconnectPlayer
 		// but should apply phyiscs/update player instead....
 		go func() {
-			time.AfterFunc(1*time.Second, func() {
+			time.AfterFunc(100*time.Millisecond, func() {
 				if stalled {
-					DisconnectPlayer(pid, w)
+					ticker := time.NewTicker(time.Second / 60)
+					defer ticker.Stop()
+
+					for range ticker.C {
+						// Questtionable if prevRequest should be used.
+						if prevReq != nil && stalled {
+							requestHandler(prevReq)
+						}
+					}
 				}
 			})
 		}()
@@ -111,20 +119,41 @@ func (s *Server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 			return nil
 		}
+		prevReq = req
 		stalled = false
 
-		// REMINDER!
-		// This might be useless and seems to create more jitters
-		// probably undo this and focus on the STALLED bool approach
-		mutex.Lock()
-		events = append(events, req)
-		mutex.Unlock()
+		requestHandler(req)
 
 		log.Printf("REQ: %v\n", req)
 		responseHandler(stream, pid)
 
 	}
 
+}
+
+func requestHandler(r *pb.PlayerReq) {
+	var cp *Player
+	pid := r.Id
+
+	w, k := CurrentPlayerWorld(pid)
+
+	if activePlayers[pid] == nil {
+
+		cp = NewPlayer(pid, k)
+
+		mutex.Lock()
+		activePlayers[pid] = cp
+		w.Players[pid] = cp
+		mutex.Unlock()
+	} else {
+		cp = activePlayers[pid]
+	}
+
+	if cp.Object == nil {
+		AddPlayerToSpace(w.Space, cp, 612, 500)
+	}
+
+	w.Update(cp, r.Input)
 }
 
 /*

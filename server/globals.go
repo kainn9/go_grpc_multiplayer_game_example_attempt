@@ -4,7 +4,6 @@ package main
 import (
 	"sync"
 
-	pb "github.com/kainn9/grpc_game/proto"
 	"github.com/solarlune/resolv"
 )
 
@@ -28,5 +27,4 @@ var (
 	worldsMap            = make(map[string]*World)
 	activePlayers        = make(map[string]*Player)
 	AOTP                 = make(map[*resolv.Object]*Player) // map of Attack resolv objects to Player struct
-	events               = make([]*pb.PlayerReq, 0)
 )
