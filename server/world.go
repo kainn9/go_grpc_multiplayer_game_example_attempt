@@ -59,6 +59,8 @@ physics is basically a rip of the resolv example
 https://github.com/SolarLune/resolv/blob/master/examples/worldPlatformer.go
 */
 func (world *World) Update(cp *Player, input string) {
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	if !cp.Object.HasTags("player") {
 		cp.Object.AddTags("player")

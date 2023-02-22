@@ -61,7 +61,7 @@ func LoadMusic(path string) ([]byte, error) {
 
 // LOL?
 func DefaultLerp(a float64, b float64) float64 {
-	t := 0.3
+	t := 0.125
 
 	return a*(1-t) + b*t
 }

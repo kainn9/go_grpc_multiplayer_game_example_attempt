@@ -311,6 +311,12 @@ func (p *PlayerController) inputHandler(input string) {
 	// Perhaps some predictive camera/client side camera movement should be done
 */
 
+// lmao need to make this legit as it works for what I need for now...
+var (
+	gintokiX = 0.0
+	gintokiY = 0.0
+)
+
 func (pc *PlayerController) SetCameraPosition() {
 	gw := pc.World.Width
 	gh := pc.World.Height
@@ -318,6 +324,8 @@ func (pc *PlayerController) SetCameraPosition() {
 	if freePlay {
 		return
 	}
+	gintokiX = pc.X
+	gintokiY = pc.Y
 
 	x := (pc.X / 2)
 	y := (pc.Y / 2)

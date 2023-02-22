@@ -105,16 +105,16 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	playerOps := &ebiten.DrawImageOptions{}
 
 	if currentPlayer && p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (x/2)-p.HitBoxOffsetX, (y/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (gintokiX/2)-p.HitBoxOffsetX, (gintokiY/2)-p.HitBoxOffsetY)
 
 	} else if currentPlayer && !p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (y/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+gintokiX/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (gintokiY/2)-p.HitBoxOffsetY)
 
 	} else if p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(pc.X/2)-p.HitBoxOffsetX, y-(pc.Y/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(gintokiX/2)-p.HitBoxOffsetX, y-(gintokiY/2)-p.HitBoxOffsetY)
 
 	} else {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pc.X/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pc.Y/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(gintokiX/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(gintokiY/2)-p.HitBoxOffsetY)
 	}
 
 	// Render the Anims

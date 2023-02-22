@@ -5,7 +5,6 @@ import (
 	"time"
 
 	r "github.com/kainn9/grpc_game/server/roles"
-	ut "github.com/kainn9/grpc_game/util"
 	"github.com/solarlune/resolv"
 )
 
@@ -180,12 +179,12 @@ func (cp *Player) AttackedHandler() {
 				}
 
 				if attacker.Object.X > cp.Object.X {
-					// cp.SpeedY = 0
-					cp.KnockedBack = -8
+					cp.SpeedY = 0
+					cp.KnockedBack = -100
 
 				} else {
-					// cp.SpeedY = 0
-					cp.KnockedBack = 8
+					cp.SpeedY = 0
+					cp.KnockedBack = 100
 				}
 
 				time.AfterFunc(1*time.Second, func() { cp.KnockedBack = 0 })
@@ -195,8 +194,9 @@ func (cp *Player) AttackedHandler() {
 
 	}
 
-	cp.SpeedX += cp.KnockedBack
-
+	if cp.KnockedBack != 0 {
+		cp.SpeedX += cp.KnockedBack
+	}
 }
 
 func (cp *Player) HorizontalMovementHandler(input string, worldWidth float64) {
@@ -209,8 +209,7 @@ func (cp *Player) HorizontalMovementHandler(input string, worldWidth float64) {
 	}
 
 	if cp.KnockedBack != 0 {
-		cp.maxSpeed = 8
-
+		cp.maxSpeed = 30
 	} else {
 		cp.maxSpeed = defaultMaxSpeed
 		HorizontalMovementListener(input, cp)
@@ -261,7 +260,7 @@ func (cp *Player) HorizontalMovementHandler(input string, worldWidth float64) {
 	}
 
 	// Then we just apply the horizontal movement to the Player's Object.
-	newXPos := ut.AltLerp(cp.Object.X, cp.Object.X+dx)
+	newXPos := cp.Object.X + dx
 
 	if newXPos > 30 && newXPos < worldWidth-30 {
 		cp.Object.X = newXPos
@@ -322,7 +321,7 @@ func (cp *Player) VerticalMovmentHandler(input string, world *World) {
 		// To accomplish this sliding, we simply call Collision.SlideAgainstCell() to see if we can slide.
 		// We pass the first cell, and tags that we want to avoid when sliding (i.e. we don't want to slide into cells that contain other solid objects).
 
-		slide := check.SlideAgainstCell(check.Cells[0], "solid")
+		slide := check.SlideAgainstCell(check.Cells[0], "solid", "player")
 
 		// We further ensure that we only slide if:
 		// 1) We're jumping up into something (dy < 0),
@@ -331,7 +330,7 @@ func (cp *Player) VerticalMovmentHandler(input string, world *World) {
 		// 4) If the proposed slide is less than 8 pixels in horizontal distance. (This is a relatively arbitrary number that just so happens to be half the
 		// width of a cell. This is to ensure the player doesn't slide too far horizontally.)
 
-		if dy < 0 && check.Cells[0].ContainsTags("solid") && slide != nil && math.Abs(slide.X()) <= 8 {
+		if dy < 0 && check.Cells[0].ContainsTags("solid", "player") && slide != nil && math.Abs(slide.X()) <= 8 {
 
 			// If we are able to slide here, we do so. No contact was made, and vertical speed (dy) is maintained upwards.
 			cp.Object.X += slide.X()
