@@ -59,15 +59,39 @@ Game counter, capping at 60
 to match ebiten TPS
 */
 func (g *Game) IncrementTicks() {
-	if ticks >= 60 {
-		ticks = 1
-	} else {
-		ticks++
+	
+	ticks++
+	
+	if ticks > 60 {
+		ticks = 0
+	}
+
+
+	for k, a := range fixedAnims {
+		
+		p := game.World.playerMap[a.pid]
+		if p == nil {
+
+			continue
+		}
+
+		ca := p.currentAnimation
+		if ca == nil {
+			continue
+		}
+
+		if p.currentAnimation.Name != a.animName {
+
+			delete(fixedAnims, k)
+		} else {
+			a.ticks++
+		}
 	}
 }
 
 func (g *Game) Update() error {
 	g.IncrementTicks()
+	
 	Update(g.World)
 	return nil
 }
@@ -105,10 +129,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		to be on highest z-index
 	*/
 	msg := fmt.Sprintf(
-		"PING(Calc is a bit busted rn): %v\nArrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress G for Dash Attack(WIP, takes one sec to fire and I have no windup anim yet/Attack part)\nPress T for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress Z/X to controll volume\nCurr volume: %v\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\n",
+		"PING(Calc is a bit busted rn): %v\nArrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress G for Dash Attack(WIP, takes one sec to fire and I have no windup anim yet/Attack part)\nPress T for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress Z/X to controll volume\nCurr volume: %v\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\nhealth: %v\n",
 		ping,
 		volume128,
 		ebiten.ActualTPS(),
+		pc.health(),
 	)
 
 	if freePlay {

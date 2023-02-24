@@ -4,6 +4,7 @@ import (
 	"math"
 	"time"
 
+	pb "github.com/kainn9/grpc_game/proto"
 	r "github.com/kainn9/grpc_game/server/roles"
 	"github.com/solarlune/resolv"
 )
@@ -21,16 +22,15 @@ type player struct {
 	worldKey       string         // The key of the world the player is currently in
 	r.Role                       // The player's role
 	currAttack     *r.Attack      // The player's current attack
-	knockedBack    float64        // The force of the knockback on the player
 	playerPh                     // The player's physics parameters
 	gravBoost      bool           // Whether the player is receiving a gravity boost
 	windup r.AtKey
-
-
-	// TODO: Consolidate into embded struct
-	attackMovement bool
+	chargeStart time.Time
+	chargeValue float64
+	attackMovement string
 	atkMovmentStartX int
-
+	prevEvent *pb.PlayerReq
+	health int
 }
 
 // playerPh represents the physics parameters of a player
@@ -40,6 +40,50 @@ type playerPh struct {
 	maxSpeed float64 // The player's maximum speed
 	jumpSpd  float64 // The player's jump speed
 	gravity  float64 // The player's gravity
+	kbx float64 // The force of the knockback on the player
+	kby float64 // The force of the knockback on the player
+}
+
+type ccString string
+
+const (
+	None      ccString = ""
+	KnockBack ccString = "Kb"
+)
+
+
+
+func (cp *player) isCC() ccString {
+	if cp.isKnockedBack() {
+		return KnockBack
+	}
+	
+	return None
+}
+
+
+func (cp *player) isKnockedBack() bool {
+	return cp.isKnockedBackX() || cp.isKnockedBackY()
+}
+
+func (cp *player) isKnockedBackX() bool {
+	return cp.kbx != 0
+}
+
+func (cp *player) isKnockedBackY() bool {
+	return cp.kby != 0
+}
+
+func (cp *player) isAttacking() bool {
+	return cp.currAttack != nil
+}
+
+func (cp *player) isWindingUp() bool {
+	return cp.windup != ""
+}
+
+func (cp *player) attackMovementActive() bool {
+	return cp.attackMovement != ""
 }
 
 // newPlayer creates a new player with the given unique identifier and world key
@@ -58,6 +102,7 @@ func newPlayer(pid string, worldKey string) *player {
 		Role:     *r.Knight,
 		playerPh: *ph,
 		atkMovmentStartX: -100,
+		health: 100,
 	}
 
 	return p
@@ -118,7 +163,7 @@ func (cp *player) worldTransferHandler(input string) {
 func (cp *player) canAcceptInputs() bool {
 	// returns true if player
 	// is not in knockback, windup or attack state
-	return cp.knockedBack == 0 && cp.windup == "" && cp.currAttack == nil
+	return !cp.isKnockedBack() && !cp.isWindingUp() && !cp.isAttacking()
 }
 
 // gravityHandler applies gravity to the player, adjusting their speedY accordingly.
@@ -161,12 +206,10 @@ func (cp *player) jumpHandler(input string) {
 // horizontalMovementHandler handles the horizontal movement of the player based on user input and collision detection.
 func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 
-
-
-	if cp.knockedBack != 0 {
-		cp.maxSpeed = math.Abs(cp.knockedBack)
-	} else if !cp.attackMovement {
-		cp.maxSpeed = gamePhys.defaultMaxSpeed // set maxSpeed to default when not knocked back
+	if cp.isKnockedBack() {
+		cp.maxSpeed = math.Abs(math.Max(cp.kbx, cp.kby))
+	} else if !cp.attackMovementActive() {
+		cp.maxSpeed = gamePhys.defaultMaxSpeed
 	}
 
 	// Apply friction and horizontal speed limiting.
@@ -201,25 +244,14 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 		if cp.onGround == nil {
 			cp.wallSliding = check.Objects[0] // set wallSliding to the object we collide with if player is in the air
 		}
+
+		cp.endMovment()
 	}
 
 	// playerOnPlayer X collision
-	if check := cp.object.Check(cp.speedX/4, 0, "player"); check != nil {
+	if check := cp.object.Check(cp.speedX, 0, "player"); check != nil {
 		dx = check.ContactWithCell(check.Cells[0]).X() // set delta movement to the distance to the player we collide with
-
-
-		if cp.attackMovement {
-			cp.attackMovement = false
-			cp.atkMovmentStartX = -100
-
-			// TODO: FIRE DASH ATTACK HERE?
-			// Debating on whether a dash attack should fire on player collision
-			// or if it should be cancelled punished for bad spacing
-		
-			cp.currAttack = nil // clearing attack but might move this till after dash atk fires
-			// depening on above
-		}
-
+		cp.endMovment()
 	}
 
 	// Then we just apply the horizontal movement to the Player's object.
@@ -267,7 +299,7 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 	// We want to be sure to lock vertical movement to a maximum of the size of the Cells within the Space
 	// so we don't miss any collisions by tunneling through.
 
-	dy = math.Max(math.Min(dy, float64(cell)), float64(-cell))
+	dy = math.Max(math.Min(dy, float64(cellY)), float64(-cellY))
 
 	// We're going to check for collision using dy (which is vertical movement speed), but add one when moving downwards to look a bit deeper down
 	// into the ground for solid objects to land on, specifically.
@@ -364,69 +396,4 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 	}
 
 }
-
-
-// attackedHandler handles when a player is attacked
-// Currently very specific to the only attack in game
-// will need to be refactored
-func (cp *player) attackedHandler() {
-
-	// Check if the player is colliding with an attack object
-	if check := cp.object.Check(cp.speedX, cp.speedY, "attack"); check != nil {
-
-		// Loop through all attack objects(being collided with) and check if they belong to another player.
-		atkObjs := check.Objects
-		for _, o := range atkObjs {
-			if o != nil {
-
-				// Get the attacker of the attack object
-				attacker := serverConfig.AOTP[o]
-
-				// If the attacker is the same as the player being attacked or if the attacker is nil, skip this collision
-				if attacker == cp || attacker == nil {
-					continue
-				}
-				
-				// Calculate knockback based on the position of the attacker relative to the player being attacked
-				if attacker.object.X > cp.object.X {
-					cp.speedY = 0
-					cp.knockedBack = -32
-				} else {
-					cp.speedY = 0
-					cp.knockedBack = 32
-				}
-
-				// Reset the knockback after a set time
-				time.AfterFunc(1*time.Second, func() { cp.knockedBack = 0 })
-			}
-
-		}
-
-	}
-
-	// If the player is currently being knocked back, add the knockback to the player's speedX
-	if cp.knockedBack != 0 {
-		cp.speedX += cp.knockedBack
-	}
-}
-
-
-// TODO: Move this somewhere better
-type ccString string
-
-const (
-	None      ccString = ""
-	KnockBack ccString = "Kb"
-)
-
-func (cp *player) isCC() ccString {
-	if cp.knockedBack != 0 {
-		return KnockBack
-	}
-	return None
-}
-
-
-
-
 

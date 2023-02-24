@@ -9,11 +9,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	pb "github.com/kainn9/grpc_game/proto"
-	r "github.com/kainn9/grpc_game/server/roles"
 	ut "github.com/kainn9/grpc_game/util"
 	camera "github.com/melonfunction/ebiten-camera"
 	"github.com/pborman/uuid"
-	"github.com/solarlune/resolv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -152,6 +150,16 @@ Listens for Player inputs during game update phase
 */
 func (pc *PlayerController) InputListener() {
 
+
+	// attack Hbox Tester
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+		if hitBoxTest.on {
+			return
+		}
+		hitBoxSim(pc.World.bg, pc)
+	}
+	
+
 	updateVolumeIfNeeded()
 
 	if inpututil.IsKeyJustPressed(ebiten.Key0) {
@@ -167,29 +175,6 @@ func (pc *PlayerController) InputListener() {
 		freePlay = !freePlay
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
-
-		// Notice the difference between left/Right ATK
-		// X values is the width/2 of the hitbox itself
-		// 43 - 38 = 5
-		atkRHbox := resolv.NewObject(pc.X+43, pc.Y+15, 10, 5, "hitBox")
-		atkLHbox := resolv.NewObject(pc.X-38, pc.Y+15, 10, 5, "hitBox")
-
-		playerHitBox := resolv.NewObject(pc.X, pc.Y, 18, 44, "hitBox")
-
-		hitBoxes := make([]*resolv.Object, 0)
-
-		hitBoxes = append(hitBoxes, playerHitBox)
-		hitBoxes = append(hitBoxes, atkRHbox)
-		hitBoxes = append(hitBoxes, atkLHbox)
-
-		pc.World.Init(DevWorldBuilder)
-
-		for _, b := range hitBoxes {
-			pc.World.Space.Add(b)
-		}
-
-	}
 
 	// Free Play Cam
 	// Also an example of a "Cam Hack"
@@ -241,8 +226,6 @@ func (pc *PlayerController) InputListener() {
 			devCamSpeed -= 1
 		}
 
-		// Use Free play to reproduce main issue
-		// pc.inputHandler("freePlay")
 		return
 	}
 
@@ -270,14 +253,20 @@ func (pc *PlayerController) InputListener() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
-		pc.inputHandler("primaryAttack")
+		pc.inputHandler("primaryAtk")
 		isPressing = true
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyG) {
-		pc.inputHandler(string(r.TestAttackKey))
+		pc.inputHandler("secondaryAtk")
 		isPressing = true
 	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyC) {
+		pc.inputHandler("tertAtk")
+		isPressing = true
+	}
+
 
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
@@ -478,6 +467,7 @@ func (pc *PlayerController) SubscribeToState() {
 				break
 			}
 			ping = float64(time.Since(reqT))
+			
 			// reg lock on insertion?
 			wTex.Lock()
 			world.State = res.Players
@@ -485,4 +475,14 @@ func (pc *PlayerController) SubscribeToState() {
 
 		}
 	}()
+}
+
+func (pc *PlayerController) health() int {
+	p := pc.World.playerMap[pc.Pid]
+	if p != nil {
+		return p.health
+	}
+	
+	// TODO: idk what to do here yet
+	return 0
 }

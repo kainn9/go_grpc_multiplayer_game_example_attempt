@@ -2,22 +2,28 @@ package main
 
 import (
 	"image"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	r "github.com/kainn9/grpc_game/client/roles"
 )
 
 type Player struct {
+	id string
+	WorldName string
 	SpeedX      float64
 	SpeedY      float64
 	X           float64
 	Y           float64
 	FacingRight bool
 	Jumping     bool
-	CC          string
+	cc         string
 	CurrAttack  string
+	windup  string
+	attackMovement string
 	r.Role
 	currentAnimation *r.Animation
+	health int
 }
 
 /*
@@ -32,8 +38,7 @@ func NewPlayer() *Player {
 }
 
 /*
-Renders a Player using their Anim's
-and game tick count
+	TODO: DOC AND CLEAN UP
 */
 func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
@@ -74,36 +79,70 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	
 
 	if p.CurrAttack != "" {
-
 		if p.FacingRight {
 			p.currentAnimation = p.Animations[p.CurrAttack+"Right"]
 		} else {
 			p.currentAnimation = p.Animations[p.CurrAttack+"Left"]
 		}
+	}
 
-
-		// TEMP: until I add DASH attack ANIMS
-		if p.currentAnimation == nil {
-			if p.FacingRight {
-				p.currentAnimation = p.Animations["jumpRight"]
-			} else {
-				p.currentAnimation = p.Animations["jumpLeft"]
-			}
+	if p.windup != "" {
+		if p.FacingRight {
+			p.currentAnimation = p.Animations[p.windup + "WindupRight"]
+		} else {
+			p.currentAnimation = p.Animations[p.windup + "WindupLeft"]
 		}
 	}
 
 
-	if p.CC != "" {
+	if p.attackMovement != "" {
+		if p.FacingRight {
+			p.currentAnimation = p.Animations[p.attackMovement + "MovementRight"]
+		} else {
+			p.currentAnimation = p.Animations[p.attackMovement + "MovementLeft"]
+		}
+	}
+
+
+	if p.cc != "" {
 
 		if p.FacingRight {
-			p.currentAnimation = p.Animations[p.CC+"Right"]
+			p.currentAnimation = p.Animations[p.cc+"Right"]
 		} else {
-			p.currentAnimation = p.Animations[p.CC+"Left"]
+			p.currentAnimation = p.Animations[p.cc+"Left"]
 		}
 
 	}
-	i := (ticks / 5) % p.currentAnimation.FrameCount
+
+	if currentPlayer && hitBoxTest.on {
+		if p.FacingRight {
+				p.currentAnimation = p.Animations[hitBoxTest.name + "Right"]
+		} else {
+			p.currentAnimation = p.Animations[hitBoxTest.name + "Left"]
+		}
+	}
+
+
+
+	i := (ticks/5) % p.currentAnimation.FrameCount
 	s := p.currentAnimation.SpriteSheet
+	
+	if p.currentAnimation.Fixed {
+		fixedAnimKey := p.id + p.currentAnimation.Name
+		fixedAnimationCheck := fixedAnims[fixedAnimKey]
+			
+		if fixedAnimationCheck == nil {
+			fixedAnims[fixedAnimKey] = &fixedAnimTracker{
+				pid: p.id,
+				animName: p.currentAnimation.Name,
+				ticks: 0,
+			}
+		} else {
+			fixedTicks := fixedAnims[fixedAnimKey].ticks
+			i = (fixedTicks/5) % p.currentAnimation.FrameCount
+		}
+	}
+
 
 	/*
 		Logic for rendering current and other players
@@ -117,16 +156,16 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	playerOps := &ebiten.DrawImageOptions{}
 
 	if currentPlayer && p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (pc.playerCXpos/2)-p.HitBoxOffsetX, (pc.playerCYpos/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+((pc.playerCXpos/2)-p.HitBoxOffsetX), (pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else if currentPlayer && !p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+pc.playerCXpos/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (pc.playerCYpos/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+pc.playerCXpos/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else if p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, x-(pc.playerCXpos/2)-p.HitBoxOffsetX, y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+(x-(pc.playerCXpos/2)-p.HitBoxOffsetX), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, (-p.HitBoxOffsetX)+x-(pc.playerCXpos/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
+		playerOps = pc.PlayerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+x-(pc.playerCXpos/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
 	}
 
 	// Render the Anims
@@ -138,5 +177,34 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		sub = s.SubImage(image.Rect(sx, sy, sx-(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
 	}
 
+
+	
+	if hitBoxTest.on && hitBoxTest.frame >= 0{
+		sub = getAnimationFrame(p, hitBoxTest.frame, s)
+	}
+
 	pc.PlayerCam.Surface.DrawImage(sub, playerOps)
+}
+
+
+func getAnimationFrame(p *Player, i int, s *ebiten.Image) *ebiten.Image {
+	sx, sy := (p.currentAnimation.FrameOX)+i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
+	sub := s.SubImage(image.Rect(sx, sy, sx+(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
+
+	if !p.FacingRight {
+		sx, sy = (p.currentAnimation.FrameOX)-i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
+		sub = s.SubImage(image.Rect(sx, sy, sx-(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
+	}
+
+	alphaValue := uint8(10)
+	bounds := sub.Bounds()
+
+	for x := bounds.Min.X; x < bounds.Max.X; x++ {
+		for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+			r, g, b, _ := sub.At(x, y).RGBA()
+			sub.Set(x, y, color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), alphaValue})
+		}
+	}
+
+	return sub
 }

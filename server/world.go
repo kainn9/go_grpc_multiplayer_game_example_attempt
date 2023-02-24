@@ -4,7 +4,6 @@ import (
 	"sync"
 	"time"
 
-	pb "github.com/kainn9/grpc_game/proto"
 	"github.com/solarlune/resolv"
 )
 
@@ -14,7 +13,7 @@ type world struct {
 	width   float64         // The width of the game's world
 	players map[string]*player  // A map of players currently in the world
 	name    string          // The name of the world
-	events  []*pb.PlayerReq // An queue of events to be processed(world scoped)
+	events  []*event // An queue of events to be processed(world scoped)
 	mutex   sync.RWMutex    // A mutex to lock down resources when necessary(world scoped)
 }
 
@@ -26,7 +25,7 @@ func newWorld(height float64, width float64, worldBuilder builderFunc, name stri
 		height:  height,
 		players: make(map[string]*player),
 		mutex:   sync.RWMutex{},
-		events:  make([]*pb.PlayerReq, 0),
+		events:  make([]*event, 0),
 	}
 
 	// Initialize the world with the specified builder function.
@@ -47,7 +46,7 @@ func (world *world) Init(worldBuilder builderFunc) {
 	// and you want to move Objects at a maximum speed of one cell size per collision check to avoid 
 	// missing any possible collisions.
 
-	world.space = resolv.NewSpace(int(gw), int(gh), cell, cell)
+	world.space = resolv.NewSpace(int(gw), int(gh), cellX, cellY)
 
 	// Construct the solid level geometry. Note that the simple approach of checking cells in a Space for collision works simply when the geometry is aligned with the cells.
 	worldBuilder(world, gw, gh)
@@ -57,8 +56,8 @@ func (world *world) Init(worldBuilder builderFunc) {
 // The physics are basically a rip of the Resolv example: https://github.com/SolarLune/resolv/blob/master/examples/worldPlatformer.go.
 func (world *world) Update(cp *player, input string) {
 	// Lock the server config mutex.
-	serverConfig.mutex.Lock()
-	defer serverConfig.mutex.Unlock()
+	// serverConfig.mutex.Lock()
+	// defer serverConfig.mutex.Unlock()
 
 	// Add the "player" tag to the player object if it doesn't already have it.
 	if !cp.object.HasTags("player") {
@@ -93,7 +92,7 @@ func (world *world) Update(cp *player, input string) {
 		cp.attackHandler(input, world)
 	}
 
-	if cp.attackMovement {
+	if cp.attackMovementActive() {
 		cp.movementPhase(cp.currAttack)
 	}
 
@@ -124,9 +123,3 @@ func (world *world) Update(cp *player, input string) {
 	cp.object.Update() // Update the player's position in the space.
 
 }
-// removes attack object from resolv space and AOTP map
-func (w *world) removeAtk(a *resolv.Object) {
-	w.space.Remove(a)
-	delete(serverConfig.AOTP, a)
-}
-

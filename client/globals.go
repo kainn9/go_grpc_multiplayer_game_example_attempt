@@ -13,14 +13,17 @@ import (
 	Putting global scope client vars and consts here to avoid confusion
 */
 
+
 const (
 	ScreenWidth  = 880
 	ScreenHeight = 480
 )
 
 var (
+	glob = 0
 	streamInit = false
 	ticks      int
+	yicks int
 	worldsMap  = make(map[string]WorldData)
 	game       = NewGame()
 	addr       = "localhost:50051"
@@ -28,6 +31,8 @@ var (
 	// Use This for irl network testing
 	// addr        = "ec2-3-83-121-221.compute-1.amazonaws.com:50051"
 	enablePPROF = false
+
+
 )
 
 // dev mode stuff
@@ -50,3 +55,14 @@ var (
 var audPlayer *audio.Player
 var volume128 int
 var connRef *grpc.ClientConn
+
+
+type fixedAnimTracker struct {
+	pid string
+	animName string
+	ticks int
+}
+
+var (
+	fixedAnims = make(map[string]*fixedAnimTracker)
+)

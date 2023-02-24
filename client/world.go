@@ -16,6 +16,7 @@ type World struct {
 	Space            *resolv.Space
 	PlayerController *PlayerController
 	State            []*pb.Player
+	playerMap 			map[string]*Player
 	WorldTex         sync.RWMutex
 	WorldData
 
@@ -152,6 +153,9 @@ Renders players from server response
 */
 func (world *World) DrawPlayers() {
 
+
+	newPlayerMap := make(map[string]*Player)
+
 	wTex := &world.WorldTex
 	/*
 		write only lock when rendering state
@@ -172,7 +176,14 @@ func (world *World) DrawPlayers() {
 		p.FacingRight = ps.FacingRight
 		p.Jumping = ps.Jumping
 		p.CurrAttack = ps.CurrAttack
-		p.CC = ps.CC
+		p.cc = ps.CC
+		p.windup = ps.Windup
+		p.attackMovement = ps.AttackMovement
+		p.id = ps.Id
+		p.health = int(ps.Health)
+
+		newPlayerMap[ps.Id] = p
+
 
 		if ps.Id == world.PlayerController.Pid {
 			CurrentPlayerHandler(world.PlayerController, ps, p)
@@ -182,6 +193,8 @@ func (world *World) DrawPlayers() {
 
 	}
 	wTex.RUnlock()
+
+	world.playerMap = newPlayerMap
 }
 
 /*
