@@ -207,3 +207,6 @@ func getAnimationFrame(p *Player, i int, s *ebiten.Image) *ebiten.Image {
 
 	return sub
 }
+
+
+
