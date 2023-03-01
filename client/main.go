@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	_ "image/png"
-	"io/ioutil"
+	"io"
 	"log"
 
 	"net/http"
@@ -42,7 +42,7 @@ func (g *Game) InitMusic() {
 		if err != nil {
 			log.Fatalf("Error decoding Song Bytes: %v\n", err)
 		}
-		b, _ := ioutil.ReadAll(s)
+		b, _ := io.ReadAll(s)
 		audCtx := audio.NewContext(sampleRate)
 		clientConfig.audPlayer = audCtx.NewPlayerFromBytes(b)
 		clientConfig.audPlayer.Play()
@@ -97,7 +97,7 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	pc := g.World.PlayerController
+	pc := g.World.playerController
 
 	// Clear the camera before drawing
 	pc.playerCam.Surface.Clear()
@@ -172,10 +172,10 @@ func NewGame() *Game {
 	w := NewWorld("main")
 
 	// attach player controller to world
-	w.PlayerController = NewPlayerController()
+	w.playerController = NewPlayerController()
 
 	// attach playerController to world
-	w.PlayerController.world = w
+	w.playerController.world = w
 
 	return &Game{
 		ShowHelpText: true,

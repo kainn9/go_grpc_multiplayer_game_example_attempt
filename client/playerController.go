@@ -210,7 +210,7 @@ func (pc *PlayerController) InputListener() {
 			devConfig.devPreview = !devConfig.devPreview
 
 			if !devConfig.devPreview {
-				pc.world.Space.Remove(pc.world.Space.Objects()...)
+				pc.world.space.Remove(pc.world.space.Objects()...)
 			}
 		}
 
@@ -434,8 +434,8 @@ state from server stream
 func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	cw := pc.world
 
-	cw.PlayerController.x = ps.Lx
-	cw.PlayerController.y = ps.Ly
+	cw.playerController.x = ps.Lx
+	cw.playerController.y = ps.Ly
 
 
 	if clientConfig.game.CurrentWorld != ps.World {
@@ -450,7 +450,7 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 
 func (pc *PlayerController) SubscribeToState() {
 	world := pc.world
-	wTex := &world.WorldTex
+	wTex := &world.worldTex
 	if clientConfig.streamInit {
 		return
 	}
@@ -473,7 +473,7 @@ func (pc *PlayerController) SubscribeToState() {
 			
 			// reg lock on insertion?
 			wTex.Lock()
-			world.State = res.Players
+			world.state = res.Players
 			wTex.Unlock()
 
 		}

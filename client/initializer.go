@@ -19,7 +19,7 @@ type gameSettings struct {
 	screenHeight int
 	streamInit bool
 	ticks int
-	worldsMap map[string]WorldData
+	worldsMap map[string]worldData
 	game *Game
 	addr string
 	fullScreen bool
@@ -62,7 +62,7 @@ func initClient() {
 		screenWidth: 880,
 		screenHeight: 480,
 		streamInit: false,
-		worldsMap: make(map[string]WorldData),
+		worldsMap: make(map[string]worldData),
 		addr: "localhost:50051",
 		// Use This for irl network testing
 		// addr        = "ec2-3-83-121-221.compute-1.amazonaws.com:50051"

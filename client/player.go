@@ -150,7 +150,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	x := p.x
 	y := p.y
 
-	pc := world.PlayerController
+	pc := world.playerController
 
 	playerOps := &ebiten.DrawImageOptions{}
 

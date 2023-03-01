@@ -12,16 +12,15 @@ import (
 )
 
 type World struct {
-	Game             *Game
-	Space            *resolv.Space
-	PlayerController *PlayerController
-	State            []*pb.Player
+	space            *resolv.Space
+	playerController *PlayerController
+	state            []*pb.Player
 	playerMap 			map[string]*Player
-	WorldTex         sync.RWMutex
-	WorldData
+	worldTex         sync.RWMutex
+	worldData
 }
 
-type WorldData struct {
+type worldData struct {
 	Height float64
 	Width  float64
 	bg     *ebiten.Image
@@ -44,9 +43,9 @@ Creates a New World
 */
 func NewWorld(key string) *World {
 	w := &World{
-		WorldTex: sync.RWMutex{},
+		worldTex: sync.RWMutex{},
 	}
-	w.WorldData = GetWorldData(key)
+	w.worldData = GetWorldData(key)
 
 	return w
 }
@@ -54,15 +53,15 @@ func NewWorld(key string) *World {
 /*
 Returns world data using worldsMap + world key
 */
-func GetWorldData(worldKey string) WorldData {
+func GetWorldData(worldKey string) worldData {
 	return clientConfig.worldsMap[worldKey]
 }
 
 /*
 Used to create "world data" that can be embedded in world struct
 */
-func NewWorldData(height float64, width float64, bg *ebiten.Image) *WorldData {
-	wd := &WorldData{
+func NewWorldData(height float64, width float64, bg *ebiten.Image) *worldData {
+	wd := &worldData{
 		Height: height,
 		Width:  width,
 		bg:     bg,
@@ -81,7 +80,7 @@ the resolv objects serverside
 */
 func (world *World) Init(worldBuilder BuilderFunc) {
 
-	if world.Space != nil {
+	if world.space != nil {
 		log.Println("World Already Init'd...Skipping")
 	}
 
@@ -91,7 +90,7 @@ func (world *World) Init(worldBuilder BuilderFunc) {
 
 	// use this + freePlay to help build maps
 	// with resolv until a real system is in place
-	world.Space = resolv.NewSpace(int(gw), int(gh), 8, 8)
+	world.space = resolv.NewSpace(int(gw), int(gh), 8, 8)
 	worldBuilder(world, gw, gh)
 }
 
@@ -99,7 +98,7 @@ func (world *World) Init(worldBuilder BuilderFunc) {
 Invokes world's update based receiver functions
 */
 func Update(world *World) {
-	cp := world.PlayerController
+	cp := world.playerController
 
 	cp.SubscribeToState()
 	cp.InputListener()
@@ -118,7 +117,7 @@ func (w *World) Draw(screen *ebiten.Image) {
 Renders the current world BG(based on worldData struct)
 */
 func (w *World) DrawBg() {
-	pc := w.PlayerController
+	pc := w.playerController
 
 	x := float64(pc.x)
 	y := float64(pc.y)
@@ -129,7 +128,7 @@ func (w *World) DrawBg() {
 
 	if devConfig.devPreview {
 
-		for _, o := range w.Space.Objects() {
+		for _, o := range w.space.Objects() {
 			if o.HasTags("platform") {
 				drawColor := color.RGBA{180, 100, 0, 255}
 				ebitenutil.DrawRect(w.bg, o.X, o.Y, o.W, o.H, drawColor)
@@ -152,16 +151,16 @@ func (world *World) DrawPlayers() {
 
 	newPlayerMap := make(map[string]*Player)
 
-	wTex := &world.WorldTex
+	wTex := &world.worldTex
 	/*
 		write only lock when rendering state
 		from map, as it mutated in the go routine
 		above and not thread safe otherwise
 	*/
 	wTex.RLock()
-	for k := range world.State {
+	for k := range world.state {
 
-		ps := world.State[k]
+		ps := world.state[k]
 
 		p := NewPlayer()
 
@@ -181,8 +180,8 @@ func (world *World) DrawPlayers() {
 		newPlayerMap[ps.Id] = p
 
 
-		if ps.Id == world.PlayerController.pid {
-			CurrentPlayerHandler(world.PlayerController, ps, p)
+		if ps.Id == world.playerController.pid {
+			CurrentPlayerHandler(world.playerController, ps, p)
 		} else {
 			DrawPlayer(world, p, false)
 		}
@@ -199,8 +198,8 @@ client receives the information that
 the currentPlayer is a different world/level
 then the current Game.CurrentWorld(string/key)
 */
-func UpdateWorldData(w *World, new *WorldData, key string) {
-	w.WorldData = clientConfig.worldsMap[key]
+func UpdateWorldData(w *World, new *worldData, key string) {
+	w.worldData = clientConfig.worldsMap[key]
 	clientConfig.game.CurrentWorld = key
 }
 
@@ -215,7 +214,7 @@ where to place resolv objects on the serverside
 func DevWorldBuilder(world *World, gw float64, gh float64) {
 	// This is currently the geometry for the alt world
 	// which is a WIP...
-	world.Space.Add(
+	world.space.Add(
 
 		// bottom bounds
 		resolv.NewObject(0, gh-16, gw, 16, "solid"),
