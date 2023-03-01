@@ -59,7 +59,7 @@ func NewWorld(key string) *World {
 Returns world data using worldsMap + world key
 */
 func GetWorldData(worldKey string) WorldData {
-	return worldsMap[worldKey]
+	return clientConfig.worldsMap[worldKey]
 }
 
 /*
@@ -131,7 +131,7 @@ func (w *World) DrawBg() {
 	bgOpts = pc.PlayerCam.GetTranslation(bgOpts, -x/2, -y/2)
 	pc.PlayerCam.Surface.DrawImage(w.bg, bgOpts)
 
-	if devPreview {
+	if devConfig.devPreview {
 
 		for _, o := range w.Space.Objects() {
 			if o.HasTags("platform") {
@@ -204,8 +204,8 @@ the currentPlayer is a different world/level
 then the current Game.CurrentWorld(string/key)
 */
 func UpdateWorldData(w *World, new *WorldData, key string) {
-	w.WorldData = worldsMap[key]
-	game.CurrentWorld = key
+	w.WorldData = clientConfig.worldsMap[key]
+	clientConfig.game.CurrentWorld = key
 }
 
 /*

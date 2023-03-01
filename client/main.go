@@ -31,7 +31,7 @@ func (g *Game) InitMusic() {
 	// TODO: Create Audio System
 
 	go func() {
-		volume128 = 128
+		clientConfig.volume128 = 128
 		sampleRate := 32000
 		songBytes, err := ut.LoadMusic("./audio/base.mp3")
 		if err != nil {
@@ -44,14 +44,14 @@ func (g *Game) InitMusic() {
 		}
 		b, _ := ioutil.ReadAll(s)
 		audCtx := audio.NewContext(sampleRate)
-		audPlayer = audCtx.NewPlayerFromBytes(b)
-		audPlayer.Play()
+		clientConfig.audPlayer = audCtx.NewPlayerFromBytes(b)
+		clientConfig.audPlayer.Play()
 	}()
 
 }
 
 func (g *Game) Layout(outsideScreenWidth, outsideScreenHeight int) (int, int) {
-	return ScreenWidth, ScreenHeight
+	return clientConfig.screenWidth, clientConfig.screenHeight
 }
 
 /*
@@ -60,16 +60,16 @@ to match ebiten TPS
 */
 func (g *Game) IncrementTicks() {
 	
-	ticks++
+	clientConfig.ticks++
 	
-	if ticks > 60 {
-		ticks = 0
+	if clientConfig.ticks > 60 {
+		clientConfig.ticks = 0
 	}
 
 
 	for k, a := range fixedAnims {
 		
-		p := game.World.playerMap[a.pid]
+		p := clientConfig.game.World.playerMap[a.pid]
 		if p == nil {
 
 			continue
@@ -108,14 +108,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		TODO: clean this up/make a seperate dev client
 		Dev-Tool/FreePlay stuff:
 	*/
-	if freePlay {
+	if devConfig.freePlay {
 		opts := &ebiten.DrawImageOptions{}
 		opts = pc.PlayerCam.GetTranslation(opts, pc.PlayerCam.X, pc.PlayerCam.Y)
 
-		if useHeightRuler {
-			pc.PlayerCam.Surface.DrawImage(rulerH, opts)
+		if devConfig.useHeightRuler {
+			pc.PlayerCam.Surface.DrawImage(devConfig.rulerH, opts)
 		} else {
-			pc.PlayerCam.Surface.DrawImage(rulerW, opts)
+			pc.PlayerCam.Surface.DrawImage(devConfig.rulerW, opts)
 		}
 
 	}
@@ -130,16 +130,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	*/
 	msg := fmt.Sprintf(
 		"PING(Calc is a bit busted rn): %v\nArrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress G for Dash Attack(WIP, takes one sec to fire and I have no windup anim yet/Attack part)\nPress T for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress Z/X to controll volume\nCurr volume: %v\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\nhealth: %v\n",
-		ping,
-		volume128,
+		devConfig.ping,
+		clientConfig.volume128,
 		ebiten.ActualTPS(),
 		pc.health(),
 	)
 
-	if freePlay {
+	if devConfig.freePlay {
 
 		msg += fmt.Sprintln("FREE PLAY ON!!!\nPress 2 to toggle rulers\nUse w/s to decrease/increase cam speed")
-		msg += fmt.Sprintf("Cam Speed:%v\n", devCamSpeed)
+		msg += fmt.Sprintf("Cam Speed:%v\n", devConfig.devCamSpeed)
 
 		/*
 			This calc is scuffed.
@@ -148,7 +148,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			need to come up with the right maffz
 			to make it consistent
 		*/
-		msg += fmt.Sprintf("X:%v\nY:%v\n", (pc.PlayerCam.X + (ScreenWidth / 2) + 185), pc.PlayerCam.Y+(ScreenHeight/2)+1898-172)
+		msg += fmt.Sprintf("X:%v\nY:%v\n", (pc.PlayerCam.X + (float64(clientConfig.screenWidth) / 2) + 185), pc.PlayerCam.Y+(float64(clientConfig.screenHeight)/2)+1898-172)
 
 	} else {
 		msg += fmt.Sprintf("X:%v\nY:%v\n", pc.X, pc.Y)
@@ -161,12 +161,12 @@ Creates new game.
 */
 func NewGame() *Game {
 
-	worldsMap["main"] = *NewWorldData(848, 3200, mainWorldBg)
-	worldsMap["alt"] = *NewWorldData(4000, 6000, altWorldBg)
+	clientConfig.worldsMap["main"] = *NewWorldData(848, 3200, assetsHelper.mainWorldBg)
+	clientConfig.worldsMap["alt"] = *NewWorldData(4000, 6000, assetsHelper.altWorldBg)
 
 	// Set window things.
 	ebiten.SetWindowTitle("MultiPlayer Platformer!")
-	ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
+	ebiten.SetWindowSize(clientConfig.screenWidth, clientConfig.screenHeight)
 
 	// set/init world
 	w := NewWorld("main")
@@ -185,17 +185,19 @@ func NewGame() *Game {
 }
 
 func main() {
+	initClient()
+	
 	// PPROF HANDLER
 	// Add a handler for the pprof endpoint at
 	// http: //localhost:6060/debug/pprof/
 	// enablePPROF toggled in global
-	if enablePPROF {
+	if clientConfig.enablePPROF {
 		go func() {
 			http.ListenAndServe("localhost:6060", nil)
 		}()
 	}
 
-	ebiten.SetFullscreen(fullScreen)
+	ebiten.SetFullscreen(clientConfig.fullScreen)
 	/*
 		RunGame starts the main loop and runs the game. game's
 		Update function is called every tick to update the game logic.
@@ -208,11 +210,11 @@ func main() {
 	// Need to make Async, as attributes to 90% of startup time rn....
 
 	// so disabling music for now LOL
-	game.InitMusic()
-	ebiten.RunGame(game)
+	clientConfig.game.InitMusic()
+	ebiten.RunGame(clientConfig.game)
 
 	// TODO:
 	// does this work?
 	// low key was never closing client connection on close...
-	defer connRef.Close()
+	defer clientConfig.connRef.Close()
 }

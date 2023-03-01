@@ -124,7 +124,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
 
 
-	i := (ticks/5) % p.currentAnimation.FrameCount
+	i := (clientConfig.ticks/5) % p.currentAnimation.FrameCount
 	s := p.currentAnimation.SpriteSheet
 	
 	if p.currentAnimation.Fixed {

@@ -52,7 +52,7 @@ func NewPlayerController() *PlayerController {
 	pid := uuid.New()
 
 	cam := PlayerCam{
-		Camera: camera.NewCamera(ScreenWidth, ScreenHeight, 0, 0, 0, 1),
+		Camera: camera.NewCamera(clientConfig.screenWidth, clientConfig.screenHeight, 0, 0, 0, 1),
 		PlayerCamData: PlayerCamData{
 			playerCXpos: 0,
 			playerCYpos: 0,
@@ -98,13 +98,13 @@ func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 		opts = append(opts, creds)
 	}
 
-	conn, err := grpc.Dial(addr, opts...)
+	conn, err := grpc.Dial(clientConfig.addr, opts...)
 
 	if err != nil {
 		log.Fatalf("Did not connect: %v", err)
 	}
 
-	connRef = conn
+	clientConfig.connRef = conn
 
 	c := pb.NewPlayersServiceClient(conn)
 
@@ -127,20 +127,20 @@ handles volume for now
 */
 func updateVolumeIfNeeded() {
 	if ebiten.IsKeyPressed(ebiten.KeyZ) {
-		volume128--
+		clientConfig.volume128--
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyX) {
-		volume128++
+		clientConfig.volume128++
 	}
-	if volume128 < 0 {
-		volume128 = 0
+	if clientConfig.volume128 < 0 {
+		clientConfig.volume128 = 0
 	}
-	if 128 < volume128 {
-		volume128 = 128
+	if 128 < clientConfig.volume128 {
+		clientConfig.volume128 = 128
 	}
 
-	if audPlayer != nil {
-		audPlayer.SetVolume(float64(volume128) / 128)
+	if clientConfig.audPlayer != nil {
+		clientConfig.audPlayer.SetVolume(float64(clientConfig.volume128) / 128)
 	}
 
 }
@@ -163,8 +163,8 @@ func (pc *PlayerController) InputListener() {
 	updateVolumeIfNeeded()
 
 	if inpututil.IsKeyJustPressed(ebiten.Key0) {
-		fullScreen = !fullScreen
-		ebiten.SetFullscreen(fullScreen)
+		clientConfig.fullScreen = !clientConfig.fullScreen
+		ebiten.SetFullscreen(clientConfig.fullScreen)
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.Key4) {
@@ -172,58 +172,58 @@ func (pc *PlayerController) InputListener() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
-		freePlay = !freePlay
+		devConfig.freePlay = !devConfig.freePlay
 	}
 
 
 	// Free Play Cam
 	// Also an example of a "Cam Hack"
-	if freePlay {
+	if devConfig.freePlay {
 		cam := pc.PlayerCam
 
 		if ebiten.IsKeyPressed(ebiten.KeyRight) {
-			moveX := float64(cam.X + devCamSpeed)
+			moveX := float64(cam.X + devConfig.devCamSpeed)
 			moveY := float64(cam.Y)
 			cam.SetPosition(moveX, moveY)
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-			moveX := float64(cam.X - devCamSpeed)
+			moveX := float64(cam.X - devConfig.devCamSpeed)
 			moveY := float64(cam.Y)
 			cam.SetPosition(moveX, moveY)
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyUp) {
 			moveX := float64(cam.X)
-			moveY := float64(cam.Y - devCamSpeed)
+			moveY := float64(cam.Y - devConfig.devCamSpeed)
 			cam.SetPosition(moveX, moveY)
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyDown) {
 			moveX := float64(cam.X)
-			moveY := float64(cam.Y + devCamSpeed)
+			moveY := float64(cam.Y + devConfig.devCamSpeed)
 			cam.SetPosition(moveX, moveY)
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key3) {
 			pc.World.Init(DevWorldBuilder)
-			devPreview = !devPreview
+			devConfig.devPreview = !devConfig.devPreview
 
-			if !devPreview {
+			if !devConfig.devPreview {
 				pc.World.Space.Remove(pc.World.Space.Objects()...)
 			}
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key2) {
-			useHeightRuler = !useHeightRuler
+			devConfig.useHeightRuler = !devConfig.useHeightRuler
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-			devCamSpeed += 1
+			devConfig.devCamSpeed += 1
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-			devCamSpeed -= 1
+			devConfig.devCamSpeed -= 1
 		}
 
 		return
@@ -286,7 +286,7 @@ to stream the inputs to server
 func (p *PlayerController) inputHandler(input string) {
 	go func() {
 		req := pb.PlayerReq{Id: p.Pid, Input: input}
-		reqT = time.Now()
+		devConfig.reqT = time.Now()
 		p.Stream.Send(&req)
 	}()
 }
@@ -311,7 +311,10 @@ func (pc *PlayerController) SetCameraPosition() {
 	gw := pc.World.Width
 	gh := pc.World.Height
 
-	if freePlay {
+	ScreenWidth := float64(clientConfig.screenWidth)
+	ScreenHeight := float64(clientConfig.screenHeight)
+
+	if devConfig.freePlay {
 		return
 	}
 
@@ -435,9 +438,9 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	cw.PlayerController.Y = ps.Ly
 
 
-	if game.CurrentWorld != ps.World {
+	if clientConfig.game.CurrentWorld != ps.World {
 
-		newData := worldsMap[ps.World]
+		newData := clientConfig.worldsMap[ps.World]
 
 		UpdateWorldData(cw, &newData, ps.World)
 	}
@@ -448,12 +451,12 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 func (pc *PlayerController) SubscribeToState() {
 	world := pc.World
 	wTex := &world.WorldTex
-	if streamInit {
+	if clientConfig.streamInit {
 		return
 	}
 
 	go func() {
-		streamInit = true
+		clientConfig.streamInit = true
 
 		for {
 			res, err := pc.Stream.Recv()
@@ -466,7 +469,7 @@ func (pc *PlayerController) SubscribeToState() {
 				log.Fatalf("Setting World State Error %v\n", err)
 				break
 			}
-			ping = float64(time.Since(reqT))
+			devConfig.ping = float64(time.Since(devConfig.reqT))
 			
 			// reg lock on insertion?
 			wTex.Lock()
