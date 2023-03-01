@@ -9,11 +9,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	pb "github.com/kainn9/grpc_game/proto"
-	r "github.com/kainn9/grpc_game/server/roles"
 	ut "github.com/kainn9/grpc_game/util"
 	camera "github.com/melonfunction/ebiten-camera"
 	"github.com/pborman/uuid"
-	"github.com/solarlune/resolv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -21,20 +19,20 @@ import (
 )
 
 type PlayerController struct {
-	Stream pb.PlayersService_PlayerLocationClient
-	World  *World
-	Pid    string
-	X      float64
-	Y      float64
-	PlayerCam
+	stream pb.PlayersService_PlayerLocationClient
+	world  *World
+	pid    string
+	x      float64
+	y      float64
+	playerCam
 }
 
-type PlayerCam struct {
+type playerCam struct {
 	*camera.Camera
-	PlayerCamData
+	playerCamData
 }
 
-type PlayerCamData struct {
+type playerCamData struct {
 	playerCXpos float64
 	playerCYpos float64
 }
@@ -53,20 +51,20 @@ func NewPlayerController() *PlayerController {
 
 	pid := uuid.New()
 
-	cam := PlayerCam{
-		Camera: camera.NewCamera(ScreenWidth, ScreenHeight, 0, 0, 0, 1),
-		PlayerCamData: PlayerCamData{
+	cam := playerCam{
+		Camera: camera.NewCamera(clientConfig.screenWidth, clientConfig.screenHeight, 0, 0, 0, 1),
+		playerCamData: playerCamData{
 			playerCXpos: 0,
 			playerCYpos: 0,
 		},
 	}
 
 	p := &PlayerController{
-		Pid:       pid,
-		PlayerCam: cam,
+		pid:       pid,
+		playerCam: cam,
 	}
 
-	p.Stream = p.NewStream()
+	p.stream = p.NewStream()
 
 	return p
 }
@@ -100,20 +98,20 @@ func (p *PlayerController) NewStream() pb.PlayersService_PlayerLocationClient {
 		opts = append(opts, creds)
 	}
 
-	conn, err := grpc.Dial(addr, opts...)
+	conn, err := grpc.Dial(clientConfig.addr, opts...)
 
 	if err != nil {
 		log.Fatalf("Did not connect: %v", err)
 	}
 
-	connRef = conn
+	clientConfig.connRef = conn
 
 	c := pb.NewPlayersServiceClient(conn)
 
 	// TODO: Delete OR Keep?
 	maxSizeOption := grpc.MaxCallRecvMsgSize(32 * 10e9)
 
-	md := metadata.Pairs("pid", p.Pid)
+	md := metadata.Pairs("pid", p.pid)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 	stream, err := c.PlayerLocation(ctx, maxSizeOption)
 
@@ -129,20 +127,20 @@ handles volume for now
 */
 func updateVolumeIfNeeded() {
 	if ebiten.IsKeyPressed(ebiten.KeyZ) {
-		volume128--
+		clientConfig.volume128--
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyX) {
-		volume128++
+		clientConfig.volume128++
 	}
-	if volume128 < 0 {
-		volume128 = 0
+	if clientConfig.volume128 < 0 {
+		clientConfig.volume128 = 0
 	}
-	if 128 < volume128 {
-		volume128 = 128
+	if 128 < clientConfig.volume128 {
+		clientConfig.volume128 = 128
 	}
 
-	if audPlayer != nil {
-		audPlayer.SetVolume(float64(volume128) / 128)
+	if clientConfig.audPlayer != nil {
+		clientConfig.audPlayer.SetVolume(float64(clientConfig.volume128) / 128)
 	}
 
 }
@@ -152,11 +150,21 @@ Listens for Player inputs during game update phase
 */
 func (pc *PlayerController) InputListener() {
 
+
+	// attack Hbox Tester
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+		if hitBoxTest.on {
+			return
+		}
+		hitBoxSim(pc.world.bg, pc)
+	}
+	
+
 	updateVolumeIfNeeded()
 
 	if inpututil.IsKeyJustPressed(ebiten.Key0) {
-		fullScreen = !fullScreen
-		ebiten.SetFullscreen(fullScreen)
+		clientConfig.fullScreen = !clientConfig.fullScreen
+		ebiten.SetFullscreen(clientConfig.fullScreen)
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.Key4) {
@@ -164,85 +172,60 @@ func (pc *PlayerController) InputListener() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
-		freePlay = !freePlay
+		devConfig.freePlay = !devConfig.freePlay
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
-
-		// Notice the difference between left/Right ATK
-		// X values is the width/2 of the hitbox itself
-		// 43 - 38 = 5
-		atkRHbox := resolv.NewObject(pc.X+43, pc.Y+15, 10, 5, "hitBox")
-		atkLHbox := resolv.NewObject(pc.X-38, pc.Y+15, 10, 5, "hitBox")
-
-		playerHitBox := resolv.NewObject(pc.X, pc.Y, 18, 44, "hitBox")
-
-		hitBoxes := make([]*resolv.Object, 0)
-
-		hitBoxes = append(hitBoxes, playerHitBox)
-		hitBoxes = append(hitBoxes, atkRHbox)
-		hitBoxes = append(hitBoxes, atkLHbox)
-
-		pc.World.Init(DevWorldBuilder)
-
-		for _, b := range hitBoxes {
-			pc.World.Space.Add(b)
-		}
-
-	}
 
 	// Free Play Cam
 	// Also an example of a "Cam Hack"
-	if freePlay {
-		cam := pc.PlayerCam
+	if devConfig.freePlay {
+		cam := pc.playerCam
 
 		if ebiten.IsKeyPressed(ebiten.KeyRight) {
-			moveX := float64(cam.X + devCamSpeed)
+			moveX := float64(cam.X + devConfig.devCamSpeed)
 			moveY := float64(cam.Y)
 			cam.SetPosition(moveX, moveY)
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-			moveX := float64(cam.X - devCamSpeed)
+			moveX := float64(cam.X - devConfig.devCamSpeed)
 			moveY := float64(cam.Y)
 			cam.SetPosition(moveX, moveY)
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyUp) {
 			moveX := float64(cam.X)
-			moveY := float64(cam.Y - devCamSpeed)
+			moveY := float64(cam.Y - devConfig.devCamSpeed)
 			cam.SetPosition(moveX, moveY)
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyDown) {
 			moveX := float64(cam.X)
-			moveY := float64(cam.Y + devCamSpeed)
+			moveY := float64(cam.Y + devConfig.devCamSpeed)
 			cam.SetPosition(moveX, moveY)
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key3) {
-			pc.World.Init(DevWorldBuilder)
-			devPreview = !devPreview
+			pc.world.Init(DevWorldBuilder)
+			devConfig.devPreview = !devConfig.devPreview
 
-			if !devPreview {
-				pc.World.Space.Remove(pc.World.Space.Objects()...)
+			if !devConfig.devPreview {
+				pc.world.space.Remove(pc.world.space.Objects()...)
 			}
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key2) {
-			useHeightRuler = !useHeightRuler
+			devConfig.useHeightRuler = !devConfig.useHeightRuler
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-			devCamSpeed += 1
+			devConfig.devCamSpeed += 1
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-			devCamSpeed -= 1
+			devConfig.devCamSpeed -= 1
 		}
 
-		// Use Free play to reproduce main issue
-		// pc.inputHandler("freePlay")
 		return
 	}
 
@@ -270,14 +253,20 @@ func (pc *PlayerController) InputListener() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
-		pc.inputHandler("primaryAttack")
+		pc.inputHandler("primaryAtk")
 		isPressing = true
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyG) {
-		pc.inputHandler(string(r.TestAttackKey))
+		pc.inputHandler("secondaryAtk")
 		isPressing = true
 	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyC) {
+		pc.inputHandler("tertAtk")
+		isPressing = true
+	}
+
 
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
@@ -296,9 +285,9 @@ to stream the inputs to server
 */
 func (p *PlayerController) inputHandler(input string) {
 	go func() {
-		req := pb.PlayerReq{Id: p.Pid, Input: input}
-		reqT = time.Now()
-		p.Stream.Send(&req)
+		req := pb.PlayerReq{Id: p.pid, Input: input}
+		devConfig.reqT = time.Now()
+		p.stream.Send(&req)
 	}()
 }
 
@@ -319,118 +308,121 @@ func (p *PlayerController) inputHandler(input string) {
 
 
 func (pc *PlayerController) SetCameraPosition() {
-	gw := pc.World.Width
-	gh := pc.World.Height
+	gw := pc.world.Width
+	gh := pc.world.Height
 
-	if freePlay {
+	ScreenWidth := float64(clientConfig.screenWidth)
+	ScreenHeight := float64(clientConfig.screenHeight)
+
+	if devConfig.freePlay {
 		return
 	}
 
 	// used to in player#draw
 	// to avoid player jitters in millisecond/micro-pixel
 	// diff in player pos vs where they are being rendered on cam
-	pc.playerCXpos = pc.X
-	pc.playerCYpos= pc.Y
+	pc.playerCXpos = pc.x
+	pc.playerCYpos= pc.y
 
-	x := (pc.X / 2)
-	y := (pc.Y / 2)
+	x := (pc.x / 2)
+	y := (pc.y / 2)
 
 	// edges of level where we want to 
 	// stop centering the player in the cam
 	// to avoid showing empty space
-	xBoundLeft := (pc.X - ScreenWidth/2) < 0
-	xBoundBottom := (pc.Y + (ScreenHeight / 2)) > gh
-	xBoundRight := (pc.X + ScreenWidth/2) > gw
-	xBoundTop := (pc.Y - ScreenHeight/2) < 0
+	xBoundLeft := (pc.x - ScreenWidth/2) < 0
+	xBoundBottom := (pc.y + (ScreenHeight / 2)) > gh
+	xBoundRight := (pc.x + ScreenWidth/2) > gw
+	xBoundTop := (pc.y - ScreenHeight/2) < 0
 
 
 	if xBoundLeft && xBoundBottom {
 
-		yOff := (ScreenHeight / 2) - (gh - pc.Y)
+		yOff := (ScreenHeight / 2) - (gh - pc.y)
 
 		ny := y - yOff
 		nx := (ScreenWidth / 2) - x
 
-		nx = ut.CamLerp(pc.PlayerCam.X, nx)
-		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
+		nx = ut.CamLerp(pc.playerCam.X, nx)
+		ny = ut.CamLerp(pc.playerCam.Y, ny)
 
-		pc.PlayerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft && xBoundTop {
 
 		nx := (ScreenWidth / 2) - x
 		ny := (ScreenHeight / 2) - y
 
-		nx = ut.CamLerp(pc.PlayerCam.X, nx)
-		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
+		nx = ut.CamLerp(pc.playerCam.X, nx)
+		ny = ut.CamLerp(pc.playerCam.Y, ny)
 
-		pc.PlayerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundRight && xBoundBottom {
 
-		yOff := (ScreenHeight / 2) - (gh - pc.Y)
+		yOff := (ScreenHeight / 2) - (gh - pc.y)
 
-		nx := x - ((ScreenWidth / 2) - (gw - pc.X))
+		nx := x - ((ScreenWidth / 2) - (gw - pc.x))
 		ny := y - yOff
 
-		nx = ut.CamLerp(pc.PlayerCam.X, nx)
-		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
+		nx = ut.CamLerp(pc.playerCam.X, nx)
+		ny = ut.CamLerp(pc.playerCam.Y, ny)
 
-		pc.PlayerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundRight && xBoundTop {
 
-		nx := x - ((ScreenWidth / 2) - (gw - pc.X))
+		nx := x - ((ScreenWidth / 2) - (gw - pc.x))
 		ny := (ScreenHeight / 2) - y
 
-		nx = ut.CamLerp(pc.PlayerCam.X, nx)
-		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
+		nx = ut.CamLerp(pc.playerCam.X, nx)
+		ny = ut.CamLerp(pc.playerCam.Y, ny)
 
-		pc.PlayerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft {
 
 		nx := (ScreenWidth / 2) - x
 
-		nx = ut.CamLerp(pc.PlayerCam.X, nx)
-		ny := ut.CamLerp(pc.PlayerCam.Y, y)
+		nx = ut.CamLerp(pc.playerCam.X, nx)
+		ny := ut.CamLerp(pc.playerCam.Y, y)
 
-		pc.PlayerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundRight {
 
-		nx := x - ((ScreenWidth / 2) - (gw - pc.X))
+		nx := x - ((ScreenWidth / 2) - (gw - pc.x))
 
-		nx = ut.CamLerp(pc.PlayerCam.X, nx)
-		ny := ut.CamLerp(pc.PlayerCam.Y, y)
+		nx = ut.CamLerp(pc.playerCam.X, nx)
+		ny := ut.CamLerp(pc.playerCam.Y, y)
 
-		pc.PlayerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundBottom {
 
-		yOff := (ScreenHeight / 2) - (gh - pc.Y)
+		yOff := (ScreenHeight / 2) - (gh - pc.y)
 
 		ny := y - yOff
 
-		nx := ut.CamLerp(pc.PlayerCam.X, x)
-		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
+		nx := ut.CamLerp(pc.playerCam.X, x)
+		ny = ut.CamLerp(pc.playerCam.Y, ny)
 
-		pc.PlayerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundTop {
 
 		ny := (ScreenHeight / 2) - y
 
-		nx := ut.CamLerp(pc.PlayerCam.X, x)
-		ny = ut.CamLerp(pc.PlayerCam.Y, ny)
+		nx := ut.CamLerp(pc.playerCam.X, x)
+		ny = ut.CamLerp(pc.playerCam.Y, ny)
 
-		pc.PlayerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, ny)
 
 	} else {
-		nx := ut.CamLerp(pc.PlayerCam.X, x)
-		ny := ut.CamLerp(pc.PlayerCam.Y, y)
+		nx := ut.CamLerp(pc.playerCam.X, x)
+		ny := ut.CamLerp(pc.playerCam.Y, y)
 
-		pc.PlayerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, ny)
 
 	}
 }
@@ -440,15 +432,15 @@ Helper function for handling current player
 state from server stream
 */
 func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
-	cw := pc.World
+	cw := pc.world
 
-	cw.PlayerController.X = ps.Lx
-	cw.PlayerController.Y = ps.Ly
+	cw.playerController.x = ps.Lx
+	cw.playerController.y = ps.Ly
 
 
-	if game.CurrentWorld != ps.World {
+	if clientConfig.game.CurrentWorld != ps.World {
 
-		newData := worldsMap[ps.World]
+		newData := clientConfig.worldsMap[ps.World]
 
 		UpdateWorldData(cw, &newData, ps.World)
 	}
@@ -457,17 +449,17 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 }
 
 func (pc *PlayerController) SubscribeToState() {
-	world := pc.World
-	wTex := &world.WorldTex
-	if streamInit {
+	world := pc.world
+	wTex := &world.worldTex
+	if clientConfig.streamInit {
 		return
 	}
 
 	go func() {
-		streamInit = true
+		clientConfig.streamInit = true
 
 		for {
-			res, err := pc.Stream.Recv()
+			res, err := pc.stream.Recv()
 
 			if err == io.EOF {
 				break
@@ -477,12 +469,25 @@ func (pc *PlayerController) SubscribeToState() {
 				log.Fatalf("Setting World State Error %v\n", err)
 				break
 			}
-			ping = float64(time.Since(reqT))
+			devConfig.ping = float64(time.Since(devConfig.reqT))
+			
 			// reg lock on insertion?
 			wTex.Lock()
-			world.State = res.Players
+			world.state = res.Players
 			wTex.Unlock()
 
 		}
 	}()
 }
+
+func (pc *PlayerController) health() int {
+	p := pc.world.playerMap[pc.pid]
+	if p != nil {
+		return p.health
+	}
+	
+	// TODO: idk what to do here yet
+	return 0
+}
+
+

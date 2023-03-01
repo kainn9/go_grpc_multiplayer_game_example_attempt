@@ -1,10 +1,9 @@
 package main
 
 import (
-	"log"
 	"sync"
-	"time"
 
+	r "github.com/kainn9/grpc_game/server/roles"
 	"github.com/solarlune/resolv"
 )
 
@@ -24,6 +23,8 @@ type serverConfigStruct struct {
 	worldsMap     map[string]*world
 	activePlayers map[string]*player
 	AOTP          map[*resolv.Object]*player // Map of Attack resolv objects to Player struct, eventually should be world scoped.
+	OTA map[*resolv.Object]*r.Attack
+	HTAP map[string]bool
 }
 
 // worldsStruct holds world objects.
@@ -42,7 +43,9 @@ var serverConfig = serverConfigStruct{
 	addr:          ":50051",
 	worldsMap:     make(map[string]*world),
 	activePlayers: make(map[string]*player),
-	AOTP:          make(map[*resolv.Object]*player),
+	AOTP:          make(map[*resolv.Object]*player), // TODO: This should be world scoped.
+	OTA:           make(map[*resolv.Object]*r.Attack), // TODO: This should be world scoped.
+	HTAP:          make(map[string]bool), // TODO: This should be world scoped.
 	mutex:         sync.RWMutex{},
 }
 
@@ -69,55 +72,9 @@ func initializer() {
 }
 
 
-// Starts a new ticker loop that calls processEventsPerTick with the given world
-func newTickLoop(w *world) {
-	go func() {
-		ticker := time.NewTicker(time.Second / 60)
-		defer ticker.Stop()
-
-		for range ticker.C {
-			processEventsPerTick(w)
-		}
-	}()
-}
-
-// Process events in the given world, removing each event as it is processed
-func processEventsPerTick(w *world) {
-	// Log information about the number of events in the world, if it exceeds certain thresholds
-	if len(w.events) > 25 {
-		log.Printf("WORLD: %v\n", w.name)
-		log.Printf("LEN! 25 %v\n", len(w.events) > 25)
-		log.Printf("LEN! 50 %v\n", len(w.events) > 50)
-		log.Printf("LEN! 100 %v\n", len(w.events) > 100)
-	}
-
-	// Iterate over the worlds event queue
-	// process up to 100 events per tick
-	for i := 0; i < 100; i++ {
-
-		// If there are no events left or the current index is out of range, exit the loop
-		if len(w.events) == 0 || i > len(w.events)-1 {
-			break
-		}
-
-		// Get the current event
-		ev := w.events[i]
-
-		// If there is a player associated with the event, handle the event with the player and world
-		if w.players[ev.Id] != nil {
-			cp := w.players[ev.Id]
-			requestHandler(cp, w, ev)
-		}
-
-		// Remove the event from the world's events queue
-		w.mutex.RLock()
-		w.events = append(w.events[:i], w.events[i+1:]...)
-		defer w.mutex.RUnlock()
-		i--
-	}
-}
 
 // TODO: Struct up this guy...
 var (
-	cell = 8
+	cellX = 16
+	cellY = 8
 )
