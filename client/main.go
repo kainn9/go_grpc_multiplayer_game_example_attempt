@@ -100,7 +100,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	pc := g.World.PlayerController
 
 	// Clear the camera before drawing
-	pc.PlayerCam.Surface.Clear()
+	pc.playerCam.Surface.Clear()
 
 	g.World.Draw(screen)
 
@@ -110,18 +110,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	*/
 	if devConfig.freePlay {
 		opts := &ebiten.DrawImageOptions{}
-		opts = pc.PlayerCam.GetTranslation(opts, pc.PlayerCam.X, pc.PlayerCam.Y)
+		opts = pc.playerCam.GetTranslation(opts, pc.playerCam.X, pc.playerCam.Y)
 
 		if devConfig.useHeightRuler {
-			pc.PlayerCam.Surface.DrawImage(devConfig.rulerH, opts)
+			pc.playerCam.Surface.DrawImage(devConfig.rulerH, opts)
 		} else {
-			pc.PlayerCam.Surface.DrawImage(devConfig.rulerW, opts)
+			pc.playerCam.Surface.DrawImage(devConfig.rulerW, opts)
 		}
 
 	}
 
 	// Blit!
-	pc.PlayerCam.Blit(screen)
+	pc.playerCam.Blit(screen)
 
 	/*
 		TODO: clean this up/make a seperate dev client
@@ -148,10 +148,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			need to come up with the right maffz
 			to make it consistent
 		*/
-		msg += fmt.Sprintf("X:%v\nY:%v\n", (pc.PlayerCam.X + (float64(clientConfig.screenWidth) / 2) + 185), pc.PlayerCam.Y+(float64(clientConfig.screenHeight)/2)+1898-172)
+		msg += fmt.Sprintf("X:%v\nY:%v\n", (pc.playerCam.X + (float64(clientConfig.screenWidth) / 2) + 185), pc.playerCam.Y+(float64(clientConfig.screenHeight)/2)+1898-172)
 
 	} else {
-		msg += fmt.Sprintf("X:%v\nY:%v\n", pc.X, pc.Y)
+		msg += fmt.Sprintf("X:%v\nY:%v\n", pc.x, pc.y)
 	}
 	ebitenutil.DebugPrint(screen, msg)
 }
@@ -175,7 +175,7 @@ func NewGame() *Game {
 	w.PlayerController = NewPlayerController()
 
 	// attach playerController to world
-	w.PlayerController.World = w
+	w.PlayerController.world = w
 
 	return &Game{
 		ShowHelpText: true,

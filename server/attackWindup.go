@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"math"
 	"time"
 
@@ -38,7 +37,6 @@ func resolveWindup (cp *player, atk *r.Attack) {
 func (cp *player) chargeWindupPhase(atk *r.Attack) {
 
 	if cp.chargeStart.IsZero() {
-		log.Println("Charge START")
 		cp.chargeStart = time.Now()
 		cp.windup = atk.Type
 	}
@@ -47,16 +45,13 @@ func (cp *player) chargeWindupPhase(atk *r.Attack) {
 }
 
 func checkWindupCharge(cp *player, atk *r.Attack) {
-	log.Println("CHEKING WU!")
 
 	if time.Since(cp.chargeStart).Seconds() > atk.Windup.TimeLimit {
-		log.Println("TIME LIMIT!")
 		resolveChargeWindup(cp, atk)
 		return
 	}
 
 	if cp.prevEvent.Input != string(atk.Type) {
-		log.Printf("EVENT CHANGE! %v — %v\n", cp.prevEvent.Input, string(atk.Type))
 		resolveChargeWindup(cp, atk)
 		return
 	}

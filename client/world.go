@@ -19,10 +19,6 @@ type World struct {
 	playerMap 			map[string]*Player
 	WorldTex         sync.RWMutex
 	WorldData
-
-	// audioContext *audio.Context
-	// audioPlayer  *audio.Player
-	// volume128    int
 }
 
 type WorldData struct {
@@ -124,12 +120,12 @@ Renders the current world BG(based on worldData struct)
 func (w *World) DrawBg() {
 	pc := w.PlayerController
 
-	x := float64(pc.X)
-	y := float64(pc.Y)
+	x := float64(pc.x)
+	y := float64(pc.y)
 
 	bgOpts := &ebiten.DrawImageOptions{}
-	bgOpts = pc.PlayerCam.GetTranslation(bgOpts, -x/2, -y/2)
-	pc.PlayerCam.Surface.DrawImage(w.bg, bgOpts)
+	bgOpts = pc.playerCam.GetTranslation(bgOpts, -x/2, -y/2)
+	pc.playerCam.Surface.DrawImage(w.bg, bgOpts)
 
 	if devConfig.devPreview {
 
@@ -169,13 +165,13 @@ func (world *World) DrawPlayers() {
 
 		p := NewPlayer()
 
-		p.SpeedX = ps.SpeedX
-		p.SpeedY = ps.SpeedY
-		p.X = ps.Lx
-		p.Y = ps.Ly
-		p.FacingRight = ps.FacingRight
-		p.Jumping = ps.Jumping
-		p.CurrAttack = ps.CurrAttack
+		p.speedX = ps.SpeedX
+		p.speedY = ps.SpeedY
+		p.x = ps.Lx
+		p.y = ps.Ly
+		p.facingRight = ps.FacingRight
+		p.jumping = ps.Jumping
+		p.currAttack = ps.CurrAttack
 		p.cc = ps.CC
 		p.windup = ps.Windup
 		p.attackMovement = ps.AttackMovement
@@ -185,7 +181,7 @@ func (world *World) DrawPlayers() {
 		newPlayerMap[ps.Id] = p
 
 
-		if ps.Id == world.PlayerController.Pid {
+		if ps.Id == world.PlayerController.pid {
 			CurrentPlayerHandler(world.PlayerController, ps, p)
 		} else {
 			DrawPlayer(world, p, false)

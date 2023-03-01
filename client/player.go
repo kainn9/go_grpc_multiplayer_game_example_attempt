@@ -10,15 +10,14 @@ import (
 
 type Player struct {
 	id string
-	WorldName string
-	SpeedX      float64
-	SpeedY      float64
-	X           float64
-	Y           float64
-	FacingRight bool
-	Jumping     bool
+	speedX      float64
+	speedY      float64
+	x           float64
+	y           float64
+	facingRight bool
+	jumping     bool
 	cc         string
-	CurrAttack  string
+	currAttack  string
 	windup  string
 	attackMovement string
 	r.Role
@@ -50,44 +49,44 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
 	prevAnim := defaultAnim
 
-	if !p.FacingRight {
+	if !p.facingRight {
 
 		p.currentAnimation = p.Animations["idleLeft"]
 
 	}
 
-	if p.SpeedX > 0 && p.FacingRight {
+	if p.speedX > 0 && p.facingRight {
 
 		p.currentAnimation = p.Animations["walkRight"]
 
 	}
 
-	if p.SpeedX < 0 && !p.FacingRight {
+	if p.speedX < 0 && !p.facingRight {
 		p.currentAnimation = p.Animations["walkLeft"]
 
 	}
 
-	if p.Jumping && !p.FacingRight {
+	if p.jumping && !p.facingRight {
 		p.currentAnimation = p.Animations["jumpLeft"]
 
 	}
 
-	if p.Jumping && p.FacingRight {
+	if p.jumping && p.facingRight {
 		p.currentAnimation = p.Animations["jumpRight"]
 
 	}
 	
 
-	if p.CurrAttack != "" {
-		if p.FacingRight {
-			p.currentAnimation = p.Animations[p.CurrAttack+"Right"]
+	if p.currAttack != "" {
+		if p.facingRight {
+			p.currentAnimation = p.Animations[p.currAttack+"Right"]
 		} else {
-			p.currentAnimation = p.Animations[p.CurrAttack+"Left"]
+			p.currentAnimation = p.Animations[p.currAttack+"Left"]
 		}
 	}
 
 	if p.windup != "" {
-		if p.FacingRight {
+		if p.facingRight {
 			p.currentAnimation = p.Animations[p.windup + "WindupRight"]
 		} else {
 			p.currentAnimation = p.Animations[p.windup + "WindupLeft"]
@@ -96,7 +95,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
 
 	if p.attackMovement != "" {
-		if p.FacingRight {
+		if p.facingRight {
 			p.currentAnimation = p.Animations[p.attackMovement + "MovementRight"]
 		} else {
 			p.currentAnimation = p.Animations[p.attackMovement + "MovementLeft"]
@@ -106,7 +105,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
 	if p.cc != "" {
 
-		if p.FacingRight {
+		if p.facingRight {
 			p.currentAnimation = p.Animations[p.cc+"Right"]
 		} else {
 			p.currentAnimation = p.Animations[p.cc+"Left"]
@@ -115,7 +114,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	}
 
 	if currentPlayer && hitBoxTest.on {
-		if p.FacingRight {
+		if p.facingRight {
 				p.currentAnimation = p.Animations[hitBoxTest.name + "Right"]
 		} else {
 			p.currentAnimation = p.Animations[hitBoxTest.name + "Left"]
@@ -148,31 +147,31 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		Logic for rendering current and other players
 		inside the game camera
 	*/
-	x := p.X
-	y := p.Y
+	x := p.x
+	y := p.y
 
 	pc := world.PlayerController
 
 	playerOps := &ebiten.DrawImageOptions{}
 
-	if currentPlayer && p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+((pc.playerCXpos/2)-p.HitBoxOffsetX), (pc.playerCYpos/2)-p.HitBoxOffsetY)
+	if currentPlayer && p.facingRight {
+		playerOps = pc.playerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+((pc.playerCXpos/2)-p.HitBoxOffsetX), (pc.playerCYpos/2)-p.HitBoxOffsetY)
 
-	} else if currentPlayer && !p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+pc.playerCXpos/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (pc.playerCYpos/2)-p.HitBoxOffsetY)
+	} else if currentPlayer && !p.facingRight {
+		playerOps = pc.playerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+pc.playerCXpos/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (pc.playerCYpos/2)-p.HitBoxOffsetY)
 
-	} else if p.FacingRight {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+(x-(pc.playerCXpos/2)-p.HitBoxOffsetX), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
+	} else if p.facingRight {
+		playerOps = pc.playerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+(x-(pc.playerCXpos/2)-p.HitBoxOffsetX), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else {
-		playerOps = pc.PlayerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+x-(pc.playerCXpos/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
+		playerOps = pc.playerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+x-(pc.playerCXpos/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
 	}
 
 	// Render the Anims
 	sx, sy := (p.currentAnimation.FrameOX)+i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
 	sub := s.SubImage(image.Rect(sx, sy, sx+(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
 
-	if !p.FacingRight {
+	if !p.facingRight {
 		sx, sy = (p.currentAnimation.FrameOX)-i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
 		sub = s.SubImage(image.Rect(sx, sy, sx-(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
 	}
@@ -183,7 +182,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		sub = getAnimationFrame(p, hitBoxTest.frame, s)
 	}
 
-	pc.PlayerCam.Surface.DrawImage(sub, playerOps)
+	pc.playerCam.Surface.DrawImage(sub, playerOps)
 }
 
 
@@ -191,7 +190,7 @@ func getAnimationFrame(p *Player, i int, s *ebiten.Image) *ebiten.Image {
 	sx, sy := (p.currentAnimation.FrameOX)+i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
 	sub := s.SubImage(image.Rect(sx, sy, sx+(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
 
-	if !p.FacingRight {
+	if !p.facingRight {
 		sx, sy = (p.currentAnimation.FrameOX)-i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
 		sub = s.SubImage(image.Rect(sx, sy, sx-(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
 	}

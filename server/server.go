@@ -116,7 +116,11 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 
 		initPlayer(req)
-		w.players[pid].prevEvent = prevReq
+
+		// this can be nil when a player is transfering worlds
+		if w.players[pid] != nil {
+			w.players[pid].prevEvent = prevReq
+		}
 
 
 		newEvent := newEvent(req, false)
@@ -206,8 +210,7 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 func  (s *stalledWrapper) stalledHandler(pid string, prevReq *pb.PlayerReq) {
 	
 	go func() {
-		// TODO: adjust this timeout value based on testing(16.6 == 1 tick)
-		time.AfterFunc(48*time.Millisecond, func() {
+		time.AfterFunc(11*time.Millisecond, func() {
 		
 
 			if s.stalled {

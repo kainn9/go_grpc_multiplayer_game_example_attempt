@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
@@ -23,17 +24,12 @@ func newTickLoop(w *world) {
 	}()
 }
 
-
-// TODO: Dry this out, see if I can reduce loop counts
-
 // Process events in the given world, removing each event as it is processed
 func processEventsPerTick(w *world) {
 	w.mutex.Lock()
   defer w.mutex.Unlock()
 
-	
-	stalledEvents := make(map[string]bool)
-	stalledEventsToSkip := make(map[string]bool)
+	logHighEventCount(w)
 	
 	type dupeCount int
 	dupeEvents := make(map[string]dupeCount)
@@ -58,19 +54,8 @@ func processEventsPerTick(w *world) {
 		dupeKey := ev.Id + ev.Input
 
 		if ev.stalled {
-			stalledEvents[ev.Id] = true
 		} else {
 			dupeEvents[dupeKey]++
-		}
-	}
-
-	// Determine which stalled events to skip
-	for i := 0; i < eventBatchSize; i++ {
-
-		ev := w.events[i]
-
-		if !ev.stalled && stalledEvents[ev.Id] {
-			stalledEventsToSkip[ev.Id] = true
 		}
 	}
 
@@ -81,7 +66,7 @@ func processEventsPerTick(w *world) {
 		dupeKey := ev.Id + ev.Input
 
 		// If there is a player associated with the event, handle the event with the player and world
-		if w.players[ev.Id] != nil && !stalledEventsToSkip[ev.Id] && (dupeEvents[dupeKey] < 2) {
+		if w.players[ev.Id] != nil && (dupeEvents[dupeKey] < 2) {
 			cp := w.players[ev.Id]
 			w.Update(cp, ev.Input)
 		} 
@@ -112,3 +97,13 @@ func (e *event) enqueue(w *world) {
 }
 
 		
+
+func logHighEventCount(w *world) {
+	if len(w.events) > 25 {
+		log.Printf("WORLD: %v\n", w.name)
+		log.Printf("LEN! 25 %v\n", len(w.events) > 25)
+		log.Printf("LEN! 50 %v\n", len(w.events) > 50)
+		log.Printf("LEN! 100 %v\n", len(w.events) > 100)
+		log.Printf("LEN! %v\n", len(w.events))
+	}
+}

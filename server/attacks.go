@@ -8,13 +8,11 @@ import (
 func (cp *player) attackHandler(input string, world *world) {
 
 
-	// can't attack while attacking
+	// can't attack while attacking yo
 	if cp.currAttack != nil {
 		return
 	}
 
-
-	// OLD WAY
 	if input == "primaryAtk" {
 		cp.attack(world, r.PrimaryAttackKey)
 	}
@@ -37,3 +35,4 @@ func (cp *player) attack(world *world, atKey r.AtKey) {
 	cp.windupPhase(atk, atKey)
 
 }
+

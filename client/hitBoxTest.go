@@ -35,6 +35,7 @@ type hitBoxSequence struct {
 
 type hBoxPath []hitBoxAggregate
 
+const noBox = -1000
 
 
 /*
@@ -142,13 +143,13 @@ func spawnBox(screen *ebiten.Image, cp *PlayerController, inc float64, path hBox
 	hBoxAgg := path[index]
 
 	colorBox := color.RGBA{R: 128, G: 0, B: 128, A: 255}
-	cp.World.bg.Clear()
+	cp.world.bg.Clear()
 	for _, hBox := range hBoxAgg {
 
 		if hitBoxTest.left {
-			ebitenutil.DrawRect(screen, cp.X - (hBox.pOffX -hBox.width/2), cp.Y + hBox.pOffY, hBox.width, hBox.height, colorBox)			
+			ebitenutil.DrawRect(screen, cp.x - (hBox.pOffX -hBox.width/2), cp.y + hBox.pOffY, hBox.width, hBox.height, colorBox)			
 		} else {
-			ebitenutil.DrawRect(screen, cp.X + hBox.pOffX, cp.Y + hBox.pOffY, hBox.width, hBox.height, colorBox)
+			ebitenutil.DrawRect(screen, cp.x + hBox.pOffX, cp.y + hBox.pOffY, hBox.width, hBox.height, colorBox)
 
 		}
 	}
@@ -178,4 +179,3 @@ func startHitboxSim(screen *ebiten.Image, cp *PlayerController, inc float64, pat
 
 
 
-const noBox = -1000
