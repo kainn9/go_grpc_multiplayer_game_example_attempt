@@ -257,8 +257,14 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 	// Then we just apply the horizontal movement to the Player's object.
 	newXPos := cp.object.X + dx // calculate new x position
 
+	// temp hack to prevent player from moving out of world
+	// eventually might just kill player if they go out of bounds
+	// or actually add real walls lol
 	if newXPos > 30 && newXPos < worldWidth-30 {
 		cp.object.X = newXPos // update player's x position if it's within the world's width limits(rando chose 30 for now)
+	
+	} else if cp.attackMovementActive() { // don't want players to get stuck in movment(normally will end on collision or distance traveled, but this hack isn't a real collision so...)
+			cp.resolveMovment(cp.currAttack)
 	}
 
 }
@@ -391,6 +397,10 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 	// Move the object on dy.
 	newYPos := cp.object.Y + dy
 
+
+	// temp hack to prevent player from moving out of world
+	// eventually might just kill player if they go out of bounds
+	// or actually add real walls lol
 	if newYPos < world.height-10 && newYPos > 10 {
 		cp.object.Y += dy
 	}
