@@ -14,6 +14,9 @@ type event struct {
 
 // Starts a new ticker loop that calls processEventsPerTick with the given world
 func newTickLoop(w *world) {
+
+	log.Printf("Starting Tick Loop for %v\n", w.name)
+
 	go func() {
 		ticker := time.NewTicker(time.Second / 60)
 		defer ticker.Stop()
@@ -27,15 +30,14 @@ func newTickLoop(w *world) {
 // Process events in the given world, removing each event as it is processed
 func processEventsPerTick(w *world) {
 	w.mutex.Lock()
-  defer w.mutex.Unlock()
+	defer w.mutex.Unlock()
 
 	logHighEventCount(w)
-	
+
 	type dupeCount int
 	dupeEvents := make(map[string]dupeCount)
 	eventBatchSize := 100
 
-	
 	for i := 0; i < eventBatchSize; i++ {
 
 		// Exit function if no events
@@ -52,7 +54,6 @@ func processEventsPerTick(w *world) {
 		ev := w.events[i]
 		dupeKey := ev.Id + ev.Input
 
-
 		dupeEvents[dupeKey]++
 	}
 
@@ -66,7 +67,7 @@ func processEventsPerTick(w *world) {
 		if w.players[ev.Id] != nil && (dupeEvents[dupeKey] < 2) {
 			cp := w.players[ev.Id]
 			w.Update(cp, ev.Input)
-		} 
+		}
 
 		dupeEvents[dupeKey]--
 		if dupeEvents[dupeKey] <= 0 {
@@ -78,12 +79,10 @@ func processEventsPerTick(w *world) {
 	w.events = w.events[eventBatchSize:]
 }
 
-
-
 func newEvent(req *pb.PlayerReq, stalled bool) *event {
 	return &event{
 		PlayerReq: req,
-		stalled: stalled,
+		stalled:   stalled,
 	}
 }
 
@@ -92,8 +91,6 @@ func (e *event) enqueue(w *world) {
 	w.events = append(w.events, e)
 	w.mutex.Unlock()
 }
-
-		
 
 func logHighEventCount(w *world) {
 	if len(w.events) > 25 {

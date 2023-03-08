@@ -17,7 +17,7 @@ type server struct {
 }
 
 type stalledWrapper struct {
-    stalled bool
+	stalled bool
 }
 
 /*
@@ -72,18 +72,16 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 	md, _ := metadata.FromIncomingContext(stream.Context())
 	pid := md["pid"][0]
 	var prevReq *pb.PlayerReq
-	
 
 	log.Printf("Player Connection Recieved %v\n", pid)
 
 	for {
 
-
 		w, _ := currentPlayerWorld(pid)
 
-    stalledWrapperInstance := stalledWrapper{stalled: true}
+		stalledWrapperInstance := stalledWrapper{stalled: true}
 
-    stalledWrapperInstance.stalledHandler(pid, prevReq)
+		stalledWrapperInstance.stalledHandler(pid, prevReq)
 
 		req, err := stream.Recv()
 
@@ -110,10 +108,9 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 			return nil
 		}
-		
+
 		prevReq = req
 		stalledWrapperInstance.stalled = false
-
 
 		initPlayer(req)
 
@@ -121,7 +118,6 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 		if w.players[pid] != nil {
 			w.players[pid].prevEvent = prevReq
 		}
-
 
 		newEvent := newEvent(req, false)
 		newEvent.enqueue(w)
@@ -183,19 +179,19 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 		}
 
 		p := &pb.Player{
-			Id:          curr.pid,
-			Lx:          curr.object.X,
-			Ly:          curr.object.Y,
-			FacingRight: curr.facingRight,
-			SpeedX:      curr.speedX,
-			SpeedY:      curr.speedY,
-			World:       wk,
-			Jumping:     jumping,
-			CurrAttack:  currAtk,
-			CC:          string(curr.isCC()),
-			Windup: string(curr.windup),
+			Id:             curr.pid,
+			Lx:             curr.object.X,
+			Ly:             curr.object.Y,
+			FacingRight:    curr.facingRight,
+			SpeedX:         curr.speedX,
+			SpeedY:         curr.speedY,
+			World:          wk,
+			Jumping:        jumping,
+			CurrAttack:     currAtk,
+			CC:             string(curr.isCC()),
+			Windup:         string(curr.windup),
 			AttackMovement: string(curr.attackMovement),
-			Health: int32(curr.health),
+			Health:         int32(curr.health),
 		}
 
 		res.Players = append(res.Players, p)
@@ -207,40 +203,34 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 	}
 }
 
-func  (s *stalledWrapper) stalledHandler(pid string, prevReq *pb.PlayerReq) {
-	
+func (s *stalledWrapper) stalledHandler(pid string, prevReq *pb.PlayerReq) {
+
 	go func() {
 		// Note:
 		// best on something local testing looks like
 		// we don't need the timeAFterFunc since the ticker handles the 16.666ms
 		// delay, but leaving for now in caseI need to change it back at some point
 		time.AfterFunc(0*time.Millisecond, func() {
-		
-			if s.stalled {
-				ticker := time.NewTicker(time.Second / 60)
-				defer ticker.Stop()
 
+			ticker := time.NewTicker(time.Second / 60)
+			defer ticker.Stop()
 
+			for range ticker.C {
+				// Questionable if prevRequest should be used.
+				if prevReq != nil && s.stalled {
 
-				for range ticker.C {
-					// Questionable if prevRequest should be used.
-					if prevReq != nil && s.stalled {
-						
-						w, _, err := locateFromPID(pid)
-						if err != nil {
-							break
-						}
-
-						prevEvent := newEvent(prevReq, true)
-						prevEvent.enqueue(w)
+					w, _, err := locateFromPID(pid)
+					if err != nil {
+						return
 					}
+
+					prevEvent := newEvent(prevReq, true)
+					prevEvent.enqueue(w)
+				} else {
+					return
 				}
 			}
+
 		})
 	}()
 }
-
-
-
-
-
