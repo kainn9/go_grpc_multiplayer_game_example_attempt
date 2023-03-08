@@ -108,7 +108,7 @@ func newPlayer(pid string, worldKey string) *player {
 		Role:          *r.Knight,
 		playerPh:      *ph,
 		movmentStartX: -100,
-		health:        100,
+		health:        150,
 	}
 
 	return p
@@ -130,11 +130,14 @@ func addPlayerToSpace(space *resolv.Space, p *player, x float64, y float64) *pla
 // removePlayerFromGame removes a player from the game with the given unique identifier and world
 func removePlayerFromGame(pid string, w *world) {
 	// Stop server crash if client disconnects before fully loading/creating a player
+	serverConfig.mutex.RLock()
 	if w.players[pid] == nil {
 		return
 	}
 
 	obj := w.players[pid].object
+	serverConfig.mutex.RUnlock()
+
 	w.space.Remove(obj)
 
 	serverConfig.mutex.Lock()
@@ -147,9 +150,11 @@ func removePlayerFromGame(pid string, w *world) {
 // changePlayersWorld swaps a player from their old world to a new world,
 // updating their position and worldKey in the process.
 func changePlayersWorld(oldWorld *world, newWorld *world, cp *player, x float64, y float64) {
+	serverConfig.mutex.Lock()
 	delete(oldWorld.players, cp.pid)
 	oldWorld.space.Remove(cp.object)
 	newWorld.players[cp.pid] = cp
+	serverConfig.mutex.Unlock()
 	addPlayerToSpace(newWorld.space, cp, x, y)
 	cp.worldKey = newWorld.name
 }
@@ -212,13 +217,14 @@ func (cp *player) jumpHandler(input string) {
 // horizontalMovementHandler handles the horizontal movement of the player based on user input and collision detection.
 func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 
+	// TODO: Clean this jank up, and make a better way to handle speed modz
 	if cp.isKnockedBack() {
 		cp.maxSpeed = math.Abs(math.Max(math.Abs(cp.kbx), math.Abs(cp.kby)))
-	} else if !cp.attackMovementActive() {
+	} else if !cp.attackMovementActive() && !cp.defending {
 		cp.maxSpeed = gamePhys.defaultMaxSpeed
 	}
+	// end of TODO above -----------------------------
 
-	// Apply friction and horizontal speed limiting.
 	if cp.speedX > cp.friction {
 		cp.speedX -= cp.friction // decrease speed by friction value if speed is greater than friction
 	} else if cp.speedX < -cp.friction {
@@ -252,7 +258,7 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 		}
 
 		cp.endMovment()
-		cp.defending = false
+		cp.endDefenseMovement()
 	}
 
 	// playerOnPlayer X collision
@@ -264,6 +270,10 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 		if otherPlayer != nil && !otherPlayer.defending && !cp.defending {
 			dx = check.ContactWithCell(check.Cells[0]).X() // set delta movement to the distance to the player we collide with
 			cp.endMovment()
+
+			if (math.Abs(cp.object.X-otherPlayer.object.X) < 3) && (math.Abs(cp.object.Y-otherPlayer.object.Y) < 10) {
+				dx += cp.object.W
+			}
 		}
 
 	}
@@ -280,7 +290,7 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 	} else if cp.attackMovementActive() { // don't want players to get stuck in movment(normally will end on collision or distance traveled, but this hack isn't a real collision so...)
 		cp.resolveMovment(cp.currAttack)
 	} else if cp.defending {
-		cp.defending = false
+		cp.endDefenseMovement()
 	}
 
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	pb "github.com/kainn9/grpc_game/proto"
+	sr "github.com/kainn9/grpc_game/server/roles"
 	ut "github.com/kainn9/grpc_game/util"
 	camera "github.com/melonfunction/ebiten-camera"
 	"github.com/pborman/uuid"
@@ -151,7 +152,7 @@ Listens for Player inputs during game update phase
 func (pc *PlayerController) InputListener() {
 
 	// attack Hbox Tester
-	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 		if hitBoxTest.on {
 			return
 		}
@@ -171,6 +172,10 @@ func (pc *PlayerController) InputListener() {
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		devConfig.freePlay = !devConfig.freePlay
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyM) {
+		clientConfig.showHelp = !clientConfig.showHelp
 	}
 
 	// Free Play Cam
@@ -249,22 +254,28 @@ func (pc *PlayerController) InputListener() {
 		isPressing = true
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
-		pc.inputHandler("primaryAtk")
+	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
+		pc.inputHandler(string(sr.PrimaryAttackKey))
 		isPressing = true
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyG) {
-		pc.inputHandler("secondaryAtk")
+	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
+		pc.inputHandler(string(sr.SecondaryAttackKey))
 		isPressing = true
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyC) {
-		pc.inputHandler("tertAtk")
+	// Note: Don't use "justPressed" for moves that can be charged!
+	if ebiten.IsKeyPressed(ebiten.KeyE) {
+		pc.inputHandler(string(sr.TertAttackKey))
 		isPressing = true
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyShift) {
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
+		pc.inputHandler(string(sr.QuaternaryAttackKey))
+		isPressing = true
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
 		pc.inputHandler("defense")
 		isPressing = true
 	}

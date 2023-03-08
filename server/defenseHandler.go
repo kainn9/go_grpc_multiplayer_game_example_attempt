@@ -23,8 +23,8 @@ func (cp *player) handleDefenseMovement() {
 	movementSpeed := cp.Defense.Speed
 
 	if cp.movmentStartX == noMovmentStartSet {
-		cp.maxSpeed = float64(movementSpeed)
 		cp.movmentStartX = int(cp.object.X)
+		cp.maxSpeed = cp.Defense.Speed
 	} else {
 
 		if cp.facingRight {
@@ -40,7 +40,6 @@ func (cp *player) handleDefenseMovement() {
 		if distTraveled > maxDist {
 			cp.defending = false
 			cp.movmentStartX = noMovmentStartSet
-			cp.maxSpeed = float64(gamePhys.defaultMaxSpeed)
 			cp.defenseCooldown = true
 
 			time.AfterFunc(time.Duration(cp.Defense.Cooldown)*time.Millisecond, func() {
@@ -48,4 +47,9 @@ func (cp *player) handleDefenseMovement() {
 			})
 		}
 	}
+}
+
+func (cp *player) endDefenseMovement() {
+	cp.defending = false
+	cp.movmentStartX = noMovmentStartSet
 }

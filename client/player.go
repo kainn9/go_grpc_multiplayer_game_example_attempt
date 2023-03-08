@@ -3,6 +3,7 @@ package main
 import (
 	"image"
 	"image/color"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	r "github.com/kainn9/grpc_game/client/roles"
@@ -23,6 +24,7 @@ type Player struct {
 	r.Role
 	currentAnimation *r.Animation
 	health           int
+	defending        bool
 }
 
 /*
@@ -110,12 +112,27 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
 	}
 
+	if p.defending {
+
+		if p.facingRight {
+			p.currentAnimation = p.Animations["defenseRight"]
+		} else {
+			p.currentAnimation = p.Animations["defenseLeft"]
+		}
+
+	}
+
 	if currentPlayer && hitBoxTest.on {
 		if p.facingRight {
 			p.currentAnimation = p.Animations[hitBoxTest.name+"Right"]
 		} else {
 			p.currentAnimation = p.Animations[hitBoxTest.name+"Left"]
 		}
+	}
+
+	if p.currentAnimation == nil {
+		log.Printf("No animation for player state: %v\n", p)
+		return
 	}
 
 	i := (clientConfig.ticks / 5) % p.currentAnimation.FrameCount

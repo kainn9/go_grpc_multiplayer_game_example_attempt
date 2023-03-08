@@ -175,6 +175,7 @@ func (world *World) DrawPlayers() {
 		p.attackMovement = ps.AttackMovement
 		p.id = ps.Id
 		p.health = int(ps.Health)
+		p.defending = ps.Defending
 
 		newPlayerMap[ps.Id] = p
 

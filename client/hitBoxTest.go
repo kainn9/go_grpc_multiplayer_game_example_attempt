@@ -6,7 +6,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	sr "github.com/kainn9/grpc_game/server/roles"
 )
 
 type hitboxTest struct {
@@ -42,11 +41,17 @@ const noBox = -1000
 	------------------------------------------------
 */
 
+/*
+-----------------------------------------------------------------------------
+Secondary Attack Example
+-----------------------------------------------------------------------------
+*/
+
 var (
 	hitBoxTest = &hitboxTest{
-		name:  string(sr.SecondaryAttackKey),
+		name:  "secondaryAtk",
 		on:    false,
-		count: 12,
+		count: 5,
 		// set to -1 to play whole anim
 		frame: -1,
 		left:  false,
@@ -61,50 +66,114 @@ func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
 
 	// frame 1
-	path = path.appendHboxAgg(-10, 0, 8, 8, 1)
-	path = path.appendHboxAgg(-2, 0, 8, 8, 1)
-	path = path.appendHboxAgg(6, 0, 8, 8, 1)
-	path = path.appendHboxAgg(14, 0, 8, 8, 1)
-	path = path.appendHboxAgg(22, 4, 8, 8, 1)
-	path = path.appendHboxAgg(26, 4, 8, 8, 1)
-	path = path.appendHboxAgg(28, 8, 8, 8, 1)
+	path = path.appendHboxAgg(noBox, noBox, 8, 8, 1)
 
 	// frame 2
-	path = path.appendHboxAgg(28, 4, 8, 8, 2)
-	path = path.appendHboxAgg(32, 8, 8, 8, 2)
-	path = path.appendHboxAgg(36, 12, 8, 8, 2)
-	path = path.appendHboxAgg(39, 16, 8, 8, 2)
-	path = path.appendHboxAgg(40, 24, 8, 8, 2)
-	path = path.appendHboxAgg(36, 32, 8, 8, 2)
-	path = path.appendHboxAgg(30, 36, 8, 8, 2)
-	path = path.appendHboxAgg(24, 38, 8, 8, 2)
-	path = path.appendHboxAgg(16, 38, 8, 8, 2)
-	path = path.appendHboxAgg(8, 38, 8, 8, 2)
+	path = path.appendHboxAgg(6, 0, 8, 8, 2)
+	path = path.appendHboxAgg(14, 0, 8, 8, 2)
+	path = path.appendHboxAgg(22, 4, 8, 8, 2)
+	path = path.appendHboxAgg(26, 4, 8, 8, 2)
+	path = path.appendHboxAgg(28, 8, 8, 8, 2)
+	path = path.appendHboxAgg(34, 8, 8, 8, 2)
+	path = path.appendHboxAgg(36, 16, 8, 8, 2)
+	path = path.appendHboxAgg(34, 24, 8, 8, 2)
+	path = path.appendHboxAgg(32, 32, 8, 8, 2)
+	path = path.appendHboxAgg(28, 36, 8, 8, 2)
+	path = path.appendHboxAgg(22, 36, 8, 8, 2)
+	path = path.appendHboxAgg(14, 41, 8, 8, 2)
+	path = path.appendHboxAgg(10, 41, 8, 8, 2)
 
-	// frame same as 2
-	path[3] = path[2]
+	// frame 3
+	path = path.appendHboxAgg(38, 24, 8, 8, 3)
+	path = path.appendHboxAgg(36, 28, 8, 8, 3)
+	path = path.appendHboxAgg(32, 32, 8, 8, 3)
+	path = path.appendHboxAgg(28, 36, 8, 8, 3)
+	path = path.appendHboxAgg(22, 36, 8, 8, 3)
+	path = path.appendHboxAgg(14, 41, 8, 8, 3)
+	path = path.appendHboxAgg(10, 41, 8, 8, 3)
+	path = path.appendHboxAgg(6, 41, 8, 8, 3)
+	path = path.appendHboxAgg(2, 41, 8, 8, 3)
+	path = path.appendHboxAgg(-2, 41, 8, 8, 3)
 
-	// frame 4 same as 2 but slightly to right
-	path = path.appendHboxAgg(36, 4, 8, 8, 4)
-	path = path.appendHboxAgg(44, 8, 8, 8, 4)
-	path = path.appendHboxAgg(48, 12, 8, 8, 4)
-	path = path.appendHboxAgg(51, 16, 8, 8, 4)
-	path = path.appendHboxAgg(50, 24, 8, 8, 4)
-	path = path.appendHboxAgg(45, 32, 8, 8, 4)
-	path = path.appendHboxAgg(40, 36, 8, 8, 4)
-	path = path.appendHboxAgg(34, 38, 8, 8, 4)
-
-	path[5] = path[3]
-	path[6] = path[4]
-
-	path[7] = path[5]
-	path[8] = path[6]
-	path[9] = path[7]
-	path[10] = path[8]
-	path[11] = path[9]
-
+	// frame 4
+	path = path.appendHboxAgg(noBox, noBox, 8, 8, 4)
 	startHitboxSim(screen, cp, inc, path, 0)
 }
+
+/*
+-----------------------------------------------------------------------------
+Tert Attack Example
+-----------------------------------------------------------------------------
+*/
+// var (
+// 	hitBoxTest = &hitboxTest{
+// 		name:  string(sr.TertAttackKey),
+// 		on:    false,
+// 		count: 12,
+// 		// set to -1 to play whole anim
+// 		frame: -1,
+// 		left:  false,
+// 		inc:   16.666 * 5, // 1 frame at 60fps
+// 	}
+// )
+
+// func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
+// 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
+
+// 	// frame 0
+// 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+
+// 	// frame 1
+// 	path = path.appendHboxAgg(-10, 0, 8, 8, 1)
+// 	path = path.appendHboxAgg(-2, 0, 8, 8, 1)
+// 	path = path.appendHboxAgg(6, 0, 8, 8, 1)
+// 	path = path.appendHboxAgg(14, 0, 8, 8, 1)
+// 	path = path.appendHboxAgg(22, 4, 8, 8, 1)
+// 	path = path.appendHboxAgg(26, 4, 8, 8, 1)
+// 	path = path.appendHboxAgg(28, 8, 8, 8, 1)
+
+// 	// frame 2
+// 	path = path.appendHboxAgg(28, 4, 8, 8, 2)
+// 	path = path.appendHboxAgg(32, 8, 8, 8, 2)
+// 	path = path.appendHboxAgg(36, 12, 8, 8, 2)
+// 	path = path.appendHboxAgg(39, 16, 8, 8, 2)
+// 	path = path.appendHboxAgg(40, 24, 8, 8, 2)
+// 	path = path.appendHboxAgg(36, 32, 8, 8, 2)
+// 	path = path.appendHboxAgg(30, 36, 8, 8, 2)
+// 	path = path.appendHboxAgg(24, 38, 8, 8, 2)
+// 	path = path.appendHboxAgg(16, 38, 8, 8, 2)
+// 	path = path.appendHboxAgg(8, 38, 8, 8, 2)
+
+// 	// frame same as 2
+// 	path[3] = path[2]
+
+// 	// frame 4 same as 2 but slightly to right
+// 	path = path.appendHboxAgg(36, 4, 8, 8, 4)
+// 	path = path.appendHboxAgg(44, 8, 8, 8, 4)
+// 	path = path.appendHboxAgg(48, 12, 8, 8, 4)
+// 	path = path.appendHboxAgg(51, 16, 8, 8, 4)
+// 	path = path.appendHboxAgg(50, 24, 8, 8, 4)
+// 	path = path.appendHboxAgg(45, 32, 8, 8, 4)
+// 	path = path.appendHboxAgg(40, 36, 8, 8, 4)
+// 	path = path.appendHboxAgg(34, 38, 8, 8, 4)
+
+// 	path[5] = path[3]
+// 	path[6] = path[4]
+
+// 	path[7] = path[5]
+// 	path[8] = path[6]
+// 	path[9] = path[7]
+// 	path[10] = path[8]
+// 	path[11] = path[9]
+
+// 	startHitboxSim(screen, cp, inc, path, 0)
+// }
+
+/*
+-----------------------------------------------------------------------------
+Tert Attack Example End
+-----------------------------------------------------------------------------
+*/
 
 /*
 	------------------------------------------------

@@ -12,7 +12,6 @@ type Role struct {
 
 type Attack struct {
 	Name     AtKey
-	Cooldown int
 	Duration int
 	Type     AtKey
 	*Windup
@@ -87,9 +86,10 @@ const (
 type AtKey string
 
 const (
-	PrimaryAttackKey   AtKey = "primaryAtk"
-	SecondaryAttackKey AtKey = "secondaryAtk"
-	TertAttackKey      AtKey = "tertAtk"
+	PrimaryAttackKey    AtKey = "primaryAtk"
+	SecondaryAttackKey  AtKey = "secondaryAtk"
+	TertAttackKey       AtKey = "tertAtk"
+	QuaternaryAttackKey AtKey = "quaAtk"
 )
 
 const noBox = -100

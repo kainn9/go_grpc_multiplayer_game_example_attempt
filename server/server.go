@@ -115,9 +115,11 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 		initPlayer(req)
 
 		// this can be nil when a player is transfering worlds
+		serverConfig.mutex.Lock()
 		if w.players[pid] != nil {
 			w.players[pid].prevEvent = prevReq
 		}
+		serverConfig.mutex.Unlock()
 
 		newEvent := newEvent(req, false)
 		newEvent.enqueue(w)
@@ -192,7 +194,7 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 			Windup:         string(curr.windup),
 			AttackMovement: string(curr.attackMovement),
 			Health:         int32(curr.health),
-			// Defending:      curr.defending,
+			Defending:      curr.defending,
 		}
 
 		res.Players = append(res.Players, p)

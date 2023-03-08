@@ -6,6 +6,8 @@ import (
 	ut "github.com/kainn9/grpc_game/util"
 )
 
+// TODO: create const/types for strings like "defenseRight", "windupLeft", etc
+
 /*
 File for Knight class
 contains sprites/animation data
@@ -19,22 +21,35 @@ var (
 	knightSpriteIdleLeft  *ebiten.Image
 	knightSpriteIdleRight *ebiten.Image
 
-	knightSpriteWalkingRight   *ebiten.Image
-	knightSpriteWalkingLeft    *ebiten.Image
-	knightSpriteJumpLeft       *ebiten.Image
-	knightSpriteJumpRight      *ebiten.Image
-	knightSpriteAttackLeft     *ebiten.Image
-	knightSpriteAttackRight    *ebiten.Image
-	knightSpriteKBRight        *ebiten.Image
-	knightSpriteKBLeft         *ebiten.Image
-	knightSpriteWULeft         *ebiten.Image
-	knightSpriteWURight        *ebiten.Image
-	knightSpriteMVRight        *ebiten.Image
-	knightSpriteMVLeft         *ebiten.Image
-	knightSecondaryAttackLeft  *ebiten.Image
-	knightSecondaryAttackRight *ebiten.Image
-	knightSlideRight           *ebiten.Image
-	knightSlideLeft            *ebiten.Image
+	knightSpriteWalkingRight *ebiten.Image
+	knightSpriteWalkingLeft  *ebiten.Image
+
+	knightSpriteJumpLeft  *ebiten.Image
+	knightSpriteJumpRight *ebiten.Image
+
+	knightSpriteStabLeft  *ebiten.Image
+	knightSpriteStabRight *ebiten.Image
+
+	knightSpriteKBRight *ebiten.Image
+	knightSpriteKBLeft  *ebiten.Image
+
+	knightSpriteDashSlashWULeft  *ebiten.Image
+	knightSpriteDashSlashWURight *ebiten.Image
+
+	knightSpriteDashSlashMVRight *ebiten.Image
+	knightSpriteDashSlashMVLeft  *ebiten.Image
+
+	knightSpriteDashSlashLeft  *ebiten.Image
+	knightSpriteDashSlashRight *ebiten.Image
+
+	knightSpriteQuickSlashLeft  *ebiten.Image
+	knightSpriteQuickSlashRight *ebiten.Image
+
+	knightSpriteQuickSlashWindupLeft  *ebiten.Image
+	knightSpriteQuickSlashWindupRight *ebiten.Image
+
+	knightSpriteSlideRight *ebiten.Image
+	knightSpriteSlideLeft  *ebiten.Image
 )
 
 /*
@@ -46,21 +61,33 @@ func LoadKnightSprites() {
 
 	knightSpriteWalkingRight = ut.LoadImg("./sprites/knight/knightRunningRight.png")
 	knightSpriteWalkingLeft = ut.LoadImg("./sprites/knight/knightRunningLeft.png")
+
 	knightSpriteJumpLeft = ut.LoadImg("./sprites/knight/knightJumpLeft.png")
 	knightSpriteJumpRight = ut.LoadImg("./sprites/knight/knightJumpRight.png")
-	knightSpriteAttackRight = ut.LoadImg("./sprites/knight/knightAttackRight.png")
-	knightSpriteAttackLeft = ut.LoadImg("./sprites/knight/knightAttackLeft.png")
+
+	knightSpriteStabRight = ut.LoadImg("./sprites/knight/knightStabRight.png")
+	knightSpriteStabLeft = ut.LoadImg("./sprites/knight/knightStabLeft.png")
+
 	knightSpriteKBRight = ut.LoadImg("./sprites/knight/knightKnockBackRight.png")
 	knightSpriteKBLeft = ut.LoadImg("./sprites/knight/knightKnockBackLeft.png")
-	knightSpriteMVLeft = ut.LoadImg("./sprites/knight/knightSecondaryMovementLeft.png")
-	knightSpriteMVRight = ut.LoadImg("./sprites/knight/knightSecondaryMovementRight.png")
-	knightSpriteWULeft = ut.LoadImg("./sprites/knight/knightSecondaryWindupLeft.png")
-	knightSpriteWURight = ut.LoadImg("./sprites/knight/knightSecondaryWindupRight.png")
-	knightSecondaryAttackLeft = ut.LoadImg("./sprites/knight/knightSecondarySlashAttackLeft.png")
-	knightSecondaryAttackRight = ut.LoadImg("./sprites/knight/knightSecondarySlashAttackRight.png")
 
-	knightSlideRight = ut.LoadImg("./sprites/knight/knightSlideRight.png")
-	knightSlideLeft = ut.LoadImg("./sprites/knight/knightSlideLeft.png")
+	knightSpriteDashSlashMVLeft = ut.LoadImg("./sprites/knight/knightDashSlashMovementLeft.png")
+	knightSpriteDashSlashMVRight = ut.LoadImg("./sprites/knight/knightDashSlashMovementRight.png")
+
+	knightSpriteDashSlashWULeft = ut.LoadImg("./sprites/knight/knightDashSlashWindupLeft.png")
+	knightSpriteDashSlashWURight = ut.LoadImg("./sprites/knight/knightDashSlashWindupRight.png")
+
+	knightSpriteDashSlashLeft = ut.LoadImg("./sprites/knight/knightDashSlashLeft.png")
+	knightSpriteDashSlashRight = ut.LoadImg("./sprites/knight/knightDashSlashRight.png")
+
+	knightSpriteQuickSlashRight = ut.LoadImg("./sprites/knight/knightQuickSlashRight.png")
+	knightSpriteQuickSlashLeft = ut.LoadImg("./sprites/knight/knightQuickSlashLeft.png")
+
+	knightSpriteSlideRight = ut.LoadImg("./sprites/knight/knightSlideRight.png")
+	knightSpriteSlideLeft = ut.LoadImg("./sprites/knight/knightSlideLeft.png")
+
+	knightSpriteQuickSlashWindupLeft = ut.LoadImg("./sprites/knight/knightQuickSlashWindupLeft.png")
+	knightSpriteQuickSlashWindupRight = ut.LoadImg("./sprites/knight/knightQuickSlashWindupRight.png")
 }
 
 func InitKnight() *Role {
@@ -134,39 +161,25 @@ func KnightAnims() map[string]*Animation {
 	}
 
 	anims["defenseRight"] = &Animation{
+		Name:        "defenseRight",
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  50,
 		FrameHeight: 48,
 		FrameCount:  20,
-		SpriteSheet: knightSlideRight,
+		SpriteSheet: knightSpriteSlideRight,
+		Fixed:       true,
 	}
 
 	anims["defenseLeft"] = &Animation{
+		Name:        "defenseLeft",
 		FrameOX:     1000,
 		FrameOY:     0,
 		FrameWidth:  50,
 		FrameHeight: 48,
 		FrameCount:  20,
-		SpriteSheet: knightSlideLeft,
-	}
-
-	anims[string(sr.PrimaryAttackKey)+"Right"] = &Animation{
-		FrameOX:     0,
-		FrameOY:     0,
-		FrameWidth:  65,
-		FrameHeight: 48,
-		FrameCount:  4,
-		SpriteSheet: knightSpriteAttackRight,
-	}
-
-	anims[string(sr.PrimaryAttackKey)+"Left"] = &Animation{
-		FrameOX:     260,
-		FrameOY:     0,
-		FrameWidth:  65,
-		FrameHeight: 48,
-		FrameCount:  4,
-		SpriteSheet: knightSpriteAttackLeft,
+		SpriteSheet: knightSpriteSlideLeft,
+		Fixed:       true,
 	}
 
 	anims["KbRight"] = &Animation{
@@ -187,102 +200,223 @@ func KnightAnims() map[string]*Animation {
 		SpriteSheet: knightSpriteKBLeft,
 	}
 
-	a2mlKey := string(sr.SecondaryAttackKey) + "MovementLeft"
-	anims[a2mlKey] = &Animation{
-		Name:        a2mlKey,
+	/*
+		---------------------------------------------------------------------------------
+		Primary Attack
+		---------------------------------------------------------------------------------
+	*/
+	anims[string(sr.PrimaryAttackKey)+"Right"] = &Animation{
+		Name:        "primaryAtkRight",
+		FrameOX:     0,
+		FrameOY:     0,
+		FrameWidth:  65,
+		FrameHeight: 48,
+		FrameCount:  4,
+		SpriteSheet: knightSpriteStabRight,
+	}
+
+	anims[string(sr.PrimaryAttackKey)+"Left"] = &Animation{
+		Name:        "primaryAtkleft",
+		FrameOX:     260,
+		FrameOY:     0,
+		FrameWidth:  65,
+		FrameHeight: 48,
+		FrameCount:  4,
+		SpriteSheet: knightSpriteStabLeft,
+		Fixed:       true,
+	}
+	/*
+		---------------------------------------------------------------------------------
+		Primary Attack END
+		---------------------------------------------------------------------------------
+	*/
+
+	/*
+		---------------------------------------------------------------------------------
+		Secondary Attack
+		---------------------------------------------------------------------------------
+	*/
+
+	a2arKey := string(sr.SecondaryAttackKey) + "Right"
+	anims[a2arKey] = &Animation{
+		Name:        a2arKey,
+		FrameOX:     0,
+		FrameOY:     20,
+		FrameWidth:  70,
+		FrameHeight: 70,
+		FrameCount:  5,
+		PosOffsetX:  14,
+		SpriteSheet: knightSpriteQuickSlashRight,
+		Fixed:       true,
+	}
+
+	a2alKey := string(sr.SecondaryAttackKey) + "Left"
+	anims[a2alKey] = &Animation{
+		Name:        a2alKey,
+		FrameOX:     350,
+		FrameOY:     20,
+		FrameWidth:  70,
+		FrameHeight: 70,
+		FrameCount:  5,
+		PosOffsetX:  14,
+		SpriteSheet: knightSpriteQuickSlashLeft,
+		Fixed:       true,
+	}
+
+	/*
+		---------------------------------------------------------------------------------
+		Secondary End
+		---------------------------------------------------------------------------------
+	*/
+
+	/*
+		---------------------------------------------------------------------------------
+		Tert Attack
+		---------------------------------------------------------------------------------
+	*/
+	a3mlKey := string(sr.TertAttackKey) + "MovementLeft"
+	anims[a3mlKey] = &Animation{
+		Name:        a3mlKey,
 		FrameOX:     440,
 		FrameOY:     0,
 		FrameWidth:  40,
 		FrameHeight: 48,
 		FrameCount:  11,
-		SpriteSheet: knightSpriteMVLeft,
+		SpriteSheet: knightSpriteDashSlashMVLeft,
 		Fixed:       true,
 	}
-	a2mrKey := string(sr.SecondaryAttackKey) + "MovementRight"
-	anims[a2mrKey] = &Animation{
-		Name:        a2mrKey,
+
+	a3mrKey := string(sr.TertAttackKey) + "MovementRight"
+	anims[a3mrKey] = &Animation{
+		Name:        a3mrKey,
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  40,
 		FrameHeight: 48,
 		FrameCount:  11,
-		SpriteSheet: knightSpriteMVRight,
+		SpriteSheet: knightSpriteDashSlashMVRight,
 		Fixed:       true,
 	}
 
-	a2wurKey := string(sr.SecondaryAttackKey) + "WindupRight"
-	anims[a2wurKey] = &Animation{
-		Name:        a2wurKey,
+	a3wurKey := string(sr.TertAttackKey) + "WindupRight"
+	anims[a3wurKey] = &Animation{
+		Name:        a3wurKey,
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 48,
 		FrameCount:  11,
 		PosOffsetX:  14,
-		SpriteSheet: knightSpriteWURight,
+		SpriteSheet: knightSpriteDashSlashWURight,
 		Fixed:       true,
 	}
-	a2wulKey := string(sr.SecondaryAttackKey) + "WindupLeft"
-	anims[a2wulKey] = &Animation{
-		Name:        a2wulKey,
+
+	a3wulKey := string(sr.TertAttackKey) + "WindupLeft"
+	anims[a3wulKey] = &Animation{
+		Name:        a3wulKey,
 		FrameOX:     770,
 		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 48,
 		FrameCount:  11,
 		PosOffsetX:  14,
-		SpriteSheet: knightSpriteWULeft,
+		SpriteSheet: knightSpriteDashSlashWULeft,
 		Fixed:       true,
 	}
 
-	a2arKey := "secondaryAtkRight"
-	anims[a2arKey] = &Animation{
-		Name:        a2arKey,
+	a3arKey := "tertAtkRight"
+	anims[a3arKey] = &Animation{
+		Name:        a3arKey,
 		FrameOX:     0,
 		FrameOY:     10,
 		FrameWidth:  75,
 		FrameHeight: 60,
 		FrameCount:  12,
-		SpriteSheet: knightSecondaryAttackRight,
+		SpriteSheet: knightSpriteDashSlashRight,
 		Fixed:       true,
 	}
 
-	a2alKey := "secondaryAtkLeft"
-	anims[a2alKey] = &Animation{
-		Name:        a2alKey,
+	a3alKey := "tertAtkLeft"
+	anims[a3alKey] = &Animation{
+		Name:        a3alKey,
 		FrameOX:     900,
 		FrameOY:     10,
 		FrameWidth:  75,
 		FrameHeight: 60,
 		FrameCount:  12,
-		SpriteSheet: knightSecondaryAttackLeft,
+		SpriteSheet: knightSpriteDashSlashLeft,
 		Fixed:       true,
 	}
 
-	a3alKey := "tertAtkLeft"
-	a3arKey := "tertAtkRight"
-	a3mlKey := string(sr.TertAttackKey) + "MovementLeft"
-	a3mrKey := string(sr.TertAttackKey) + "MovementRight"
-	a3wulKey := string(sr.TertAttackKey) + "WindupLeft"
-	a3wurKey := string(sr.TertAttackKey) + "WindupRight"
+	/*
+		---------------------------------------------------------------------------------
+		Tert Attack END
+		---------------------------------------------------------------------------------
+	*/
 
-	anims[a3arKey] = anims[a2arKey]
-	anims[a3arKey].Name = a3arKey
+	/*
+		---------------------------------------------------------------------------------
+		Quaternary Attack
+		---------------------------------------------------------------------------------
+	*/
 
-	anims[a3alKey] = anims[a2alKey]
-	anims[a3alKey].Name = a3alKey
+	a4wurKey := string(sr.QuaternaryAttackKey) + "WindupRight"
+	anims[a4wurKey] = &Animation{
+		Name:        a4wurKey,
+		FrameOX:     0,
+		FrameOY:     20,
+		FrameWidth:  70,
+		FrameHeight: 70,
+		FrameCount:  12,
+		PosOffsetX:  14,
+		SpriteSheet: knightSpriteQuickSlashWindupRight,
+		Fixed:       true,
+	}
 
-	anims[a3wulKey] = anims[a2wulKey]
-	anims[a3wulKey].Name = a3wulKey
+	a4wulKey := string(sr.QuaternaryAttackKey) + "WindupLeft"
+	anims[a4wulKey] = &Animation{
+		Name:        a4wulKey,
+		FrameOX:     840,
+		FrameOY:     20,
+		FrameWidth:  70,
+		FrameHeight: 70,
+		FrameCount:  12,
+		PosOffsetX:  14,
+		SpriteSheet: knightSpriteQuickSlashWindupLeft,
+		Fixed:       true,
+	}
 
-	anims[a3wurKey] = anims[a2wurKey]
-	anims[a3wurKey].Name = a3wurKey
+	a4arKey := string(sr.QuaternaryAttackKey) + "Right"
+	anims[a4arKey] = &Animation{
+		Name:        a4arKey,
+		FrameOX:     0,
+		FrameOY:     20,
+		FrameWidth:  70,
+		FrameHeight: 70,
+		FrameCount:  5,
+		PosOffsetX:  14,
+		SpriteSheet: knightSpriteQuickSlashRight,
+		Fixed:       true,
+	}
 
-	anims[a3mrKey] = anims[a2mrKey]
-	anims[a3mrKey].Name = a3mrKey
+	a4alKey := string(sr.QuaternaryAttackKey) + "Left"
+	anims[a4alKey] = &Animation{
+		Name:        a4alKey,
+		FrameOX:     350,
+		FrameOY:     20,
+		FrameWidth:  70,
+		FrameHeight: 70,
+		FrameCount:  5,
+		PosOffsetX:  14,
+		SpriteSheet: knightSpriteQuickSlashLeft,
+		Fixed:       true,
+	}
 
-	anims[a3mlKey] = anims[a2mlKey]
-	anims[a3mlKey].Name = a3mlKey
+	/*
+		---------------------------------------------------------------------------------
+		Quaternary End
+		---------------------------------------------------------------------------------
+	*/
 
 	return anims
 

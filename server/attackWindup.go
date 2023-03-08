@@ -49,6 +49,7 @@ func (cp *player) chargeWindupPhase(atk *r.Attack) {
 }
 
 func checkWindupCharge(cp *player, atk *r.Attack) {
+
 	if !cp.isWindingUp() && atk.Windup != nil {
 		return
 	}

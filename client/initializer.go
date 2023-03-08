@@ -27,6 +27,7 @@ type gameSettings struct {
 	connRef      *grpc.ClientConn
 	audPlayer    *audio.Player
 	volume128    int
+	showHelp     bool
 }
 
 type devSettings struct {
@@ -65,6 +66,7 @@ func initClient() {
 		addr:         "localhost:50051",
 		fullScreen:   false,
 		enablePPROF:  false,
+		showHelp:     true,
 	}
 
 	devConfig = &devSettings{

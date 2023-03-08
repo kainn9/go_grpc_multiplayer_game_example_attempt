@@ -31,7 +31,7 @@ func (g *Game) InitMusic() {
 	// TODO: Create Audio System
 
 	go func() {
-		clientConfig.volume128 = 128
+		clientConfig.volume128 = 32
 		sampleRate := 32000
 		songBytes, err := ut.LoadMusic("./audio/base.mp3")
 		if err != nil {
@@ -128,7 +128,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		to be on highest z-index
 	*/
 	msg := fmt.Sprintf(
-		"PING(Calc is a bit busted rn): %v\nArrow Keys to move, space to jump(you can wall jump too)\nPress F to poke\nPress G for Dash Attack(WIP, takes one sec to fire and I have no windup anim yet/Attack part)\nPress T for 20 sec grav boost(2 min CD)\nPress 0 to toggle full-screen\nPress Z/X to controll volume\nCurr volume: %v\nPress 1 to toggle freeplay/devMode\nPress 3 to turn on dev preview\nPress 4 to swap worlds\nTPS: %0.2f\nhealth: %v\n",
+		"Press M to hide this menu!!!!\nPING(Calc is a bit busted rn): %v\nControls: Arrow Keys for Movment\nSpace to jump(you can wall jump too)\nAttacks:\nQ-key for primary Atk\nW-key for secondary Atk\nE-key for tertiary Atk\nR-key for quaternary Atk\nBuffs:\nT-key for 20 sec gravity boost(2 min CD)\nClient Controls:\n 0-key to toggle full-screen\nZ/X-keys to control volume\nCurr volume: %v\n1-key to toggle dev-camera\n3-key to turn on dev world builder preview\nL-key for hitbox mode(Note: this will break client until restart)\n4-key to swap worlds\nTPS: %0.2f\nhealth: %v\n",
 		devConfig.ping,
 		clientConfig.volume128,
 		ebiten.ActualTPS(),
@@ -152,7 +152,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	} else {
 		msg += fmt.Sprintf("X:%v\nY:%v\n", pc.x, pc.y)
 	}
-	ebitenutil.DebugPrint(screen, msg)
+	if clientConfig.showHelp {
+		ebitenutil.DebugPrint(screen, msg)
+	} else {
+		ebitenutil.DebugPrint(screen, fmt.Sprintf("Health: %v\n", pc.health()))
+	}
+
 }
 
 /*
