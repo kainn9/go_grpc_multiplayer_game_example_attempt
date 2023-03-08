@@ -59,16 +59,15 @@ Game counter, capping at 60
 to match ebiten TPS
 */
 func (g *Game) IncrementTicks() {
-	
+
 	clientConfig.ticks++
-	
+
 	if clientConfig.ticks > 60 {
 		clientConfig.ticks = 0
 	}
 
-
 	for k, a := range fixedAnims {
-		
+
 		p := clientConfig.game.World.playerMap[a.pid]
 		if p == nil {
 
@@ -91,7 +90,7 @@ func (g *Game) IncrementTicks() {
 
 func (g *Game) Update() error {
 	g.IncrementTicks()
-	
+
 	Update(g.World)
 	return nil
 }
@@ -186,7 +185,7 @@ func NewGame() *Game {
 
 func main() {
 	initClient()
-	
+
 	// PPROF HANDLER
 	// Add a handler for the pprof endpoint at
 	// http: //localhost:6060/debug/pprof/

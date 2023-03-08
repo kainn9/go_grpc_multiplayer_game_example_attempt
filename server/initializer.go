@@ -18,13 +18,14 @@ type gamePhysStruct struct {
 
 // serverConfigStruct holds server configuration and state information.
 type serverConfigStruct struct {
-	mutex         sync.RWMutex        
-	addr          string               
+	mutex         sync.RWMutex
+	addr          string
 	worldsMap     map[string]*world
 	activePlayers map[string]*player
 	AOTP          map[*resolv.Object]*player // Map of Attack resolv objects to Player struct, eventually should be world scoped.
-	OTA map[*resolv.Object]*r.Attack
-	HTAP map[string]bool
+	OTA           map[*resolv.Object]*r.Attack
+	HTAP          map[string]bool
+	OTP           map[*resolv.Object]*player
 }
 
 // worldsStruct holds world objects.
@@ -32,7 +33,6 @@ type worldsStruct struct {
 	main *world // Main world object.
 	alt  *world // Alternative world object.
 }
-
 
 var worlds = worldsStruct{
 	main: newWorld(848, 3200, mainWorldBuilder, "main"),
@@ -43,15 +43,16 @@ var serverConfig = serverConfigStruct{
 	addr:          ":50051",
 	worldsMap:     make(map[string]*world),
 	activePlayers: make(map[string]*player),
-	AOTP:          make(map[*resolv.Object]*player), // TODO: This should be world scoped.
+	AOTP:          make(map[*resolv.Object]*player),   // TODO: This should be world scoped.
 	OTA:           make(map[*resolv.Object]*r.Attack), // TODO: This should be world scoped.
-	HTAP:          make(map[string]bool), // TODO: This should be world scoped.
+	HTAP:          make(map[string]bool),
+	OTP:           make(map[*resolv.Object]*player), // TODO: This should be world scoped
 	mutex:         sync.RWMutex{},
 }
 
 var gamePhys = gamePhysStruct{
-	defaultFriction: 0.5, // Default friction value.
-	defaultMaxSpeed: 4.0, // Default max speed value.
+	defaultFriction: 0.5,  // Default friction value.
+	defaultMaxSpeed: 4.0,  // Default max speed value.
 	defaultJumpSpd:  12.0, // Default jump speed value.
 	defaultGravity:  0.75, // Default gravity value.
 }
@@ -70,8 +71,6 @@ func initializer() {
 		newTickLoop(w)
 	}
 }
-
-
 
 // TODO: Struct up this guy...
 var (

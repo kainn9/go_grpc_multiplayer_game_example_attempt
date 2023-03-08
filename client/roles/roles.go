@@ -18,7 +18,7 @@ type Role struct {
 }
 
 type Animation struct {
-	Fixed bool
+	Fixed       bool
 	FrameOX     int
 	FrameOY     int
 	FrameWidth  int
@@ -26,7 +26,7 @@ type Animation struct {
 	FrameCount  int
 	Name        string
 	SpriteSheet *ebiten.Image
-	PosOffsetX float64
+	PosOffsetX  float64
 }
 
 const (

@@ -19,20 +19,22 @@ var (
 	knightSpriteIdleLeft  *ebiten.Image
 	knightSpriteIdleRight *ebiten.Image
 
-	knightSpriteWalkingRight *ebiten.Image
-	knightSpriteWalkingLeft  *ebiten.Image
-	knightSpriteJumpLeft     *ebiten.Image
-	knightSpriteJumpRight    *ebiten.Image
-	knightSpriteAttackLeft   *ebiten.Image
-	knightSpriteAttackRight  *ebiten.Image
-	knightSpriteKBRight      *ebiten.Image
-	knightSpriteKBLeft       *ebiten.Image
-	knightSpriteWULeft   	*ebiten.Image
-	knightSpriteWURight   	*ebiten.Image
-	knightSpriteMVRight      	*ebiten.Image
-	knightSpriteMVLeft   	*ebiten.Image
-	knightSecondaryAttackLeft       *ebiten.Image
-	knightSecondaryAttackRight       *ebiten.Image
+	knightSpriteWalkingRight   *ebiten.Image
+	knightSpriteWalkingLeft    *ebiten.Image
+	knightSpriteJumpLeft       *ebiten.Image
+	knightSpriteJumpRight      *ebiten.Image
+	knightSpriteAttackLeft     *ebiten.Image
+	knightSpriteAttackRight    *ebiten.Image
+	knightSpriteKBRight        *ebiten.Image
+	knightSpriteKBLeft         *ebiten.Image
+	knightSpriteWULeft         *ebiten.Image
+	knightSpriteWURight        *ebiten.Image
+	knightSpriteMVRight        *ebiten.Image
+	knightSpriteMVLeft         *ebiten.Image
+	knightSecondaryAttackLeft  *ebiten.Image
+	knightSecondaryAttackRight *ebiten.Image
+	knightSlideRight           *ebiten.Image
+	knightSlideLeft            *ebiten.Image
 )
 
 /*
@@ -54,8 +56,11 @@ func LoadKnightSprites() {
 	knightSpriteMVRight = ut.LoadImg("./sprites/knight/knightSecondaryMovementRight.png")
 	knightSpriteWULeft = ut.LoadImg("./sprites/knight/knightSecondaryWindupLeft.png")
 	knightSpriteWURight = ut.LoadImg("./sprites/knight/knightSecondaryWindupRight.png")
-	knightSecondaryAttackLeft =  ut.LoadImg("./sprites/knight/knightSecondarySlashAttackLeft.png")
-	knightSecondaryAttackRight =  ut.LoadImg("./sprites/knight/knightSecondarySlashAttackRight.png")
+	knightSecondaryAttackLeft = ut.LoadImg("./sprites/knight/knightSecondarySlashAttackLeft.png")
+	knightSecondaryAttackRight = ut.LoadImg("./sprites/knight/knightSecondarySlashAttackRight.png")
+
+	knightSlideRight = ut.LoadImg("./sprites/knight/knightSlideRight.png")
+	knightSlideLeft = ut.LoadImg("./sprites/knight/knightSlideLeft.png")
 }
 
 func InitKnight() *Role {
@@ -128,6 +133,24 @@ func KnightAnims() map[string]*Animation {
 		SpriteSheet: knightSpriteJumpRight,
 	}
 
+	anims["defenseRight"] = &Animation{
+		FrameOX:     0,
+		FrameOY:     0,
+		FrameWidth:  50,
+		FrameHeight: 48,
+		FrameCount:  20,
+		SpriteSheet: knightSlideRight,
+	}
+
+	anims["defenseLeft"] = &Animation{
+		FrameOX:     1000,
+		FrameOY:     0,
+		FrameWidth:  50,
+		FrameHeight: 48,
+		FrameCount:  20,
+		SpriteSheet: knightSlideLeft,
+	}
+
 	anims[string(sr.PrimaryAttackKey)+"Right"] = &Animation{
 		FrameOX:     0,
 		FrameOY:     0,
@@ -164,86 +187,77 @@ func KnightAnims() map[string]*Animation {
 		SpriteSheet: knightSpriteKBLeft,
 	}
 
-
-	
 	a2mlKey := string(sr.SecondaryAttackKey) + "MovementLeft"
 	anims[a2mlKey] = &Animation{
-		Name: a2mlKey,
+		Name:        a2mlKey,
 		FrameOX:     440,
 		FrameOY:     0,
 		FrameWidth:  40,
 		FrameHeight: 48,
 		FrameCount:  11,
 		SpriteSheet: knightSpriteMVLeft,
-		Fixed: true,
-		
+		Fixed:       true,
 	}
 	a2mrKey := string(sr.SecondaryAttackKey) + "MovementRight"
 	anims[a2mrKey] = &Animation{
-		Name: a2mrKey,
+		Name:        a2mrKey,
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  40,
 		FrameHeight: 48,
 		FrameCount:  11,
 		SpriteSheet: knightSpriteMVRight,
-		Fixed: true,
-		
+		Fixed:       true,
 	}
 
 	a2wurKey := string(sr.SecondaryAttackKey) + "WindupRight"
 	anims[a2wurKey] = &Animation{
-		Name: a2wurKey,
+		Name:        a2wurKey,
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 48,
 		FrameCount:  11,
-		PosOffsetX: 14,
+		PosOffsetX:  14,
 		SpriteSheet: knightSpriteWURight,
-		Fixed: true,
-		
+		Fixed:       true,
 	}
 	a2wulKey := string(sr.SecondaryAttackKey) + "WindupLeft"
 	anims[a2wulKey] = &Animation{
-		Name: a2wulKey,
+		Name:        a2wulKey,
 		FrameOX:     770,
 		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 48,
 		FrameCount:  11,
-		PosOffsetX: 14,
+		PosOffsetX:  14,
 		SpriteSheet: knightSpriteWULeft,
-		Fixed: true,
-		
+		Fixed:       true,
 	}
 
 	a2arKey := "secondaryAtkRight"
 	anims[a2arKey] = &Animation{
-		Name: a2arKey,
+		Name:        a2arKey,
 		FrameOX:     0,
 		FrameOY:     10,
 		FrameWidth:  75,
 		FrameHeight: 60,
 		FrameCount:  12,
 		SpriteSheet: knightSecondaryAttackRight,
-		Fixed: true,
-		
+		Fixed:       true,
 	}
 
 	a2alKey := "secondaryAtkLeft"
 	anims[a2alKey] = &Animation{
-		Name: a2alKey,
+		Name:        a2alKey,
 		FrameOX:     900,
 		FrameOY:     10,
 		FrameWidth:  75,
 		FrameHeight: 60,
 		FrameCount:  12,
 		SpriteSheet: knightSecondaryAttackLeft,
-		Fixed: true,
+		Fixed:       true,
 	}
-
-
 
 	a3alKey := "tertAtkLeft"
 	a3arKey := "tertAtkRight"
@@ -251,26 +265,24 @@ func KnightAnims() map[string]*Animation {
 	a3mrKey := string(sr.TertAttackKey) + "MovementRight"
 	a3wulKey := string(sr.TertAttackKey) + "WindupLeft"
 	a3wurKey := string(sr.TertAttackKey) + "WindupRight"
-	
+
 	anims[a3arKey] = anims[a2arKey]
 	anims[a3arKey].Name = a3arKey
 
 	anims[a3alKey] = anims[a2alKey]
 	anims[a3alKey].Name = a3alKey
-	
+
 	anims[a3wulKey] = anims[a2wulKey]
 	anims[a3wulKey].Name = a3wulKey
 
 	anims[a3wurKey] = anims[a2wurKey]
 	anims[a3wurKey].Name = a3wurKey
 
-		
 	anims[a3mrKey] = anims[a2mrKey]
 	anims[a3mrKey].Name = a3mrKey
 
 	anims[a3mlKey] = anims[a2mlKey]
 	anims[a3mlKey].Name = a3mlKey
-
 
 	return anims
 

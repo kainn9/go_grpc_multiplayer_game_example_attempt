@@ -10,33 +10,31 @@ import (
 )
 
 type hitboxTest struct {
-	on bool
-	name string
+	on    bool
+	name  string
 	count int
 	frame int
-	left bool
-	inc float64
+	left  bool
+	inc   float64
 }
 
-
 type hitBox struct {
-	pOffX float64	
-	pOffY float64
+	pOffX  float64
+	pOffY  float64
 	height float64
-	width float64
+	width  float64
 }
 
 type hitBoxAggregate []hitBox
 
 type hitBoxSequence struct {
-	hBoxPath hBoxPath
+	hBoxPath   hBoxPath
 	movmentInc float64
 }
 
 type hBoxPath []hitBoxAggregate
 
 const noBox = -1000
-
 
 /*
 	------------------------------------------------
@@ -46,21 +44,20 @@ const noBox = -1000
 
 var (
 	hitBoxTest = &hitboxTest{
-		name: string(sr.SecondaryAttackKey),
-		on: false,
+		name:  string(sr.SecondaryAttackKey),
+		on:    false,
 		count: 12,
 		// set to -1 to play whole anim
-		frame:  -1,
-		left : false,
-		inc: 16.666 * 5, // 1 frame at 60fps
+		frame: -1,
+		left:  false,
+		inc:   16.666 * 5, // 1 frame at 60fps
 	}
 )
 
 func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
 
-
-	// frame 0 
+	// frame 0
 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
 
 	// frame 1
@@ -84,7 +81,6 @@ func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
 	path = path.appendHboxAgg(16, 38, 8, 8, 2)
 	path = path.appendHboxAgg(8, 38, 8, 8, 2)
 
-
 	// frame same as 2
 	path[3] = path[2]
 
@@ -107,10 +103,8 @@ func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
 	path[10] = path[8]
 	path[11] = path[9]
 
-
 	startHitboxSim(screen, cp, inc, path, 0)
 }
-
 
 /*
 	------------------------------------------------
@@ -122,23 +116,21 @@ func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
 func (path hBoxPath) appendHboxAgg(x float64, y float64, h float64, w float64, index int) hBoxPath {
 
 	path[index] = append(path[index], hitBox{
-		pOffX: x,
-		pOffY: y,
+		pOffX:  x,
+		pOffY:  y,
 		height: h,
-		width: w,
+		width:  w,
 	})
 
 	return path
 }
-
-
 
 func spawnBox(screen *ebiten.Image, cp *PlayerController, inc float64, path hBoxPath, index int) {
 
 	if len(path) == index {
 		hitBoxTest.on = false
 		return
-	}	
+	}
 
 	hBoxAgg := path[index]
 
@@ -147,21 +139,19 @@ func spawnBox(screen *ebiten.Image, cp *PlayerController, inc float64, path hBox
 	for _, hBox := range hBoxAgg {
 
 		if hitBoxTest.left {
-			ebitenutil.DrawRect(screen, cp.x - (hBox.pOffX -hBox.width/2), cp.y + hBox.pOffY, hBox.width, hBox.height, colorBox)			
+			ebitenutil.DrawRect(screen, cp.x-(hBox.pOffX-hBox.width/2), cp.y+hBox.pOffY, hBox.width, hBox.height, colorBox)
 		} else {
-			ebitenutil.DrawRect(screen, cp.x + hBox.pOffX, cp.y + hBox.pOffY, hBox.width, hBox.height, colorBox)
+			ebitenutil.DrawRect(screen, cp.x+hBox.pOffX, cp.y+hBox.pOffY, hBox.width, hBox.height, colorBox)
 
 		}
 	}
 
-	
-
 	time.AfterFunc(time.Duration(inc)*time.Millisecond, func() {
-		spawnBox(screen, cp, inc, path, index + 1)
+		spawnBox(screen, cp, inc, path, index+1)
 	})
 }
 
-func hitBoxSimSetup(inc float64) (float64, hBoxPath){
+func hitBoxSimSetup(inc float64) (float64, hBoxPath) {
 	simPath := &hitBoxSequence{
 		movmentInc: inc,
 	}
@@ -176,6 +166,3 @@ func startHitboxSim(screen *ebiten.Image, cp *PlayerController, inc float64, pat
 
 	spawnBox(screen, cp, inc, path, 0)
 }
-
-
-

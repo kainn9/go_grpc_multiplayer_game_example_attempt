@@ -150,7 +150,6 @@ Listens for Player inputs during game update phase
 */
 func (pc *PlayerController) InputListener() {
 
-
 	// attack Hbox Tester
 	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
 		if hitBoxTest.on {
@@ -158,7 +157,6 @@ func (pc *PlayerController) InputListener() {
 		}
 		hitBoxSim(pc.world.bg, pc)
 	}
-	
 
 	updateVolumeIfNeeded()
 
@@ -174,7 +172,6 @@ func (pc *PlayerController) InputListener() {
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		devConfig.freePlay = !devConfig.freePlay
 	}
-
 
 	// Free Play Cam
 	// Also an example of a "Cam Hack"
@@ -267,7 +264,10 @@ func (pc *PlayerController) InputListener() {
 		isPressing = true
 	}
 
-
+	if ebiten.IsKeyPressed(ebiten.KeyShift) {
+		pc.inputHandler("defense")
+		isPressing = true
+	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
 		pc.inputHandler("gravBoost")
@@ -306,7 +306,6 @@ func (p *PlayerController) inputHandler(input string) {
 	// Perhaps some predictive camera/client side camera movement should be done
 */
 
-
 func (pc *PlayerController) SetCameraPosition() {
 	gw := pc.world.Width
 	gh := pc.world.Height
@@ -322,19 +321,18 @@ func (pc *PlayerController) SetCameraPosition() {
 	// to avoid player jitters in millisecond/micro-pixel
 	// diff in player pos vs where they are being rendered on cam
 	pc.playerCXpos = pc.x
-	pc.playerCYpos= pc.y
+	pc.playerCYpos = pc.y
 
 	x := (pc.x / 2)
 	y := (pc.y / 2)
 
-	// edges of level where we want to 
+	// edges of level where we want to
 	// stop centering the player in the cam
 	// to avoid showing empty space
 	xBoundLeft := (pc.x - ScreenWidth/2) < 0
 	xBoundBottom := (pc.y + (ScreenHeight / 2)) > gh
 	xBoundRight := (pc.x + ScreenWidth/2) > gw
 	xBoundTop := (pc.y - ScreenHeight/2) < 0
-
 
 	if xBoundLeft && xBoundBottom {
 
@@ -437,7 +435,6 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	cw.playerController.x = ps.Lx
 	cw.playerController.y = ps.Ly
 
-
 	if clientConfig.game.CurrentWorld != ps.World {
 
 		newData := clientConfig.worldsMap[ps.World]
@@ -470,7 +467,7 @@ func (pc *PlayerController) SubscribeToState() {
 				break
 			}
 			devConfig.ping = float64(time.Since(devConfig.reqT))
-			
+
 			// reg lock on insertion?
 			wTex.Lock()
 			world.state = res.Players
@@ -485,9 +482,7 @@ func (pc *PlayerController) health() int {
 	if p != nil {
 		return p.health
 	}
-	
+
 	// TODO: idk what to do here yet
 	return 0
 }
-
-

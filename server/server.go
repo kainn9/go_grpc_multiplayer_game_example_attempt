@@ -192,6 +192,7 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 			Windup:         string(curr.windup),
 			AttackMovement: string(curr.attackMovement),
 			Health:         int32(curr.health),
+			// Defending:      curr.defending,
 		}
 
 		res.Players = append(res.Players, p)

@@ -7,10 +7,11 @@ type Role struct {
 	Attacks  map[AtKey]*Attack
 	HitBoxW  float64
 	HitBoxH  float64
+	Defense  *Defense
 }
 
 type Attack struct {
-	Name AtKey
+	Name     AtKey
 	Cooldown int
 	Duration int
 	Type     AtKey
@@ -26,53 +27,57 @@ type Windup struct {
 }
 
 type ChargeEffect struct {
-	MultFactorDmg float64
-	MultFactorMvSpeed float64
-	MultFactorMvDist float64
+	MultFactorDmg      float64
+	MultFactorMvSpeed  float64
+	MultFactorMvDist   float64
 	MultFactorKbxSpeed float64
 	MultFactorKbySpeed float64
-	MultFactorKbxDur float64
-	MultFactorKbyDur float64
-	TimeLimit float64
+	MultFactorKbxDur   float64
+	MultFactorKbyDur   float64
+	TimeLimit          float64
 }
 
 type Movement struct {
-	Distance float64
-	SpeedX float64
-	UseChargeDist bool
+	Distance       float64
+	SpeedX         float64
+	UseChargeDist  bool
 	UseChargeSpeed bool
 }
 
 type HitBox struct {
-	Height float64
-	Width  float64
-	PlayerOffX  float64
-	PlayerOffY  float64
+	Height     float64
+	Width      float64
+	PlayerOffX float64
+	PlayerOffY float64
 }
 
 type HitBoxAggregate []HitBox
 type HBoxPath []HitBoxAggregate
 
 type HitBoxSequence struct {
-	HBoxPath HBoxPath
+	HBoxPath   HBoxPath
 	MovmentInc float64
 }
 
-
-
 type Consequence struct {
-	Damage int
-	KnockbackX float64
-	KnockbackY float64
-	KnockbackXDuration int
-	KnockbackYDuration int
+	Damage               int
+	KnockbackX           float64
+	KnockbackY           float64
+	KnockbackXDuration   int
+	KnockbackYDuration   int
 	UseChargeKbyDuration bool
 	UseChargeKbxDuration bool
-	UseChargeKbxSpeed bool
-	UseChargeKbySpeed bool
-	UseChargeDmg bool
+	UseChargeKbxSpeed    bool
+	UseChargeKbySpeed    bool
+	UseChargeDmg         bool
 }
 
+type Defense struct {
+	Displacment float64
+	Delay       float64
+	Speed       float64
+	Cooldown    float64
+}
 
 const (
 	KnightType PlayerType = "knight"
@@ -82,11 +87,10 @@ const (
 type AtKey string
 
 const (
-	PrimaryAttackKey AtKey = "primaryAtk"
+	PrimaryAttackKey   AtKey = "primaryAtk"
 	SecondaryAttackKey AtKey = "secondaryAtk"
-	TertAttackKey AtKey = "tertAtk"
+	TertAttackKey      AtKey = "tertAtk"
 )
-
 
 const noBox = -100
 
@@ -95,8 +99,8 @@ func (path HBoxPath) appendHboxAgg(x float64, y float64, h float64, w float64, i
 	path[index] = append(path[index], HitBox{
 		PlayerOffX: x,
 		PlayerOffY: y,
-		Height: h,
-		Width: w,
+		Height:     h,
+		Width:      w,
 	})
 
 	return path

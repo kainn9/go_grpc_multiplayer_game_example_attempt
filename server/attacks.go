@@ -7,7 +7,6 @@ import (
 // attackHandler handles player's attack inputs
 func (cp *player) attackHandler(input string, world *world) {
 
-
 	// can't attack while attacking yo
 	if cp.currAttack != nil {
 		return
@@ -27,7 +26,6 @@ func (cp *player) attackHandler(input string, world *world) {
 	}
 }
 
-
 func (cp *player) attack(world *world, atKey r.AtKey) {
 
 	atk := cp.Attacks[atKey]
@@ -35,4 +33,3 @@ func (cp *player) attack(world *world, atKey r.AtKey) {
 	cp.windupPhase(atk, atKey)
 
 }
-

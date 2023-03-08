@@ -15,7 +15,7 @@ type World struct {
 	space            *resolv.Space
 	playerController *PlayerController
 	state            []*pb.Player
-	playerMap 			map[string]*Player
+	playerMap        map[string]*Player
 	worldTex         sync.RWMutex
 	worldData
 }
@@ -148,7 +148,6 @@ Renders players from server response
 */
 func (world *World) DrawPlayers() {
 
-
 	newPlayerMap := make(map[string]*Player)
 
 	wTex := &world.worldTex
@@ -178,7 +177,6 @@ func (world *World) DrawPlayers() {
 		p.health = int(ps.Health)
 
 		newPlayerMap[ps.Id] = p
-
 
 		if ps.Id == world.playerController.pid {
 			CurrentPlayerHandler(world.playerController, ps, p)

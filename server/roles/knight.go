@@ -14,12 +14,19 @@ func KnightAttacks() map[AtKey]*Attack {
 }
 
 func InitKnight() *Role {
+	d := &Defense{
+		Speed:       16,
+		Delay:       0,
+		Displacment: 80,
+		Cooldown:    1000,
+	}
 
 	r := &Role{
 		RoleType: KnightType,
 		Attacks:  KnightAttacks(),
 		HitBoxW:  16,
 		HitBoxH:  44,
+		Defense:  d,
 	}
 
 	return r
@@ -27,12 +34,12 @@ func InitKnight() *Role {
 
 func primaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	atks[PrimaryAttackKey] = &Attack{
-		Name: PrimaryAttackKey,
+		Name:     PrimaryAttackKey,
 		Cooldown: 5,
 		Consequence: &Consequence{
-			Damage: 25,
-			KnockbackX: 16,
-			KnockbackY: 2,
+			Damage:             25,
+			KnockbackX:         16,
+			KnockbackY:         2,
 			KnockbackXDuration: 250,
 			KnockbackYDuration: 50,
 		},
@@ -40,13 +47,13 @@ func primaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	}
 
 	PrimaryAtkSeq := HitBoxSequence{
-		HBoxPath: make([]HitBoxAggregate, 4),
+		HBoxPath:   make([]HitBoxAggregate, 4),
 		MovmentInc: 16.666 * 5,
 	}
 
 	path := PrimaryAtkSeq.HBoxPath
 
-	// frame 0 
+	// frame 0
 	path.appendHboxAgg(noBox, noBox, 8, 8, 0)
 
 	// frame 1
@@ -58,7 +65,6 @@ func primaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	return atks
 }
 
-
 func secondaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	windup := &Windup{
 		Duration: 750,
@@ -66,34 +72,32 @@ func secondaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 
 	movement := &Movement{
 		Distance: 480,
-		SpeedX: 10,
+		SpeedX:   10,
 	}
 
-	
 	atks[SecondaryAttackKey] = &Attack{
-		Name: SecondaryAttackKey,
+		Name:     SecondaryAttackKey,
 		Cooldown: 5,
 		Type:     SecondaryAttackKey,
-		Windup: windup,
+		Windup:   windup,
 		Movement: movement,
 		Consequence: &Consequence{
-			Damage: 10,
-			KnockbackX: 6,
-			KnockbackY: 6,
+			Damage:             10,
+			KnockbackX:         6,
+			KnockbackY:         6,
 			KnockbackXDuration: 500,
 			KnockbackYDuration: 150,
 		},
 	}
 
-
 	atkSeq := HitBoxSequence{
-		HBoxPath: make([]HitBoxAggregate, 12),
+		HBoxPath:   make([]HitBoxAggregate, 12),
 		MovmentInc: 16.666 * 5,
 	}
 
 	path := atkSeq.HBoxPath
 
-	// frame 0 
+	// frame 0
 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
 
 	// frame 1
@@ -116,7 +120,6 @@ func secondaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	path = path.appendHboxAgg(24, 38, 8, 8, 2)
 	path = path.appendHboxAgg(16, 38, 8, 8, 2)
 	path = path.appendHboxAgg(8, 38, 8, 8, 2)
-
 
 	// frame same as 2
 	path[3] = path[2]
@@ -144,8 +147,6 @@ func secondaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	return atks
 }
 
-
-
 // TODO: make this more dry
 // maybe doing something like tertAtk = secondaryAtk and only changing the charge effect
 // but I'm too lazy to do that rn
@@ -159,50 +160,48 @@ func tertAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	windup := &Windup{
 		Duration: 750,
 		ChargeEffect: &ChargeEffect{
-			MultFactorMvDist: 200,
-			MultFactorMvSpeed: 1.5,
-			MultFactorDmg: 3,
+			MultFactorMvDist:   200,
+			MultFactorMvSpeed:  1.5,
+			MultFactorDmg:      3,
 			MultFactorKbxSpeed: 1.5,
-			MultFactorKbxDur: 333,
-			TimeLimit: 10,
+			MultFactorKbxDur:   333,
+			TimeLimit:          10,
 		},
 	}
 
 	movement := &Movement{
-		Distance: 480,
-		SpeedX: 10,
-		UseChargeDist: true,
+		Distance:       480,
+		SpeedX:         10,
+		UseChargeDist:  true,
 		UseChargeSpeed: true,
 	}
 
-	
 	atks[TertAttackKey] = &Attack{
-		Name: TertAttackKey,
+		Name:     TertAttackKey,
 		Cooldown: 5,
 		Type:     TertAttackKey,
-		Windup: windup,
+		Windup:   windup,
 		Movement: movement,
 		Consequence: &Consequence{
-			Damage: 10,
-			KnockbackX: 6,
-			KnockbackY: 6,
+			Damage:             10,
+			KnockbackX:         6,
+			KnockbackY:         6,
 			KnockbackXDuration: 500,
 			KnockbackYDuration: 150,
-			
+
 			UseChargeKbxDuration: true,
-			UseChargeDmg: true,
+			UseChargeDmg:         true,
 		},
 	}
 
-
 	atkSeq := HitBoxSequence{
-		HBoxPath: make([]HitBoxAggregate, 12),
+		HBoxPath:   make([]HitBoxAggregate, 12),
 		MovmentInc: 16.666 * 5,
 	}
 
 	path := atkSeq.HBoxPath
 
-	// frame 0 
+	// frame 0
 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
 
 	// frame 1
@@ -225,7 +224,6 @@ func tertAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	path = path.appendHboxAgg(24, 38, 8, 8, 2)
 	path = path.appendHboxAgg(16, 38, 8, 8, 2)
 	path = path.appendHboxAgg(8, 38, 8, 8, 2)
-
 
 	// frame same as 2
 	path[3] = path[2]

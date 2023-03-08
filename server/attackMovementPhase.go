@@ -9,45 +9,41 @@ import (
 const noMovmentStartSet int = -100
 
 func (cp *player) movementPhase(atk *r.Attack) {
-		mv := atk.Movement
+	mv := atk.Movement
 
+	// if no movment is set, resolve the movment/go right into the atk sequence
+	if mv == nil {
+		cp.resolveMovment(atk)
+		return
+	}
 
-		// if no movment is set, resolve the movment/go right into the atk sequence
-		if mv == nil {
-			cp.resolveMovment(atk)
-			return
-		}
-		
-	
-		movementSpeed := movementSpeed(mv, atk, cp)
+	movementSpeed := movementSpeed(mv, atk, cp)
 
-		if cp.atkMovmentStartX == noMovmentStartSet {
-			cp.maxSpeed = float64(movementSpeed)
-			cp.atkMovmentStartX = int(cp.object.X)
+	if cp.movmentStartX == noMovmentStartSet {
+		cp.maxSpeed = float64(movementSpeed)
+		cp.movmentStartX = int(cp.object.X)
+	} else {
+
+		if cp.facingRight {
+			cp.speedX = float64(movementSpeed)
 		} else {
-
-			if cp.facingRight {
-				cp.speedX = float64(movementSpeed)
-			} else {
-				cp.speedX = float64(-movementSpeed)
-			}
-
-			distTraveled := math.Abs(float64(cp.atkMovmentStartX) - cp.object.X)
-
-
-			maxDist := mv.Distance
-
-			if atk.ChargeEffect != nil && mv.UseChargeDist {
-				maxDist = mv.Distance + (cp.chargeValue * atk.MultFactorMvDist)
-			}
-			
-			if distTraveled > maxDist {		
-				cp.resolveMovment(atk)
-			}
+			cp.speedX = float64(-movementSpeed)
 		}
-		
-}
 
+		distTraveled := math.Abs(float64(cp.movmentStartX) - cp.object.X)
+
+		maxDist := mv.Distance
+
+		if atk.ChargeEffect != nil && mv.UseChargeDist {
+			maxDist = mv.Distance + (cp.chargeValue * atk.MultFactorMvDist)
+		}
+
+		if distTraveled > maxDist {
+			cp.resolveMovment(atk)
+		}
+	}
+
+}
 
 func movementSpeed(mv *r.Movement, atk *r.Attack, cp *player) float64 {
 	movmentSpeed := mv.SpeedX
@@ -65,16 +61,21 @@ func movementSpeed(mv *r.Movement, atk *r.Attack, cp *player) float64 {
 func (cp *player) resolveMovment(atk *r.Attack) {
 	cp.attackMovement = ""
 	cp.maxSpeed = gamePhys.defaultMaxSpeed
-	cp.atkMovmentStartX = noMovmentStartSet
-			
+	cp.movmentStartX = noMovmentStartSet
+
 	cp.attackSeqence(atk)
 }
 
-func (cp *player) endMovment(){
+func (cp *player) endMovment() {
 	if cp.attackMovementActive() {
 		cp.attackMovement = ""
-		cp.atkMovmentStartX = noMovmentStartSet
+		cp.movmentStartX = noMovmentStartSet
 		cp.attackSeqence(cp.currAttack)
 	}
 }
 
+func (cp *player) interruptMovment() {
+	cp.windup = ""
+	cp.currAttack = nil
+	cp.attackMovement = ""
+}
