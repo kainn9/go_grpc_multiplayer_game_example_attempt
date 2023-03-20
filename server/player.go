@@ -11,26 +11,28 @@ import (
 
 // player represents a player in the game
 type player struct {
-	object         *resolv.Object // The Resolv physics object representing the player
-	speedX         float64        // The player's horizontal speed
-	speedY         float64        // The player's vertical speed
-	onGround       *resolv.Object // The Resolv physics object representing the ground the player is standing on
-	wallSliding    *resolv.Object // The Resolv physics object representing the wall the player is sliding on
-	facingRight    bool           // Whether the player is facing right or left
-	ignorePlatform *resolv.Object // The Resolv physics object representing a platform that the player can ignore collision with
-	pid            string         // The player's unique identifier
-	worldKey       string         // The key of the world the player is currently in
-	r.Role                       // The player's role
-	currAttack     *r.Attack      // The player's current attack
-	playerPh                     // The player's physics parameters
-	gravBoost      bool           // Whether the player is receiving a gravity boost
-	windup r.AtKey
-	chargeStart time.Time
-	chargeValue float64
-	attackMovement string
-	atkMovmentStartX int
-	prevEvent *pb.PlayerReq
-	health int
+	object          *resolv.Object // The Resolv physics object representing the player
+	speedX          float64        // The player's horizontal speed
+	speedY          float64        // The player's vertical speed
+	onGround        *resolv.Object // The Resolv physics object representing the ground the player is standing on
+	wallSliding     *resolv.Object // The Resolv physics object representing the wall the player is sliding on
+	facingRight     bool           // Whether the player is facing right or left
+	ignorePlatform  *resolv.Object // The Resolv physics object representing a platform that the player can ignore collision with
+	pid             string         // The player's unique identifier
+	worldKey        string         // The key of the world the player is currently in
+	r.Role                         // The player's role
+	currAttack      *r.Attack      // The player's current attack
+	playerPh                       // The player's physics parameters
+	gravBoost       bool           // Whether the player is receiving a gravity boost
+	windup          r.AtKey
+	chargeStart     time.Time
+	chargeValue     float64
+	attackMovement  string
+	movmentStartX   int
+	prevEvent       *pb.PlayerReq
+	health          int
+	defending       bool
+	defenseCooldown bool
 }
 
 // playerPh represents the physics parameters of a player
@@ -40,8 +42,8 @@ type playerPh struct {
 	maxSpeed float64 // The player's maximum speed
 	jumpSpd  float64 // The player's jump speed
 	gravity  float64 // The player's gravity
-	kbx float64 // The force of the knockback on the player
-	kby float64 // The force of the knockback on the player
+	kbx      float64 // The force of the knockback on the player
+	kby      float64 // The force of the knockback on the player
 }
 
 type ccString string
@@ -51,16 +53,13 @@ const (
 	KnockBack ccString = "Kb"
 )
 
-
-
 func (cp *player) isCC() ccString {
 	if cp.isKnockedBack() {
 		return KnockBack
 	}
-	
+
 	return None
 }
-
 
 func (cp *player) isKnockedBack() bool {
 	return cp.isKnockedBackX() || cp.isKnockedBackY()
@@ -86,6 +85,13 @@ func (cp *player) attackMovementActive() bool {
 	return cp.attackMovement != ""
 }
 
+// canAcceptInputs returns if a player is in a "controllable" state
+func (cp *player) canAcceptInputs() bool {
+	// returns true if player
+	// is not in knockback, windup or attack state
+	return !cp.isKnockedBack() && !cp.isWindingUp() && !cp.isAttacking() && !cp.defending
+}
+
 // newPlayer creates a new player with the given unique identifier and world key
 func newPlayer(pid string, worldKey string) *player {
 	ph := &playerPh{
@@ -97,12 +103,12 @@ func newPlayer(pid string, worldKey string) *player {
 	}
 
 	p := &player{
-		pid:      pid,
-		worldKey: worldKey,
-		Role:     *r.Knight,
-		playerPh: *ph,
-		atkMovmentStartX: -100,
-		health: 100,
+		pid:           pid,
+		worldKey:      worldKey,
+		Role:          *r.Knight,
+		playerPh:      *ph,
+		movmentStartX: -100,
+		health:        150,
 	}
 
 	return p
@@ -113,6 +119,10 @@ func addPlayerToSpace(space *resolv.Space, p *player, x float64, y float64) *pla
 	p.object = resolv.NewObject(x, y, p.HitBoxW, p.HitBoxH)
 	p.object.SetShape(resolv.NewRectangle(0, 0, p.object.W, p.object.H))
 
+	serverConfig.mutex.Lock()
+	serverConfig.OTP[p.object] = p
+	serverConfig.mutex.Unlock()
+
 	space.Add(p.object)
 	return p
 }
@@ -120,12 +130,18 @@ func addPlayerToSpace(space *resolv.Space, p *player, x float64, y float64) *pla
 // removePlayerFromGame removes a player from the game with the given unique identifier and world
 func removePlayerFromGame(pid string, w *world) {
 	// Stop server crash if client disconnects before fully loading/creating a player
+	serverConfig.mutex.RLock()
 	if w.players[pid] == nil {
 		return
 	}
 
-	w.space.Remove(w.players[pid].object)
+	obj := w.players[pid].object
+	serverConfig.mutex.RUnlock()
+
+	w.space.Remove(obj)
+
 	serverConfig.mutex.Lock()
+	delete(serverConfig.OTP, obj)
 	delete(w.players, pid)
 	delete(serverConfig.activePlayers, pid)
 	serverConfig.mutex.Unlock()
@@ -134,9 +150,11 @@ func removePlayerFromGame(pid string, w *world) {
 // changePlayersWorld swaps a player from their old world to a new world,
 // updating their position and worldKey in the process.
 func changePlayersWorld(oldWorld *world, newWorld *world, cp *player, x float64, y float64) {
+	serverConfig.mutex.Lock()
 	delete(oldWorld.players, cp.pid)
 	oldWorld.space.Remove(cp.object)
 	newWorld.players[cp.pid] = cp
+	serverConfig.mutex.Unlock()
 	addPlayerToSpace(newWorld.space, cp, x, y)
 	cp.worldKey = newWorld.name
 }
@@ -157,13 +175,6 @@ func (cp *player) worldTransferHandler(input string) {
 		}
 		return
 	}
-}
-
-// canAcceptInputs returns if a player is in a "controllable" state
-func (cp *player) canAcceptInputs() bool {
-	// returns true if player
-	// is not in knockback, windup or attack state
-	return !cp.isKnockedBack() && !cp.isWindingUp() && !cp.isAttacking()
 }
 
 // gravityHandler applies gravity to the player, adjusting their speedY accordingly.
@@ -206,13 +217,14 @@ func (cp *player) jumpHandler(input string) {
 // horizontalMovementHandler handles the horizontal movement of the player based on user input and collision detection.
 func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 
+	// TODO: Clean this jank up, and make a better way to handle speed modz
 	if cp.isKnockedBack() {
 		cp.maxSpeed = math.Abs(math.Max(math.Abs(cp.kbx), math.Abs(cp.kby)))
-	} else if !cp.attackMovementActive() {
+	} else if !cp.attackMovementActive() && !cp.defending {
 		cp.maxSpeed = gamePhys.defaultMaxSpeed
 	}
+	// end of TODO above -----------------------------
 
-	// Apply friction and horizontal speed limiting.
 	if cp.speedX > cp.friction {
 		cp.speedX -= cp.friction // decrease speed by friction value if speed is greater than friction
 	} else if cp.speedX < -cp.friction {
@@ -240,18 +252,30 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 	// and stop horizontal movement speed. If not, then we can just move forward.
 	if check := cp.object.Check(cp.speedX, 0, "solid"); check != nil {
 		dx = check.ContactWithCell(check.Cells[0]).X() // set delta movement to the distance to the object we collide with
-		cp.speedX = 0 // stop horizontal movement
+		cp.speedX = 0                                  // stop horizontal movement
 		if cp.onGround == nil {
 			cp.wallSliding = check.Objects[0] // set wallSliding to the object we collide with if player is in the air
 		}
 
 		cp.endMovment()
+		cp.endDefenseMovement()
 	}
 
 	// playerOnPlayer X collision
 	if check := cp.object.Check(cp.speedX, 0, "player"); check != nil {
-		dx = check.ContactWithCell(check.Cells[0]).X() // set delta movement to the distance to the player we collide with
-		cp.endMovment()
+
+		obj := check.Objects[0]
+		otherPlayer := serverConfig.OTP[obj]
+
+		if otherPlayer != nil && !otherPlayer.defending && !cp.defending {
+			dx = check.ContactWithCell(check.Cells[0]).X() // set delta movement to the distance to the player we collide with
+			cp.endMovment()
+
+			if (math.Abs(cp.object.X-otherPlayer.object.X) < 3) && (math.Abs(cp.object.Y-otherPlayer.object.Y) < 10) {
+				dx += cp.object.W
+			}
+		}
+
 	}
 
 	// Then we just apply the horizontal movement to the Player's object.
@@ -262,13 +286,14 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 	// or actually add real walls lol
 	if newXPos > 30 && newXPos < worldWidth-30 {
 		cp.object.X = newXPos // update player's x position if it's within the world's width limits(rando chose 30 for now)
-	
+
 	} else if cp.attackMovementActive() { // don't want players to get stuck in movment(normally will end on collision or distance traveled, but this hack isn't a real collision so...)
-			cp.resolveMovment(cp.currAttack)
+		cp.resolveMovment(cp.currAttack)
+	} else if cp.defending {
+		cp.endDefenseMovement()
 	}
 
 }
-
 
 // This function is responsible for handling the horizontal movement of a player object based on input.
 // If the player is not currently wall-sliding, then they can move horizontally by accelerating in the input direction.
@@ -286,8 +311,8 @@ func (cp *player) horizontalMovementListener(input string) {
 	}
 }
 
-// Handler for vertical movement/collisions where it sets onGround to nil, applies gravity and checks for collisions with 
-// different objects such as platforms, solid ground, or other players. If a collision occurs, the player is moved to contact 
+// Handler for vertical movement/collisions where it sets onGround to nil, applies gravity and checks for collisions with
+// different objects such as platforms, solid ground, or other players. If a collision occurs, the player is moved to contact
 // the object, and any special actions (such as sliding or landing on a platform) are taken.
 
 func (cp *player) verticalMovmentHandler(input string, world *world) {
@@ -357,32 +382,26 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 				}
 
 			}
+			// basic solids collision
+			if check := cp.object.Check(0, cp.speedY, "solid"); check != nil {
+				if check.Objects[0].Y > cp.object.Y {
+					dy = check.ContactWithCell(check.Cells[0]).Y()
 
-			// Finally, we check for simple solid ground. If we haven't had any success in landing previously, or the solid ground
-			// is higher than the existing ground (like if the platform passes underneath the ground, or we're walking off of solid ground
-			// onto a ramp), we stand on it instead. We don't check for solid collision first because we want any ramps to override solid
-			// ground (so that you can walk onto the ramp, rather than sticking to solid ground).
-
-			// We use ContactWithobject() here because otherwise, we might come into contact with the moving platform's cells (which, naturally,
-			// would be selected by a Collision.ContactWithCell() call because the cell is closest to the Player).
-
-			if solids := check.ObjectsByTags("solid"); len(solids) > 0 && (cp.onGround == nil || cp.onGround.Y >= solids[0].Y) {
-				dy = check.ContactWithObject(solids[0]).Y()
-				cp.speedY = 0
-
-				// We're only on the ground if we land on it (if the object's Y is greater than the player's).
-				if solids[0].Y > cp.object.Y {
-					cp.onGround = solids[0]
+					cp.onGround = check.Objects[0]
 				}
 
+				cp.speedY = 0
 			}
 
 			// playerOnPlayer y collision
 			if check := cp.object.Check(0, cp.speedY, "player"); check != nil {
 				if check.Objects[0].Y > cp.object.Y {
 					dy = check.ContactWithCell(check.Cells[0]).Y()
-					cp.speedY = 0 // hmmm
+					cp.speedY = 0
 					cp.onGround = check.Objects[0]
+				} else {
+					check.Objects[0].Y += dy
+					check.Objects[0].Update()
 				}
 
 			}
@@ -397,7 +416,6 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 	// Move the object on dy.
 	newYPos := cp.object.Y + dy
 
-
 	// temp hack to prevent player from moving out of world
 	// eventually might just kill player if they go out of bounds
 	// or actually add real walls lol
@@ -406,4 +424,3 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 	}
 
 }
-

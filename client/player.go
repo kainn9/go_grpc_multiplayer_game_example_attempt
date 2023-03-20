@@ -3,26 +3,28 @@ package main
 import (
 	"image"
 	"image/color"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	r "github.com/kainn9/grpc_game/client/roles"
 )
 
 type Player struct {
-	id string
-	speedX      float64
-	speedY      float64
-	x           float64
-	y           float64
-	facingRight bool
-	jumping     bool
-	cc         string
-	currAttack  string
-	windup  string
+	id             string
+	speedX         float64
+	speedY         float64
+	x              float64
+	y              float64
+	facingRight    bool
+	jumping        bool
+	cc             string
+	currAttack     string
+	windup         string
 	attackMovement string
 	r.Role
 	currentAnimation *r.Animation
-	health int
+	health           int
+	defending        bool
 }
 
 /*
@@ -37,7 +39,7 @@ func NewPlayer() *Player {
 }
 
 /*
-	TODO: DOC AND CLEAN UP
+TODO: DOC AND CLEAN UP
 */
 func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
@@ -75,7 +77,6 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		p.currentAnimation = p.Animations["jumpRight"]
 
 	}
-	
 
 	if p.currAttack != "" {
 		if p.facingRight {
@@ -87,21 +88,19 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
 	if p.windup != "" {
 		if p.facingRight {
-			p.currentAnimation = p.Animations[p.windup + "WindupRight"]
+			p.currentAnimation = p.Animations[p.windup+"WindupRight"]
 		} else {
-			p.currentAnimation = p.Animations[p.windup + "WindupLeft"]
+			p.currentAnimation = p.Animations[p.windup+"WindupLeft"]
 		}
 	}
-
 
 	if p.attackMovement != "" {
 		if p.facingRight {
-			p.currentAnimation = p.Animations[p.attackMovement + "MovementRight"]
+			p.currentAnimation = p.Animations[p.attackMovement+"MovementRight"]
 		} else {
-			p.currentAnimation = p.Animations[p.attackMovement + "MovementLeft"]
+			p.currentAnimation = p.Animations[p.attackMovement+"MovementLeft"]
 		}
 	}
-
 
 	if p.cc != "" {
 
@@ -113,35 +112,47 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
 	}
 
+	if p.defending {
+
+		if p.facingRight {
+			p.currentAnimation = p.Animations["defenseRight"]
+		} else {
+			p.currentAnimation = p.Animations["defenseLeft"]
+		}
+
+	}
+
 	if currentPlayer && hitBoxTest.on {
 		if p.facingRight {
-				p.currentAnimation = p.Animations[hitBoxTest.name + "Right"]
+			p.currentAnimation = p.Animations[hitBoxTest.name+"Right"]
 		} else {
-			p.currentAnimation = p.Animations[hitBoxTest.name + "Left"]
+			p.currentAnimation = p.Animations[hitBoxTest.name+"Left"]
 		}
 	}
 
+	if p.currentAnimation == nil {
+		log.Printf("No animation for player state: %v\n", p)
+		return
+	}
 
-
-	i := (clientConfig.ticks/5) % p.currentAnimation.FrameCount
+	i := (clientConfig.ticks / 5) % p.currentAnimation.FrameCount
 	s := p.currentAnimation.SpriteSheet
-	
+
 	if p.currentAnimation.Fixed {
 		fixedAnimKey := p.id + p.currentAnimation.Name
 		fixedAnimationCheck := fixedAnims[fixedAnimKey]
-			
+
 		if fixedAnimationCheck == nil {
 			fixedAnims[fixedAnimKey] = &fixedAnimTracker{
-				pid: p.id,
+				pid:      p.id,
 				animName: p.currentAnimation.Name,
-				ticks: 0,
+				ticks:    0,
 			}
 		} else {
 			fixedTicks := fixedAnims[fixedAnimKey].ticks
-			i = (fixedTicks/5) % p.currentAnimation.FrameCount
+			i = (fixedTicks / 5) % p.currentAnimation.FrameCount
 		}
 	}
-
 
 	/*
 		Logic for rendering current and other players
@@ -176,15 +187,12 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		sub = s.SubImage(image.Rect(sx, sy, sx-(p.currentAnimation.FrameWidth), sy+(p.currentAnimation.FrameHeight))).(*ebiten.Image)
 	}
 
-
-	
-	if hitBoxTest.on && hitBoxTest.frame >= 0{
+	if hitBoxTest.on && hitBoxTest.frame >= 0 {
 		sub = getAnimationFrame(p, hitBoxTest.frame, s)
 	}
 
 	pc.playerCam.Surface.DrawImage(sub, playerOps)
 }
-
 
 func getAnimationFrame(p *Player, i int, s *ebiten.Image) *ebiten.Image {
 	sx, sy := (p.currentAnimation.FrameOX)+i*(p.currentAnimation.FrameWidth), (p.currentAnimation.FrameOY)
@@ -207,6 +215,3 @@ func getAnimationFrame(p *Player, i int, s *ebiten.Image) *ebiten.Image {
 
 	return sub
 }
-
-
-

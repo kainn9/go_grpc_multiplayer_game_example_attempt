@@ -8,13 +8,13 @@ import (
 )
 
 type world struct {
-	space   *resolv.Space   // A Resolv space for collision detection
-	height  float64         // The height of the game's world
-	width   float64         // The width of the game's world
-	players map[string]*player  // A map of players currently in the world
-	name    string          // The name of the world
-	events  []*event // An queue of events to be processed(world scoped)
-	mutex   sync.RWMutex    // A mutex to lock down resources when necessary(world scoped)
+	space   *resolv.Space      // A Resolv space for collision detection
+	height  float64            // The height of the game's world
+	width   float64            // The width of the game's world
+	players map[string]*player // A map of players currently in the world
+	name    string             // The name of the world
+	events  []*event           // An queue of events to be processed(world scoped)
+	mutex   sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
 }
 
 // creates a new game world.
@@ -42,8 +42,8 @@ func (world *world) Init(worldBuilder builderFunc) {
 	// Each cell can have 0 or more Objects within it, and collisions can be found by checking the Space to see if the Cells at specific positions contain (or would contain) Objects.
 	// This is a broad, simplified approach to collision detection.
 
-	// Generally, you want cells to be the size of the smallest collide-able objects in your game, 
-	// and you want to move Objects at a maximum speed of one cell size per collision check to avoid 
+	// Generally, you want cells to be the size of the smallest collide-able objects in your game,
+	// and you want to move Objects at a maximum speed of one cell size per collision check to avoid
 	// missing any possible collisions.
 
 	world.space = resolv.NewSpace(int(gw), int(gh), cellX, cellY)
@@ -56,8 +56,6 @@ func (world *world) Init(worldBuilder builderFunc) {
 // The physics are basically a rip of the Resolv example: https://github.com/SolarLune/resolv/blob/master/examples/worldPlatformer.go.
 func (world *world) Update(cp *player, input string) {
 	// Lock the server config mutex.
-	// serverConfig.mutex.Lock()
-	// defer serverConfig.mutex.Unlock()
 
 	// Add the "player" tag to the player object if it doesn't already have it.
 	if !cp.object.HasTags("player") {
@@ -77,11 +75,6 @@ func (world *world) Update(cp *player, input string) {
 	// ATM, this is spammable w/e for dev purposes
 	cp.worldTransferHandler(input)
 
-
-
-
-
-
 	// Can't do reg movement when attacking
 	if !cp.canAcceptInputs() {
 		cp.speedX = 0
@@ -90,22 +83,25 @@ func (world *world) Update(cp *player, input string) {
 		cp.horizontalMovementListener(input)
 		cp.jumpHandler(input)
 		cp.attackHandler(input, world)
+		cp.defenseHandler(input)
 	}
 
 	if cp.attackMovementActive() {
 		cp.movementPhase(cp.currAttack)
 	}
 
+	if cp.defending {
+		cp.handleDefenseMovement()
+	}
+
 	// Handle player getting attacked.
 	cp.attackedHandler()
 
 	// Handle player Phys and collisions.
-	
+
 	cp.gravityHandler()
 	cp.horizontalMovementHandler(input, world.width)
 	cp.verticalMovmentHandler(input, world)
-
-
 
 	// IDK where to put this yet...
 	// its wall slide stuff

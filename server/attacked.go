@@ -11,6 +11,10 @@ import (
 
 func (cp *player) attackedHandler() {
 
+	if cp.defending {
+		return
+	}
+
 	// Check if the player is colliding with an attack object
 	if check := cp.object.Check(cp.speedX, cp.speedY, "attack"); check != nil {
 
@@ -31,9 +35,10 @@ func (cp *player) attackedHandler() {
 				continue
 			}
 
-
 			cp.healthHandler(attacker, atk)
-			cp.knockBackHandler(attacker, atk)			
+			cp.knockBackHandler(attacker, atk)
+			cp.interruptWindup()
+			cp.interruptMovment()
 		}
 	}
 
@@ -43,10 +48,9 @@ func (cp *player) attackedHandler() {
 	}
 
 	if cp.isKnockedBackY() {
-			cp.speedY += cp.kby
-	}	
+		cp.speedY += cp.kby
+	}
 }
-
 
 func getAttackAndAttacker(o *resolv.Object) (*r.Attack, *player) {
 	serverConfig.mutex.RLock()
@@ -58,19 +62,17 @@ func getAttackAndAttacker(o *resolv.Object) (*r.Attack, *player) {
 }
 
 func checkForValidAttackHit(attacker *player, cp *player, atk *r.Attack) bool {
-	return attacker == cp || attacker == nil || (serverConfig.HTAP[attacker.pid + string(atk.Name)])
+	return attacker == cp || attacker == nil || (serverConfig.HTAP[attacker.pid+string(atk.Name)])
 }
-
 
 func (cp *player) healthHandler(attacker *player, atk *r.Attack) {
 	serverConfig.mutex.Lock()
-	serverConfig.HTAP[attacker.pid + string(atk.Name)] = true
+	serverConfig.HTAP[attacker.pid+string(atk.Name)] = true
 	serverConfig.mutex.Unlock()
-
 
 	dmg := atk.Damage
 
-	if  atk.Windup != nil && atk.ChargeEffect != nil && atk.UseChargeDmg {
+	if atk.Windup != nil && atk.ChargeEffect != nil && atk.UseChargeDmg {
 		dmg += int(math.Round(attacker.chargeValue * atk.ChargeEffect.MultFactorDmg))
 	}
 
@@ -82,11 +84,10 @@ func (cp *player) healthHandler(attacker *player, atk *r.Attack) {
 		log.Printf("Player %s has died\n", cp.pid)
 	}
 
-
-	time.AfterFunc((time.Duration(500))*time.Millisecond, func() { 
+	time.AfterFunc((time.Duration(500))*time.Millisecond, func() {
 		serverConfig.mutex.Lock()
-		delete(serverConfig.HTAP, attacker.pid + string(atk.Name))
-		serverConfig.mutex.Unlock() 
+		delete(serverConfig.HTAP, attacker.pid+string(atk.Name))
+		serverConfig.mutex.Unlock()
 	})
 }
 
@@ -103,7 +104,7 @@ func (cp *player) knockBackHandler(attacker *player, atk *r.Attack) {
 		kbx += (attacker.chargeValue * atk.ChargeEffect.MultFactorKbxSpeed)
 		kbx = math.Min(kbx, 16)
 	}
-			
+
 	if attacker.object.X > cp.object.X {
 		cp.kbx = -kbx
 	} else {
@@ -137,6 +138,6 @@ func (cp *player) knockBackHandler(attacker *player, atk *r.Attack) {
 }
 
 // simple death for now(this will just cause the player to respawn with a new PID/Full health)
-func  (cp *player) death() {
+func (cp *player) death() {
 	removePlayerFromGame(cp.pid, serverConfig.worldsMap[cp.worldKey])
 }

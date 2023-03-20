@@ -50,10 +50,9 @@ func mainWorldBuilder(world *world, gw float64, gh float64) {
 func altWorldBuilder(world *world, gw float64, gh float64) {
 	world.space.Add(
 
-
 		// bottom bounds
-		resolv.NewObject(0, gh - 16, gw, 16, "solid"),
-		
+		resolv.NewObject(0, gh-16, gw, 16, "solid"),
+
 		// Village Plat
 		resolv.NewObject(1166, 3912, 6000, 10, "platform"),
 
@@ -114,11 +113,9 @@ func altWorldBuilder(world *world, gw float64, gh float64) {
 		resolv.NewObject(206, 2584, 2030, 150, "solid"),
 		resolv.NewObject(206, 2574, 2030, 10, "platform"),
 
-
 		// left blocker left
 		resolv.NewObject(0, 2108, 60, 540, "solid"),
 		resolv.NewObject(0, 2098, 60, 10, "platform"),
-
 
 		// forrest floating plats
 		resolv.NewObject(64, 2639, 60, 10, "platform"),
@@ -154,23 +151,18 @@ func altWorldBuilder(world *world, gw float64, gh float64) {
 		resolv.NewObject(1346, 2110, 54, 45, "solid"),
 		resolv.NewObject(1346, 2100, 54, 10, "platform"),
 
-
 		// sky-town floor left
 		resolv.NewObject(0, 872, 1192, 10, "platform"),
-		
+
 		// sky-town floor right
 		resolv.NewObject(1371, 837, 650, 10, "platform"),
 
-
 		// dungeon town wall right divider
 		resolv.NewObject(1970, 0, 55, 1826, "solid"),
-
 
 		// rock plats
 		resolv.NewObject(0, 2848, 80, 10, "platform"),
 		resolv.NewObject(143, 2760, 160, 10, "platform"),
 		resolv.NewObject(152, 2668, 50, 10, "platform"),
-
 	)
 }
-
