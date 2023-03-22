@@ -61,7 +61,11 @@ func getAttackAndAttacker(o *resolv.Object) (*r.Attack, *player) {
 	return atk, attacker
 }
 
+// returns true if the attack is invalid, and skip collision
 func checkForValidAttackHit(attacker *player, cp *player, atk *r.Attack) bool {
+	if atk == nil {
+		return true
+	}
 	return attacker == cp || attacker == nil || (serverConfig.HTAP[attacker.pid+string(atk.Name)])
 }
 

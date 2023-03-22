@@ -39,14 +39,20 @@ var worlds = worldsStruct{
 	alt:  newWorld(4000, 6000, altWorldBuilder, "alt"),
 }
 
+// BIG TODO:
+// all maps should be world scoped
+// or find a way to remove maps in favor of
+// references...for example storing what attack a hitbox
+// belongs to on the hitbox itself
+// or storing the player that owns the hitbox on the hitbox itself
 var serverConfig = serverConfigStruct{
 	addr:          ":50051",
 	worldsMap:     make(map[string]*world),
 	activePlayers: make(map[string]*player),
-	AOTP:          make(map[*resolv.Object]*player),   // TODO: This should be world scoped.
-	OTA:           make(map[*resolv.Object]*r.Attack), // TODO: This should be world scoped.
-	HTAP:          make(map[string]bool),
-	OTP:           make(map[*resolv.Object]*player), // TODO: This should be world scoped
+	AOTP:          make(map[*resolv.Object]*player),   // (Attack Object To Player): attack-hitbox to player — used to see who attack "belongs to"
+	OTA:           make(map[*resolv.Object]*r.Attack), // (Object To Attack): attack-hitbox to attack-struct/data object — used to determine the "type" of attack the hitbox is associated with
+	HTAP:          make(map[string]bool), // (Hits To Attacked Player): used to determine if a player has already been hit by an attack and avoid double hits
+	OTP:           make(map[*resolv.Object]*player), // (Object To Player): player-hitbox to player — used to determine who the player is that the hitbox belongs to
 	mutex:         sync.RWMutex{},
 }
 
