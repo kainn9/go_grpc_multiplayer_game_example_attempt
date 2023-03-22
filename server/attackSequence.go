@@ -4,16 +4,26 @@ import (
 	"time"
 
 	r "github.com/kainn9/grpc_game/server/roles"
+	"github.com/pborman/uuid"
 	"github.com/solarlune/resolv"
 )
 
-func (cp *player) attackSeqence(atk *r.Attack) {
+func (cp *player) attackSeqence(atk *r.AttackData) {
 	world := serverConfig.worldsMap[cp.worldKey]
-	spawnAtkBox(world.space, cp, atk.HitBoxSequence.MovmentInc, atk.HitBoxSequence.HBoxPath, 0)
+	aid := uuid.New()
+	spawnAtkBox(world, cp, atk, 0, aid)
 }
 
-func spawnAtkBox(space *resolv.Space, cp *player, inc float64, path r.HBoxPath, index int) {
-	if len(path) == index {
+func spawnAtkBox(world *world, cp *player, atk *r.AttackData, index int, aid string) {
+	path := atk.HitBoxSequence.HBoxPath
+	inc := atk.HitBoxSequence.MovmentInc
+
+	/*
+		if currAttack is nil, cp was hit in last frame
+		if len(path) == index attack sequence is over
+		in both cases attack is over, enter cleanup block
+	*/
+	if len(path) == index || cp.currAttack == nil {
 		cp.currAttack = nil
 		cp.chargeValue = 0
 		cp.chargeStart = time.Time{}
@@ -23,7 +33,7 @@ func spawnAtkBox(space *resolv.Space, cp *player, inc float64, path r.HBoxPath, 
 	hBoxAgg := path[index]
 
 	hitBoxToClear := make([]*resolv.Object, len(hBoxAgg))
-	serverConfig.mutex.Lock()
+
 	for _, hBox := range hBoxAgg {
 
 		var atkObj *resolv.Object
@@ -34,37 +44,38 @@ func spawnAtkBox(space *resolv.Space, cp *player, inc float64, path r.HBoxPath, 
 			atkObj = resolv.NewObject(cp.object.X+hBox.PlayerOffX, cp.object.Y+hBox.PlayerOffY, hBox.Width, hBox.Height, "attack")
 		}
 
-		serverConfig.AOTP[atkObj] = cp
-		serverConfig.OTA[atkObj] = cp.currAttack
+		initHitboxData(atkObj, cp, cp.currAttack)
+
+		hitBoxData := *hBoxData(atkObj)
+
+		hitBoxData.player = cp
+		hitBoxData.attackData = cp.currAttack
 
 		hitBoxToClear = append(hitBoxToClear, atkObj)
-		space.Add(atkObj)
+
+		world.hitboxMutex.Lock()
+		world.space.Add(atkObj)
+		world.hitboxMutex.Unlock()
 	}
-	serverConfig.mutex.Unlock()
 
 	time.AfterFunc(time.Duration(inc)*time.Millisecond, func() {
-		removeHitBoxAggFromAOTPAndOTA(space, hitBoxToClear)
+		removeHitboxFromSpace(world, hitBoxToClear)
 	})
 
 	time.AfterFunc(time.Duration(inc)*time.Millisecond, func() {
-		spawnAtkBox(space, cp, inc, path, index+1)
+		spawnAtkBox(world, cp, atk, index+1, aid)
 	})
 }
 
-func removeHitBoxAggFromAOTPAndOTA(space *resolv.Space, objects []*resolv.Object) {
-	serverConfig.mutex.Lock()
-	defer serverConfig.mutex.Unlock()
+func removeHitboxFromSpace(world *world, objects []*resolv.Object) {
+	world.hitboxMutex.Lock()
+	defer world.hitboxMutex.Unlock()
 
 	for _, obj := range objects {
 
-		if serverConfig.AOTP[obj] != nil {
-			delete(serverConfig.AOTP, obj)
-			space.Remove(obj)
+		// TODO: Why is this nil sometimes? Whats the consequence?
+		if obj != nil {
+			world.space.Remove(obj)
 		}
-
-		if serverConfig.OTA[obj] != nil {
-			delete(serverConfig.OTA, obj)
-		}
-
 	}
 }

@@ -29,8 +29,8 @@ func newTickLoop(w *world) {
 
 // Process events in the given world, removing each event as it is processed
 func processEventsPerTick(w *world) {
-	w.mutex.Lock()
-	defer w.mutex.Unlock()
+	w.eventsMutex.Lock()
+	defer w.eventsMutex.Unlock()
 
 	logHighEventCount(w)
 
@@ -87,9 +87,9 @@ func newEvent(req *pb.PlayerReq, stalled bool) *event {
 }
 
 func (e *event) enqueue(w *world) {
-	w.mutex.Lock()
+	w.eventsMutex.Lock()
 	w.events = append(w.events, e)
-	w.mutex.Unlock()
+	w.eventsMutex.Unlock()
 }
 
 func logHighEventCount(w *world) {

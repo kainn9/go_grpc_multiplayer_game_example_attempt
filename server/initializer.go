@@ -4,17 +4,7 @@ import (
 	"sync"
 
 	r "github.com/kainn9/grpc_game/server/roles"
-	"github.com/solarlune/resolv"
 )
-
-// gamePhysStruct holds default physics values for the game.
-type gamePhysStruct struct {
-	defaultFriction float64
-	defaultAccel    float64
-	defaultMaxSpeed float64
-	defaultJumpSpd  float64
-	defaultGravity  float64
-}
 
 // serverConfigStruct holds server configuration and state information.
 type serverConfigStruct struct {
@@ -22,10 +12,7 @@ type serverConfigStruct struct {
 	addr          string
 	worldsMap     map[string]*world
 	activePlayers map[string]*player
-	AOTP          map[*resolv.Object]*player // Map of Attack resolv objects to Player struct, eventually should be world scoped.
-	OTA           map[*resolv.Object]*r.Attack
-	HTAP          map[string]bool
-	OTP           map[*resolv.Object]*player
+	roles         map[r.PlayerType]int32
 }
 
 // worldsStruct holds world objects.
@@ -49,18 +36,8 @@ var serverConfig = serverConfigStruct{
 	addr:          ":50051",
 	worldsMap:     make(map[string]*world),
 	activePlayers: make(map[string]*player),
-	AOTP:          make(map[*resolv.Object]*player),   // (Attack Object To Player): attack-hitbox to player — used to see who attack "belongs to"
-	OTA:           make(map[*resolv.Object]*r.Attack), // (Object To Attack): attack-hitbox to attack-struct/data object — used to determine the "type" of attack the hitbox is associated with
-	HTAP:          make(map[string]bool), // (Hits To Attacked Player): used to determine if a player has already been hit by an attack and avoid double hits
-	OTP:           make(map[*resolv.Object]*player), // (Object To Player): player-hitbox to player — used to determine who the player is that the hitbox belongs to
 	mutex:         sync.RWMutex{},
-}
-
-var gamePhys = gamePhysStruct{
-	defaultFriction: 0.5,  // Default friction value.
-	defaultMaxSpeed: 4.0,  // Default max speed value.
-	defaultJumpSpd:  12.0, // Default jump speed value.
-	defaultGravity:  0.75, // Default gravity value.
+	roles:         make(map[r.PlayerType]int32),
 }
 
 // initializer sets up initial configuration for the game.
@@ -69,8 +46,8 @@ func initializer() {
 	serverConfig.worldsMap["main"] = worlds.main
 	serverConfig.worldsMap["alt"] = worlds.alt
 
-	// Compute default acceleration value based on friction value.
-	gamePhys.defaultAccel = 0.5 + gamePhys.defaultFriction
+	serverConfig.roles[r.Knight.RoleType] = 0
+	serverConfig.roles[r.Monk.RoleType] = 1
 
 	// Start tick loops for each world.
 	for _, w := range serverConfig.worldsMap {

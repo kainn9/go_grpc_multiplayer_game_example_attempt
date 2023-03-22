@@ -8,24 +8,26 @@ import (
 )
 
 type world struct {
-	space   *resolv.Space      // A Resolv space for collision detection
-	height  float64            // The height of the game's world
-	width   float64            // The width of the game's world
-	players map[string]*player // A map of players currently in the world
-	name    string             // The name of the world
-	events  []*event           // An queue of events to be processed(world scoped)
-	mutex   sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
+	space       *resolv.Space      // A Resolv space for collision detection
+	height      float64            // The height of the game's world
+	width       float64            // The width of the game's world
+	players     map[string]*player // A map of players currently in the world
+	name        string             // The name of the world
+	events      []*event           // An queue of events to be processed(world scoped)
+	eventsMutex sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
+	hitboxMutex sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
 }
 
 // creates a new game world.
 func newWorld(height float64, width float64, worldBuilder builderFunc, name string) *world {
 	w := &world{
-		name:    name,
-		width:   width,
-		height:  height,
-		players: make(map[string]*player),
-		mutex:   sync.RWMutex{},
-		events:  make([]*event, 0),
+		name:        name,
+		width:       width,
+		height:      height,
+		players:     make(map[string]*player),
+		eventsMutex: sync.RWMutex{},
+		hitboxMutex: sync.RWMutex{},
+		events:      make([]*event, 0),
 	}
 
 	// Initialize the world with the specified builder function.
@@ -67,7 +69,7 @@ func (world *world) Update(cp *player, input string) {
 	if input == "gravBoost" && !cp.gravBoost {
 		cp.jumpSpd = 15
 		cp.gravBoost = true
-		time.AfterFunc(20*time.Second, func() { cp.jumpSpd = gamePhys.defaultJumpSpd })
+		time.AfterFunc(20*time.Second, func() { cp.jumpSpd = cp.Role.Phys.DefaultJumpSpd })
 		time.AfterFunc(120*time.Second, func() { cp.gravBoost = false })
 	}
 

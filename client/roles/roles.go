@@ -32,4 +32,5 @@ type Animation struct {
 const (
 	KnightType PlayerType = "knight"
 	MageType   PlayerType = "mage"
+	MonkType   PlayerType = "monk"
 )

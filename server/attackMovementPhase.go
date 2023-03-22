@@ -8,7 +8,7 @@ import (
 
 const noMovmentStartSet int = -100
 
-func (cp *player) movementPhase(atk *r.Attack) {
+func (cp *player) movementPhase(atk *r.AttackData) {
 	mv := atk.Movement
 
 	// if no movment is set, resolve the movment/go right into the atk sequence
@@ -45,7 +45,7 @@ func (cp *player) movementPhase(atk *r.Attack) {
 
 }
 
-func movementSpeed(mv *r.Movement, atk *r.Attack, cp *player) float64 {
+func movementSpeed(mv *r.Movement, atk *r.AttackData, cp *player) float64 {
 	movmentSpeed := mv.SpeedX
 
 	if atk.ChargeEffect != nil && mv.UseChargeSpeed {
@@ -58,9 +58,9 @@ func movementSpeed(mv *r.Movement, atk *r.Attack, cp *player) float64 {
 	return movmentSpeed
 }
 
-func (cp *player) resolveMovment(atk *r.Attack) {
+func (cp *player) resolveMovment(atk *r.AttackData) {
 	cp.attackMovement = ""
-	cp.maxSpeed = gamePhys.defaultMaxSpeed
+	cp.maxSpeed = cp.Role.Phys.DefaultMaxSpeed
 	cp.movmentStartX = noMovmentStartSet
 
 	cp.attackSeqence(atk)
