@@ -54,7 +54,7 @@ is currently attached to. Unlike
 LocateFromPID this defaults to returning
 the main/starting world
 */
-func currentPlayerWorld(pid string) (*world, string) {
+func currentPlayerWorld(pid string) (world *world, worldKey string) {
 
 	// adding new player to default world
 	// or setting current world to where
@@ -195,6 +195,7 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 			AttackMovement: string(curr.attackMovement),
 			Health:         int32(curr.health),
 			Defending:      curr.defending,
+			Role:           serverConfig.roles[curr.RoleType],
 		}
 
 		res.Players = append(res.Players, p)

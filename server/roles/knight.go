@@ -4,12 +4,12 @@ var (
 	Knight *Role = InitKnight()
 )
 
-func KnightAttacks() map[AtKey]*Attack {
-	atks := make(map[AtKey]*Attack)
-	atks = primaryAtk(atks)
-	atks = secondaryAtk(atks)
-	atks = tertAtk(atks)
-	atks = quaternaryAtk(atks)
+func KnightAttacks() map[AtKey]*AttackData {
+	atks := make(map[AtKey]*AttackData)
+	atks = knightPrimaryAtk(atks)
+	atks = knightSecondaryAtk(atks)
+	atks = knightTertAtk(atks)
+	atks = knightQuaternaryAtk(atks)
 
 	return atks
 }
@@ -18,7 +18,7 @@ func InitKnight() *Role {
 	d := &Defense{
 		Speed:       12,
 		Delay:       0,
-		Displacment: 150,
+		Displacment: 75,
 		Cooldown:    100,
 	}
 
@@ -28,13 +28,22 @@ func InitKnight() *Role {
 		HitBoxW:  16,
 		HitBoxH:  44,
 		Defense:  d,
+		Health:   150,
+		Phys: &RolePhysStruct{
+			DefaultFriction: 0.5,
+			DefaultMaxSpeed: 4.0,
+			DefaultJumpSpd:  12.0,
+			DefaultGravity:  0.75,
+		},
 	}
+
+	r.Phys.DefaultAccel = 0.5 + r.Phys.DefaultFriction
 
 	return r
 }
 
-func primaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
-	atks[PrimaryAttackKey] = &Attack{
+func knightPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
+	atks[PrimaryAttackKey] = &AttackData{
 		Name: PrimaryAttackKey,
 		Consequence: &Consequence{
 			Damage:             25,
@@ -65,9 +74,9 @@ func primaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	return atks
 }
 
-func secondaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
+func knightSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 
-	atks[SecondaryAttackKey] = &Attack{
+	atks[SecondaryAttackKey] = &AttackData{
 		Name: SecondaryAttackKey,
 		Type: SecondaryAttackKey,
 		Consequence: &Consequence{
@@ -126,7 +135,7 @@ func secondaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	return atks
 }
 
-func tertAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
+func knightTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	windup := &Windup{
 		Duration: 0,
 		ChargeEffect: &ChargeEffect{
@@ -146,7 +155,7 @@ func tertAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 		UseChargeSpeed: true,
 	}
 
-	atks[TertAttackKey] = &Attack{
+	atks[TertAttackKey] = &AttackData{
 		Name:     TertAttackKey,
 		Type:     TertAttackKey,
 		Windup:   windup,
@@ -220,17 +229,17 @@ func tertAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
 	return atks
 }
 
-func quaternaryAtk(atks map[AtKey]*Attack) map[AtKey]*Attack {
+func knightQuaternaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 
 	windup := &Windup{
 		Duration: 0,
 		ChargeEffect: &ChargeEffect{
-			MultFactorDmg: 16,
+			MultFactorDmg: 101,
 			TimeLimit:     1,
 		},
 	}
 
-	atks[QuaternaryAttackKey] = &Attack{
+	atks[QuaternaryAttackKey] = &AttackData{
 		Name:   QuaternaryAttackKey,
 		Type:   QuaternaryAttackKey,
 		Windup: windup,

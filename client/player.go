@@ -32,9 +32,8 @@ Creates a player with the default Anims
 */
 func NewPlayer() *Player {
 
-	p := &Player{
-		Role: *r.InitKnight(),
-	}
+	p := &Player{}
+
 	return p
 }
 

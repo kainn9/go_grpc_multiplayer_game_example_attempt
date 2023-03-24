@@ -6,17 +6,15 @@ import (
 	ut "github.com/kainn9/grpc_game/util"
 )
 
-// TODO: create const/types for strings like "defenseRight", "windupLeft", etc
-
 /*
 File for Knight class
 contains sprites/animation data
 */
+
 var (
 	Knight *Role = InitKnight()
 )
 
-// Player Sprites(for now)
 var (
 	knightSpriteIdleLeft  *ebiten.Image
 	knightSpriteIdleRight *ebiten.Image
@@ -213,6 +211,7 @@ func KnightAnims() map[string]*Animation {
 		FrameHeight: 48,
 		FrameCount:  4,
 		SpriteSheet: knightSpriteStabRight,
+		Fixed:       true,
 	}
 
 	anims[string(sr.PrimaryAttackKey)+"Left"] = &Animation{

@@ -7,7 +7,7 @@ import (
 	r "github.com/kainn9/grpc_game/server/roles"
 )
 
-func (cp *player) windupPhase(atk *r.Attack, atKey r.AtKey) {
+func (cp *player) windupPhase(atk *r.AttackData, atKey r.AtKey) {
 
 	if atk.Windup.HasChargeEffect() {
 		cp.chargeWindupPhase(cp.Attacks[atKey])
@@ -28,7 +28,7 @@ func (cp *player) windupPhase(atk *r.Attack, atKey r.AtKey) {
 	resolveWindup(cp, atk)
 }
 
-func resolveWindup(cp *player, atk *r.Attack) {
+func resolveWindup(cp *player, atk *r.AttackData) {
 	if !cp.isWindingUp() && atk.Windup != nil {
 		return
 	}
@@ -38,7 +38,7 @@ func resolveWindup(cp *player, atk *r.Attack) {
 	cp.attackMovement = string(atk.Type)
 }
 
-func (cp *player) chargeWindupPhase(atk *r.Attack) {
+func (cp *player) chargeWindupPhase(atk *r.AttackData) {
 
 	if cp.chargeStart.IsZero() {
 		cp.chargeStart = time.Now()
@@ -48,7 +48,7 @@ func (cp *player) chargeWindupPhase(atk *r.Attack) {
 	checkWindupCharge(cp, atk)
 }
 
-func checkWindupCharge(cp *player, atk *r.Attack) {
+func checkWindupCharge(cp *player, atk *r.AttackData) {
 
 	if !cp.isWindingUp() && atk.Windup != nil {
 		return
@@ -69,7 +69,7 @@ func checkWindupCharge(cp *player, atk *r.Attack) {
 	})
 }
 
-func resolveChargeWindup(cp *player, atk *r.Attack) {
+func resolveChargeWindup(cp *player, atk *r.AttackData) {
 
 	chargeValue := math.Round(time.Since(cp.chargeStart).Seconds())
 	cp.chargeValue = chargeValue

@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"math/rand"
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
@@ -21,7 +22,7 @@ type player struct {
 	pid             string         // The player's unique identifier
 	worldKey        string         // The key of the world the player is currently in
 	r.Role                         // The player's role
-	currAttack      *r.Attack      // The player's current attack
+	currAttack      *r.AttackData  // The player's current attack
 	playerPh                       // The player's physics parameters
 	gravBoost       bool           // Whether the player is receiving a gravity boost
 	windup          r.AtKey
@@ -33,6 +34,7 @@ type player struct {
 	health          int
 	defending       bool
 	defenseCooldown bool
+	hits            map[string]bool
 }
 
 // playerPh represents the physics parameters of a player
@@ -94,36 +96,59 @@ func (cp *player) canAcceptInputs() bool {
 
 // newPlayer creates a new player with the given unique identifier and world key
 func newPlayer(pid string, worldKey string) *player {
-	ph := &playerPh{
-		friction: gamePhys.defaultFriction,
-		accel:    gamePhys.defaultAccel,
-		maxSpeed: gamePhys.defaultMaxSpeed,
-		jumpSpd:  gamePhys.defaultJumpSpd,
-		gravity:  gamePhys.defaultGravity,
+
+	// some tempcode for getting a random role each time a player is spawned
+	randomRole := make(map[int32]r.Role)
+	randomRole[0] = *r.Knight
+	randomRole[1] = *r.Monk
+
+	// Seed the random number generator
+	rand.Seed(time.Now().UnixNano())
+
+	// Generate a random key
+	keys := make([]int32, 0, len(randomRole))
+
+	for k := range randomRole {
+		keys = append(keys, k)
 	}
+
+	randomKey := keys[rand.Intn(len(keys))]
+
+	role := randomRole[randomKey]
+	// end of the temp code
 
 	p := &player{
 		pid:           pid,
 		worldKey:      worldKey,
-		Role:          *r.Knight,
-		playerPh:      *ph,
+		Role:          role,
 		movmentStartX: -100,
-		health:        150,
+		health:        role.Health,
+		hits:          make(map[string]bool),
 	}
+
+	ph := &playerPh{
+		friction: role.Phys.DefaultFriction,
+		accel:    role.Phys.DefaultAccel,
+		maxSpeed: role.Phys.DefaultMaxSpeed,
+		jumpSpd:  role.Phys.DefaultJumpSpd,
+		gravity:  role.Phys.DefaultGravity,
+	}
+
+	p.playerPh = *ph
 
 	return p
 }
 
 // addPlayerToSpace adds a player to a Resolv space with the given coordinates
 func addPlayerToSpace(space *resolv.Space, p *player, x float64, y float64) *player {
+
 	p.object = resolv.NewObject(x, y, p.HitBoxW, p.HitBoxH)
+
 	p.object.SetShape(resolv.NewRectangle(0, 0, p.object.W, p.object.H))
 
-	serverConfig.mutex.Lock()
-	serverConfig.OTP[p.object] = p
-	serverConfig.mutex.Unlock()
-
+	initHitboxData(p.object, p, nil)
 	space.Add(p.object)
+
 	return p
 }
 
@@ -141,7 +166,6 @@ func removePlayerFromGame(pid string, w *world) {
 	w.space.Remove(obj)
 
 	serverConfig.mutex.Lock()
-	delete(serverConfig.OTP, obj)
 	delete(w.players, pid)
 	delete(serverConfig.activePlayers, pid)
 	serverConfig.mutex.Unlock()
@@ -221,7 +245,7 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 	if cp.isKnockedBack() {
 		cp.maxSpeed = math.Abs(math.Max(math.Abs(cp.kbx), math.Abs(cp.kby)))
 	} else if !cp.attackMovementActive() && !cp.defending {
-		cp.maxSpeed = gamePhys.defaultMaxSpeed
+		cp.maxSpeed = cp.Role.Phys.DefaultMaxSpeed
 	}
 	// end of TODO above -----------------------------
 
@@ -265,9 +289,11 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 	if check := cp.object.Check(cp.speedX, 0, "player"); check != nil {
 
 		obj := check.Objects[0]
-		otherPlayer := serverConfig.OTP[obj]
 
-		if otherPlayer != nil && !otherPlayer.defending && !cp.defending {
+		data := hBoxData(obj)
+		otherPlayer := data.player
+
+		if !otherPlayer.defending && !cp.defending {
 			dx = check.ContactWithCell(check.Cells[0]).X() // set delta movement to the distance to the player we collide with
 			cp.endMovment()
 

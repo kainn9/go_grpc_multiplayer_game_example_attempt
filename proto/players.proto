@@ -24,6 +24,7 @@ message Player {
   string AttackMovement = 14;
   int32 health = 15;
   bool defending = 16;
+  int32 role = 17;
 }
 
 message PlayerResp {

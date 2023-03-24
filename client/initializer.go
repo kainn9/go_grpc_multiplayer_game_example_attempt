@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
+	r "github.com/kainn9/grpc_game/client/roles"
 	ut "github.com/kainn9/grpc_game/util"
 	"google.golang.org/grpc"
 )
@@ -28,6 +29,7 @@ type gameSettings struct {
 	audPlayer    *audio.Player
 	volume128    int
 	showHelp     bool
+	roles        map[int32]*r.Role
 }
 
 type devSettings struct {
@@ -67,7 +69,11 @@ func initClient() {
 		fullScreen:   false,
 		enablePPROF:  false,
 		showHelp:     true,
+		roles:        make(map[int32]*r.Role),
 	}
+
+	clientConfig.roles[0] = r.InitKnight()
+	clientConfig.roles[1] = r.InitMonk()
 
 	devConfig = &devSettings{
 		rulerW:         ut.LoadImg("./sprites/rulers/wRuler.png"),

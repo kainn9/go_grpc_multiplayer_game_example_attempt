@@ -4,13 +4,16 @@ type PlayerType string
 
 type Role struct {
 	RoleType PlayerType
-	Attacks  map[AtKey]*Attack
+	Attacks  map[AtKey]*AttackData
 	HitBoxW  float64
 	HitBoxH  float64
 	Defense  *Defense
+	Health   int
+
+	Phys *RolePhysStruct
 }
 
-type Attack struct {
+type AttackData struct {
 	Name     AtKey
 	Duration int
 	Type     AtKey
@@ -78,9 +81,19 @@ type Defense struct {
 	Cooldown    float64
 }
 
+// custom phys per role basis
+type RolePhysStruct struct {
+	DefaultFriction float64
+	DefaultAccel    float64
+	DefaultMaxSpeed float64
+	DefaultJumpSpd  float64
+	DefaultGravity  float64
+}
+
 const (
 	KnightType PlayerType = "knight"
 	MageType   PlayerType = "mage"
+	MonkType   PlayerType = "monk"
 )
 
 type AtKey string
@@ -92,7 +105,7 @@ const (
 	QuaternaryAttackKey AtKey = "quaAtk"
 )
 
-const noBox = -100
+const noBox = -10000
 
 func (path HBoxPath) appendHboxAgg(x float64, y float64, h float64, w float64, index int) HBoxPath {
 

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	r "github.com/kainn9/grpc_game/server/roles"
-	"github.com/solarlune/resolv"
 )
 
 func (cp *player) attackedHandler() {
@@ -18,24 +17,21 @@ func (cp *player) attackedHandler() {
 	// Check if the player is colliding with an attack object
 	if check := cp.object.Check(cp.speedX, cp.speedY, "attack"); check != nil {
 
-		// Loop through all attack objects(being collided with) and check if they belong to another player.
+		// Loop through all attack objects(being collided with)
+		// only "process" attack if attack is valid
 		atkObjs := check.Objects
 		for _, o := range atkObjs {
-			if o == nil {
-				continue
-			}
 
 			// Get the attacker of the attack object
-			atk, attacker := getAttackAndAttacker(o)
+			hitBoxData := hBoxData(o)
+			atk := hitBoxData.attackData
+			attacker := hitBoxData.player
 
-			// If the attacker is the same as the player being attacked,
-			// or if the attacker is nil,
-			// or if the player has already been hit by this attack, skip this collision
-			if checkForValidAttackHit(attacker, cp, atk) {
+			if hitIsInvalid(cp, hitBoxData) {
 				continue
 			}
 
-			cp.healthHandler(attacker, atk)
+			cp.healthHandler(attacker, atk, hitBoxData.aid)
 			cp.knockBackHandler(attacker, atk)
 			cp.interruptWindup()
 			cp.interruptMovment()
@@ -52,26 +48,14 @@ func (cp *player) attackedHandler() {
 	}
 }
 
-func getAttackAndAttacker(o *resolv.Object) (*r.Attack, *player) {
-	serverConfig.mutex.RLock()
-	attacker := serverConfig.AOTP[o]
-	atk := serverConfig.OTA[o]
-	serverConfig.mutex.RUnlock()
-
-	return atk, attacker
+// returns true if the attack is invalid, used to skip collision
+func hitIsInvalid(cp *player, hitBoxData *hitBoxData) bool {
+	return cp.hits[hitBoxData.aid] || hitBoxData.player == cp
 }
 
-// returns true if the attack is invalid, and skip collision
-func checkForValidAttackHit(attacker *player, cp *player, atk *r.Attack) bool {
-	if atk == nil {
-		return true
-	}
-	return attacker == cp || attacker == nil || (serverConfig.HTAP[attacker.pid+string(atk.Name)])
-}
-
-func (cp *player) healthHandler(attacker *player, atk *r.Attack) {
+func (cp *player) healthHandler(attacker *player, atk *r.AttackData, aid string) {
 	serverConfig.mutex.Lock()
-	serverConfig.HTAP[attacker.pid+string(atk.Name)] = true
+	cp.hits[aid] = true
 	serverConfig.mutex.Unlock()
 
 	dmg := atk.Damage
@@ -90,7 +74,7 @@ func (cp *player) healthHandler(attacker *player, atk *r.Attack) {
 
 	time.AfterFunc((time.Duration(500))*time.Millisecond, func() {
 		serverConfig.mutex.Lock()
-		delete(serverConfig.HTAP, attacker.pid+string(atk.Name))
+		delete(cp.hits, aid)
 		serverConfig.mutex.Unlock()
 	})
 }
@@ -101,7 +85,7 @@ func (cp *player) healthHandler(attacker *player, atk *r.Attack) {
 // and currently refers to speed instead of distance
 // allthough probably will refactor to use distance instead of speed
 // down the line(like the attack movment does)
-func (cp *player) knockBackHandler(attacker *player, atk *r.Attack) {
+func (cp *player) knockBackHandler(attacker *player, atk *r.AttackData) {
 
 	kbx := atk.KnockbackX
 	if atk.Windup != nil && atk.ChargeEffect != nil && atk.UseChargeKbxSpeed {
