@@ -293,7 +293,7 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 		data := hBoxData(obj)
 		otherPlayer := data.player
 
-		if !otherPlayer.defending && !cp.defending {
+		if (!otherPlayer.defending || otherPlayer.Defense.DefenseType == r.DefenseBlock) && (!cp.defending || cp.Defense.DefenseType == r.DefenseBlock) {
 			dx = check.ContactWithCell(check.Cells[0]).X() // set delta movement to the distance to the player we collide with
 			cp.endMovment()
 

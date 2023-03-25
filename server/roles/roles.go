@@ -74,11 +74,24 @@ type Consequence struct {
 	UseChargeDmg         bool
 }
 
-type Defense struct {
+type DefenseType string
+
+const (
+	DefenseDodge DefenseType = "dodge"
+	DefenseBlock DefenseType = "block"
+)
+
+type DefenseMovement struct {
 	Displacment float64
-	Delay       float64
 	Speed       float64
-	Cooldown    float64
+}
+
+type Defense struct {
+	*DefenseMovement     // set this to add dist based movement to defense...defense will end when movement ends, if duration is also set which ever ends first will take prio
+	DefenseDuration  int // ms
+	DefenseType
+	Cooldown float64
+	Delay    float64
 }
 
 // custom phys per role basis

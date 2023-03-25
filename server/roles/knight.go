@@ -15,11 +15,16 @@ func KnightAttacks() map[AtKey]*AttackData {
 }
 
 func InitKnight() *Role {
-	d := &Defense{
-		Speed:       12,
-		Delay:       0,
+	dm := &DefenseMovement{
+		Speed:       5.7,
 		Displacment: 75,
-		Cooldown:    100,
+	}
+
+	d := &Defense{
+		Delay:           0,
+		Cooldown:        100,
+		DefenseType:     DefenseDodge,
+		DefenseMovement: dm,
 	}
 
 	r := &Role{

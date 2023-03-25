@@ -14,12 +14,21 @@ func (cp *player) defenseHandler(input string) {
 
 			cp.defending = true
 
+			if cp.Defense.DefenseDuration != 0 {
+				cp.handleDefenseDuration()
+			}
+
 		})
 	}
 
 }
 
 func (cp *player) handleDefenseMovement() {
+
+	if cp.Defense.DefenseMovement == nil {
+		return
+	}
+
 	movementSpeed := cp.Defense.Speed
 
 	if cp.movmentStartX == noMovmentStartSet {
@@ -42,9 +51,7 @@ func (cp *player) handleDefenseMovement() {
 			cp.movmentStartX = noMovmentStartSet
 			cp.defenseCooldown = true
 
-			time.AfterFunc(time.Duration(cp.Defense.Cooldown)*time.Millisecond, func() {
-				cp.defenseCooldown = false
-			})
+			cp.handleDefenseCoolDown()
 		}
 	}
 }
@@ -52,4 +59,17 @@ func (cp *player) handleDefenseMovement() {
 func (cp *player) endDefenseMovement() {
 	cp.defending = false
 	cp.movmentStartX = noMovmentStartSet
+}
+
+func (cp *player) handleDefenseCoolDown() {
+	time.AfterFunc(time.Duration(cp.Defense.Cooldown)*time.Millisecond, func() {
+		cp.defenseCooldown = false
+	})
+}
+
+func (cp *player) handleDefenseDuration() {
+	time.AfterFunc(time.Duration(cp.Defense.DefenseDuration)*time.Millisecond, func() {
+		cp.defending = false
+
+	})
 }
