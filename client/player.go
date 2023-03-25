@@ -25,6 +25,7 @@ type Player struct {
 	currentAnimation *r.Animation
 	health           int
 	defending        bool
+	dead             bool
 }
 
 /*
@@ -117,6 +118,16 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 			p.currentAnimation = p.Animations["defenseRight"]
 		} else {
 			p.currentAnimation = p.Animations["defenseLeft"]
+		}
+
+	}
+
+	if p.dead {
+
+		if p.facingRight {
+			p.currentAnimation = p.Animations[string(r.DeathRight)]
+		} else {
+			p.currentAnimation = p.Animations[string(r.DeathLeft)]
 		}
 
 	}

@@ -48,6 +48,9 @@ var (
 
 	knightSpriteSlideRight *ebiten.Image
 	knightSpriteSlideLeft  *ebiten.Image
+
+	knightSpriteDeathRight *ebiten.Image
+	knightSpriteDeathLeft  *ebiten.Image
 )
 
 /*
@@ -86,6 +89,9 @@ func LoadKnightSprites() {
 
 	knightSpriteQuickSlashWindupLeft = ut.LoadImg("./sprites/knight/knightQuickSlashWindupLeft.png")
 	knightSpriteQuickSlashWindupRight = ut.LoadImg("./sprites/knight/knightQuickSlashWindupRight.png")
+
+	knightSpriteDeathRight = ut.LoadImg("./sprites/knight/knightDeathRight.png")
+	knightSpriteDeathLeft = ut.LoadImg("./sprites/knight/knightDeathLeft.png")
 }
 
 func InitKnight() *Role {
@@ -101,6 +107,7 @@ func InitKnight() *Role {
 	return r
 }
 
+// TODO MAKE ANIM KEYS CONSTS
 func KnightAnims() map[string]*Animation {
 	anims := make(map[string]*Animation)
 
@@ -196,6 +203,28 @@ func KnightAnims() map[string]*Animation {
 		FrameHeight: 32,
 		FrameCount:  4,
 		SpriteSheet: knightSpriteKBLeft,
+	}
+
+	anims[string(DeathRight)] = &Animation{
+		Name:        string(DeathLeft),
+		FrameOX:     0,
+		FrameOY:     14,
+		FrameWidth:  70,
+		FrameHeight: 70,
+		FrameCount:  24,
+		SpriteSheet: knightSpriteDeathRight,
+		Fixed:       true,
+	}
+
+	anims[string(DeathLeft)] = &Animation{
+		Name:        string(DeathLeft),
+		FrameOX:     1680,
+		FrameOY:     14,
+		FrameWidth:  70,
+		FrameHeight: 70,
+		FrameCount:  24,
+		SpriteSheet: knightSpriteDeathLeft,
+		Fixed:       true,
 	}
 
 	/*

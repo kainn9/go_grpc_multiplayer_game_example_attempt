@@ -127,5 +127,10 @@ func (cp *player) knockBackHandler(attacker *player, atk *r.AttackData) {
 
 // simple death for now(this will just cause the player to respawn with a new PID/Full health)
 func (cp *player) death() {
-	removePlayerFromGame(cp.pid, serverConfig.worldsMap[cp.worldKey])
+	cp.dead = true
+
+	time.AfterFunc((time.Duration(1650))*time.Millisecond, func() {
+		removePlayerFromGame(cp.pid, serverConfig.worldsMap[cp.worldKey])
+	})
+
 }

@@ -35,6 +35,9 @@ var (
 
 	monkSpriteEarthFistSmashRight *ebiten.Image
 	monkSpriteEarthFistSmashLeft  *ebiten.Image
+
+	monkSpriteDeathRight *ebiten.Image
+	monkSpriteDeathLeft  *ebiten.Image
 )
 
 /*
@@ -61,6 +64,9 @@ func LoadmonkSprites() {
 
 	monkSpriteEarthFistSmashRight = ut.LoadImg("./sprites/monk/monkEarthFistSmashRight.png")
 	monkSpriteEarthFistSmashLeft = ut.LoadImg("./sprites/monk/monkEarthFistSmashLeft.png")
+
+	monkSpriteDeathRight = ut.LoadImg("./sprites/monk/monkDeathRight.png")
+	monkSpriteDeathLeft = ut.LoadImg("./sprites/monk/monkDeathLeft.png")
 }
 
 func InitMonk() *Role {
@@ -76,6 +82,7 @@ func InitMonk() *Role {
 	return r
 }
 
+// TODO MAKE ANIM KEYS CONSTS
 func MonkAnims() map[string]*Animation {
 	anims := make(map[string]*Animation)
 
@@ -173,6 +180,28 @@ func MonkAnims() map[string]*Animation {
 		FrameHeight: 39,
 		FrameCount:  3,
 		SpriteSheet: monkSpriteKBLeft,
+	}
+
+	anims[string(DeathRight)] = &Animation{
+		Name:        string(DeathRight),
+		FrameOX:     0,
+		FrameOY:     0,
+		FrameWidth:  26,
+		FrameHeight: 42,
+		FrameCount:  24,
+		SpriteSheet: monkSpriteDeathRight,
+		Fixed:       true,
+	}
+
+	anims[string(DeathLeft)] = &Animation{
+		Name:        string(DeathLeft),
+		FrameOX:     624,
+		FrameOY:     0,
+		FrameWidth:  26,
+		FrameHeight: 42,
+		FrameCount:  24,
+		SpriteSheet: monkSpriteDeathLeft,
+		Fixed:       true,
 	}
 
 	/*

@@ -19,9 +19,9 @@ func MonkAttacks() map[AtKey]*AttackData {
 func InitMonk() *Role {
 
 	d := &Defense{
-		Delay:           1.5,
+		Delay:           400,
 		Cooldown:        300,
-		DefenseDuration: 5000,
+		DefenseDuration: 1000,
 		DefenseType:     DefenseBlock,
 	}
 

@@ -177,6 +177,7 @@ func (world *World) DrawPlayers() {
 		p.health = int(ps.Health)
 		p.defending = ps.Defending
 		p.Role = *clientConfig.roles[ps.Role]
+		p.dead = ps.Dead
 
 		newPlayerMap[ps.Id] = p
 

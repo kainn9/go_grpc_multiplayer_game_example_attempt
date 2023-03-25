@@ -35,6 +35,7 @@ type player struct {
 	defending       bool
 	defenseCooldown bool
 	hits            map[string]bool
+	dead            bool
 }
 
 // playerPh represents the physics parameters of a player
@@ -91,7 +92,7 @@ func (cp *player) attackMovementActive() bool {
 func (cp *player) canAcceptInputs() bool {
 	// returns true if player
 	// is not in knockback, windup or attack state
-	return !cp.isKnockedBack() && !cp.isWindingUp() && !cp.isAttacking() && !cp.defending
+	return !cp.dead && !cp.isKnockedBack() && !cp.isWindingUp() && !cp.isAttacking() && !cp.defending
 }
 
 // newPlayer creates a new player with the given unique identifier and world key
@@ -238,6 +239,10 @@ func (cp *player) jumpHandler(input string) {
 	}
 }
 
+func validXCollision(cp *player, otherPlayer *player) bool {
+	return (!otherPlayer.defending || otherPlayer.Defense.DefenseType == r.DefenseBlock) && (!cp.defending || cp.Defense.DefenseType == r.DefenseBlock) && (!cp.dead && !otherPlayer.dead)
+}
+
 // horizontalMovementHandler handles the horizontal movement of the player based on user input and collision detection.
 func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 
@@ -293,7 +298,7 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 		data := hBoxData(obj)
 		otherPlayer := data.player
 
-		if (!otherPlayer.defending || otherPlayer.Defense.DefenseType == r.DefenseBlock) && (!cp.defending || cp.Defense.DefenseType == r.DefenseBlock) {
+		if validXCollision(cp, otherPlayer) {
 			dx = check.ContactWithCell(check.Cells[0]).X() // set delta movement to the distance to the player we collide with
 			cp.endMovment()
 
@@ -421,6 +426,11 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 
 			// playerOnPlayer y collision
 			if check := cp.object.Check(0, cp.speedY, "player"); check != nil {
+
+				if cp.dead || hBoxData(check.Objects[0]).player.dead {
+					return
+				}
+
 				if check.Objects[0].Y > cp.object.Y {
 					dy = check.ContactWithCell(check.Cells[0]).Y()
 					cp.speedY = 0

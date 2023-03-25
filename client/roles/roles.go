@@ -34,3 +34,10 @@ const (
 	MageType   PlayerType = "mage"
 	MonkType   PlayerType = "monk"
 )
+
+type AnimKey string
+
+const (
+	DeathRight AnimKey = "deathRight"
+	DeathLeft  AnimKey = "deathLeft"
+)
