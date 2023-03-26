@@ -57,8 +57,10 @@ func (world *world) Init(worldBuilder builderFunc) {
 // A function to update the game world, where all game logic happens.
 // The physics are basically a rip of the Resolv example: https://github.com/SolarLune/resolv/blob/master/examples/worldPlatformer.go.
 func (world *world) Update(cp *player, input string) {
-	// Lock the server config mutex.
 
+	if cp.dead {
+		return
+	}
 	// Add the "player" tag to the player object if it doesn't already have it.
 	if !cp.object.HasTags("player") {
 		cp.object.AddTags("player")

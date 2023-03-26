@@ -33,4 +33,20 @@ const (
 	KnightType PlayerType = "knight"
 	MageType   PlayerType = "mage"
 	MonkType   PlayerType = "monk"
+	DemonType PlayerType = "demon"
+)
+
+type AnimKey string
+
+const (
+	DeathRight AnimKey = "deathRight"
+	DeathLeft  AnimKey = "deathLeft"
+	IdleRight AnimKey = "idleRight"
+	IdleLeft AnimKey = "idleLeft"
+	WalkRight AnimKey = "walkRight"
+	WalkLeft AnimKey = "walkLeft"
+	JumpLeft AnimKey = "jumpLeft"
+	JumpRight AnimKey = "jumpRight"
+	KbRight AnimKey = "KbRight"
+	KbLeft AnimKey = "KbLeft"
 )

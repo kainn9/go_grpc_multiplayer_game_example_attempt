@@ -76,8 +76,9 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 	log.Printf("Player Connection Recieved %v\n", pid)
 
 	for {
-
+		serverConfig.mutex.RLock()
 		w, _ := currentPlayerWorld(pid)
+		serverConfig.mutex.RUnlock()
 
 		stalledWrapperInstance := stalledWrapper{stalled: true}
 
@@ -149,7 +150,7 @@ func initPlayer(r *pb.PlayerReq) (*player, *world) {
 	}
 
 	if cp.object == nil {
-		addPlayerToSpace(w.space, cp, 612, 500)
+		addPlayerToSpace(w, cp, 612, 500)
 	}
 
 	return cp, w
@@ -196,6 +197,7 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 			Health:         int32(curr.health),
 			Defending:      curr.defending,
 			Role:           serverConfig.roles[curr.RoleType],
+			Dead:           curr.dead,
 		}
 
 		res.Players = append(res.Players, p)
