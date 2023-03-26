@@ -107,6 +107,7 @@ const (
 	KnightType PlayerType = "knight"
 	MageType   PlayerType = "mage"
 	MonkType   PlayerType = "monk"
+	DemonType PlayerType = "demon"
 )
 
 type AtKey string

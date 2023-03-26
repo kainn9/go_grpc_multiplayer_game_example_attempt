@@ -150,7 +150,7 @@ func initPlayer(r *pb.PlayerReq) (*player, *world) {
 	}
 
 	if cp.object == nil {
-		addPlayerToSpace(w.space, cp, 612, 500)
+		addPlayerToSpace(w, cp, 612, 500)
 	}
 
 	return cp, w

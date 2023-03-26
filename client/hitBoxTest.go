@@ -33,7 +33,7 @@ type hitBoxSequence struct {
 
 type hBoxPath []hitBoxAggregate
 
-const noBox = -90000
+const noBox = -90000 // TODO: deprecate noBox(old examples still use), as you can just omit path values
 
 // use this to preview for full anim len when freezing a frame
 func previewPathAllFrames(x float64, y float64, h float64, w float64, path hBoxPath, count int) {
@@ -48,17 +48,127 @@ func previewPathAllFrames(x float64, y float64, h float64, w float64, path hBoxP
 	------------------------------------------------
 */
 
+
 /*
 -----------------------------------------------------------------------------
-Monk Secondary Attack Example(only works if cp is Monk)
+Demon Secondary Attack Example(only works if cp is Demon)
 -----------------------------------------------------------------------------
 */
+
+// var (
+// 	hitBoxTest = &hitboxTest{
+// 		name:  "secondaryAtk",
+// 		on:    false,
+// 		count: 21,
+// 		// set to -1 to play whole anim
+// 		frame: -1,
+// 		left:  false,
+// 		inc:   16.666 * 5, // 1 frame at 60fps
+// 	}
+// )
+
+// func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
+// 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
+	
+// 	// frame 0 - 6 no hitboxes
+
+// 	// frame 7
+// 	path = path.appendHboxAgg(50, 0, 15, 15, 7)
+// 	path = path.appendHboxAgg(57, -7, 15, 15, 7)
+// 	path = path.appendHboxAgg(62, -12, 15, 15, 7)
+// 	path = path.appendHboxAgg(72, -17, 15, 15, 7)
+// 	path = path.appendHboxAgg(77, -22, 15, 15, 7)
+// 	path = path.appendHboxAgg(82, -27, 15, 15, 7)
+// 	path = path.appendHboxAgg(87, -32, 15, 15, 7)
+// 	path = path.appendHboxAgg(92, -37, 15, 15, 7)
+
+
+// 	// frame 8
+// 	path = path.appendHboxAgg(50, 0, 15, 15, 8)
+// 	path = path.appendHboxAgg(57, -2, 15, 15, 8)
+// 	path = path.appendHboxAgg(62, -5, 15, 15, 8)
+// 	path = path.appendHboxAgg(72, -8, 15, 15, 8)
+// 	path = path.appendHboxAgg(77, -12, 15, 15, 8)
+// 	path = path.appendHboxAgg(82, -15, 15, 15, 8)
+// 	path = path.appendHboxAgg(87, -18, 15, 15, 8)
+// 	path = path.appendHboxAgg(92, -21, 15, 15, 8)
+// 	path = path.appendHboxAgg(97, -25, 15, 15, 8)
+// 	path = path.appendHboxAgg(102, -28, 15, 15, 8)
+// 	path = path.appendHboxAgg(107, -31, 15, 15, 8)
+
+
+// 	// frame 9
+// 	path = path.appendHboxAgg(50, 0, 15, 15, 9)
+// 	path = path.appendHboxAgg(57, 3, 15, 15, 9)
+// 	path = path.appendHboxAgg(72, 3, 8, 30, 9)
+// 	path = path.appendHboxAgg(76, -2, 15, 15, 9)
+// 	path = path.appendHboxAgg(82, -5, 15, 15, 9)
+// 	path = path.appendHboxAgg(87, -8, 15, 15, 9)
+// 	path = path.appendHboxAgg(92, -12, 15, 15, 9)
+// 	path = path.appendHboxAgg(97, -15, 15, 15, 9)
+// 	path = path.appendHboxAgg(102, -18, 15, 15, 9)
+// 	path = path.appendHboxAgg(107, -21, 15, 15, 9)
+// 	path = path.appendHboxAgg(112, -25, 15, 15, 9)
+// 	path = path.appendHboxAgg(117, -28, 15, 15, 9)
+// 	path = path.appendHboxAgg(122, -31, 15, 15, 9)
+	
+// 	// frame 10
+// 	path = path.appendHboxAgg(50, 13, 8, 40, 10)
+// 	path = path.appendHboxAgg(90, -5, 22, 30, 10)
+// 	path = path.appendHboxAgg(120, -25, 30, 30, 10)
+
+
+// 	// frame 11
+// 	path = path.appendHboxAgg(50, 18, 8, 40, 11)
+// 	path = path.appendHboxAgg(90, 7, 22, 30, 11)
+// 	path = path.appendHboxAgg(120, -10, 30, 30, 11)
+
+
+// 	// frame 12
+// 	path = path.appendHboxAgg(50, 26, 8, 40, 12)
+// 	path = path.appendHboxAgg(90, 15, 22, 30, 12)
+// 	path = path.appendHboxAgg(120, 2, 30, 30, 12)
+
+
+// 	// frame 13
+// 	path = path.appendHboxAgg(50, 34, 8, 40, 13)
+// 	path = path.appendHboxAgg(90, 26, 22, 30, 13)
+// 	path = path.appendHboxAgg(120, 18, 30, 30, 13)
+
+// 	// frame 14
+// 	path = path.appendHboxAgg(50, 42, 8, 40, 14)
+// 	path = path.appendHboxAgg(90, 38, 22, 30, 14)
+// 	path = path.appendHboxAgg(120, 30, 30, 30, 14)
+
+
+// 	// frame 15
+// 	path = path.appendHboxAgg(50, 46, 8, 40, 15)
+// 	path = path.appendHboxAgg(90, 53, 22, 30, 15)
+// 	path = path.appendHboxAgg(120, 45, 30, 30, 15)
+
+// 	// frame 16
+// 	path = path.appendHboxAgg(50, 46, 8, 40, 16)
+// 	path = path.appendHboxAgg(90, 53, 22, 30, 16)
+// 	path = path.appendHboxAgg(120, 45, 30, 30, 16)
+
+// 	// no hitboxes for frame 17+
+
+// 	startHitboxSim(screen, cp, inc, path, 0)
+// }
+
+/*
+
+// /*
+// -----------------------------------------------------------------------------
+// Demon Primary Attack Example(only works if cp is Demon)
+// -----------------------------------------------------------------------------
+// */
 
 var (
 	hitBoxTest = &hitboxTest{
 		name:  "primaryAtk",
 		on:    false,
-		count: 13,
+		count: 22,
 		// set to -1 to play whole anim
 		frame: -1,
 		left:  false,
@@ -69,56 +179,166 @@ var (
 func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
 
-	// frame 1
-	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
-
-	// frame 2
-	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+	// frame 0 - 2 have no hitboxes
 
 	// frame 3
-	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+	path = path.appendHboxAgg(-15, 40, 20, 15, 3)
 
 	// frame 4
-	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+	path = path.appendHboxAgg(-19, 25, 20, 15, 4)
 
 	// frame 5
-	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+	path = path.appendHboxAgg(-21, 19, 10, 15, 5)
 
 	// frame 6
-	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+	path = path.appendHboxAgg(-21, 9, 20, 15, 6)
 
 	// frame 7
-	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+	path = path.appendHboxAgg(-21, 0, 15, 15, 7)
+	path = path.appendHboxAgg(-16, -7.5, 15, 15, 7)
+	path = path.appendHboxAgg(-11, -15, 15, 15, 7)
+	path = path.appendHboxAgg(-6, -20, 15, 15, 7)
+	path = path.appendHboxAgg(-2, -24, 15, 15, 7)
 
 	// frame 8
-	path = path.appendHboxAgg(45, 30, 10, 20, 8)
-	path = path.appendHboxAgg(50, 25, 10, 10, 8)
+	path = path.appendHboxAgg(-21, 0, 15, 15, 8)
+	path = path.appendHboxAgg(-16, -7.5, 15, 15, 8)
+	path = path.appendHboxAgg(-11, -15, 15, 15, 8)
+	path = path.appendHboxAgg(-6, -20, 15, 15, 8)
+	path = path.appendHboxAgg(-2, -24, 15, 15, 8)
 
 	// frame 9
-	path = path.appendHboxAgg(45, 30, 10, 60, 9)
-	path = path.appendHboxAgg(60, 25, 10, 40, 9)
-	path = path.appendHboxAgg(60, 15, 10, 35, 9)
-	path = path.appendHboxAgg(77, 0, 25, 10, 9)
+	path = path.appendHboxAgg(-21, 0, 15, 15, 9)
+	path = path.appendHboxAgg(-16, -7.5, 15, 15, 9)
+	path = path.appendHboxAgg(-11, -15, 15, 15, 9)
+	path = path.appendHboxAgg(-6, -20, 15, 15, 9)
+	path = path.appendHboxAgg(-2, -24, 15, 15, 9)
+
 
 	// frame 10
-	path = path.appendHboxAgg(45, 30, 10, 60, 10)
-	path = path.appendHboxAgg(60, 25, 10, 40, 10)
-	path = path.appendHboxAgg(60, 15, 10, 35, 10)
-	path = path.appendHboxAgg(77, 0, 25, 10, 10)
+	path = path.appendHboxAgg(-21, 0, 15, 15, 10)
+	path = path.appendHboxAgg(-16, -7.5, 15, 15, 10)
+	path = path.appendHboxAgg(-11, -15, 15, 15, 10)
+	path = path.appendHboxAgg(-6, -20, 15, 15, 10)
+	path = path.appendHboxAgg(-2, -24, 15, 15, 10)
+
 
 	// frame 11
-	path = path.appendHboxAgg(45, 30, 10, 60, 11)
-	path = path.appendHboxAgg(60, 25, 10, 40, 11)
-	path = path.appendHboxAgg(60, 15, 10, 35, 11)
-	path = path.appendHboxAgg(77, 0, 25, 10, 11)
+	path = path.appendHboxAgg(-21, 0, 15, 15, 11)
+	path = path.appendHboxAgg(-16, -7.5, 15, 15, 11)
+	path = path.appendHboxAgg(-11, -15, 15, 15, 11)
+	path = path.appendHboxAgg(-6, -20, 15, 15, 11)
+	path = path.appendHboxAgg(-2, -24, 15, 15, 11)
+
 
 	// frame 12
-	path = path.appendHboxAgg(62, 30, 10, 30, 12)
-	path = path.appendHboxAgg(72, 20, 10, 15, 12)
-	path = path.appendHboxAgg(76, 12, 8, 5, 12)
+	path = path.appendHboxAgg(105, 70, 15, 15, 12)
+	path = path.appendHboxAgg(115, 70, 15, 15, 12)
+	path = path.appendHboxAgg(130, 70, 22, 15, 12)
+	path = path.appendHboxAgg(130, 36, 33, 15, 12)
+
+	// frame 13
+	path = path.appendHboxAgg(102, 67, 15, 15, 13)
+	path = path.appendHboxAgg(115, 70, 15, 15, 13)
+	path = path.appendHboxAgg(130, 70, 22, 15, 13)
+
+	// frame 14
+	path = path.appendHboxAgg(102, 67, 15, 15, 14)
+	path = path.appendHboxAgg(115, 70, 15, 15, 14)
+	path = path.appendHboxAgg(130, 70, 22, 15, 14)
+
+	// frame 15
+	path = path.appendHboxAgg(102, 67, 15, 15, 15)
+	path = path.appendHboxAgg(115, 70, 15, 15, 15)
+	path = path.appendHboxAgg(130, 70, 22, 15, 15)
+
+	// frame 16
+	path = path.appendHboxAgg(102, 67, 15, 15, 16)
+	path = path.appendHboxAgg(115, 70, 15, 15, 16)
+	path = path.appendHboxAgg(130, 70, 22, 15, 16)
+
+	// frame 17
+	path = path.appendHboxAgg(102, 67, 15, 15, 17)
+	path = path.appendHboxAgg(115, 70, 15, 15, 17)
+	path = path.appendHboxAgg(130, 70, 22, 15, 17)
+
+
+	// frame 18+ no hitbox
 
 	startHitboxSim(screen, cp, inc, path, 0)
 }
+
+/*
+-----------------------------------------------------------------------------
+Monk Secondary Attack Example(only works if cp is Monk)
+-----------------------------------------------------------------------------
+*/
+
+// var (
+// 	hitBoxTest = &hitboxTest{
+// 		name:  "primaryAtk",
+// 		on:    false,
+// 		count: 13,
+// 		// set to -1 to play whole anim
+// 		frame: -1,
+// 		left:  false,
+// 		inc:   16.666 * 5, // 1 frame at 60fps
+// 	}
+// )
+
+// func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
+// 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
+
+// 	// frame 1
+// 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+
+// 	// frame 2
+// 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+
+// 	// frame 3
+// 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+
+// 	// frame 4
+// 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+
+// 	// frame 5
+// 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+
+// 	// frame 6
+// 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+
+// 	// frame 7
+// 	path = path.appendHboxAgg(noBox, noBox, 8, 8, 0)
+
+// 	// frame 8
+// 	path = path.appendHboxAgg(45, 30, 10, 20, 8)
+// 	path = path.appendHboxAgg(50, 25, 10, 10, 8)
+
+// 	// frame 9
+// 	path = path.appendHboxAgg(45, 30, 10, 60, 9)
+// 	path = path.appendHboxAgg(60, 25, 10, 40, 9)
+// 	path = path.appendHboxAgg(60, 15, 10, 35, 9)
+// 	path = path.appendHboxAgg(77, 0, 25, 10, 9)
+
+// 	// frame 10
+// 	path = path.appendHboxAgg(45, 30, 10, 60, 10)
+// 	path = path.appendHboxAgg(60, 25, 10, 40, 10)
+// 	path = path.appendHboxAgg(60, 15, 10, 35, 10)
+// 	path = path.appendHboxAgg(77, 0, 25, 10, 10)
+
+// 	// frame 11
+// 	path = path.appendHboxAgg(45, 30, 10, 60, 11)
+// 	path = path.appendHboxAgg(60, 25, 10, 40, 11)
+// 	path = path.appendHboxAgg(60, 15, 10, 35, 11)
+// 	path = path.appendHboxAgg(77, 0, 25, 10, 11)
+
+// 	// frame 12
+// 	path = path.appendHboxAgg(62, 30, 10, 30, 12)
+// 	path = path.appendHboxAgg(72, 20, 10, 15, 12)
+// 	path = path.appendHboxAgg(76, 12, 8, 5, 12)
+
+// 	startHitboxSim(screen, cp, inc, path, 0)
+// }
 
 /*
 -----------------------------------------------------------------------------

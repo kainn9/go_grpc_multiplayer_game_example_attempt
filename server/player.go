@@ -102,6 +102,7 @@ func newPlayer(pid string, worldKey string) *player {
 	randomRole := make(map[int32]r.Role)
 	randomRole[0] = *r.Knight
 	randomRole[1] = *r.Monk
+	randomRole[2] = *r.Demon
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())
@@ -115,7 +116,7 @@ func newPlayer(pid string, worldKey string) *player {
 
 	randomKey := keys[rand.Intn(len(keys))]
 
-	role := randomRole[randomKey]
+	role := randomRole[randomKey] // change back
 	// end of the temp code
 
 	p := &player{
@@ -141,15 +142,16 @@ func newPlayer(pid string, worldKey string) *player {
 }
 
 // addPlayerToSpace adds a player to a Resolv space with the given coordinates
-func addPlayerToSpace(space *resolv.Space, p *player, x float64, y float64) *player {
+func addPlayerToSpace(w *world, p *player, x float64, y float64) *player {
 
 	p.object = resolv.NewObject(x, y, p.HitBoxW, p.HitBoxH)
 
 	p.object.SetShape(resolv.NewRectangle(0, 0, p.object.W, p.object.H))
 
 	initHitboxData(p.object, p, nil)
-	space.Add(p.object)
-
+	w.hitboxMutex.Lock()
+	w.space.Add(p.object)
+	w.hitboxMutex.Unlock()
 	return p
 }
 
@@ -161,11 +163,14 @@ func removePlayerFromGame(pid string, w *world) {
 		return
 	}
 
-	obj := w.players[pid].object
+
 	serverConfig.mutex.RUnlock()
 
+	w.hitboxMutex.Lock()
+	obj := w.players[pid].object
 	w.space.Remove(obj)
-
+	w.hitboxMutex.Unlock()
+	
 	serverConfig.mutex.Lock()
 	delete(w.players, pid)
 	delete(serverConfig.activePlayers, pid)
@@ -176,11 +181,13 @@ func removePlayerFromGame(pid string, w *world) {
 // updating their position and worldKey in the process.
 func changePlayersWorld(oldWorld *world, newWorld *world, cp *player, x float64, y float64) {
 	serverConfig.mutex.Lock()
+
 	delete(oldWorld.players, cp.pid)
 	oldWorld.space.Remove(cp.object)
 	newWorld.players[cp.pid] = cp
 	serverConfig.mutex.Unlock()
-	addPlayerToSpace(newWorld.space, cp, x, y)
+	
+	addPlayerToSpace(newWorld, cp, x, y)
 	cp.worldKey = newWorld.name
 }
 
@@ -403,16 +410,24 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 			// to land on. If so, we stand on it.
 
 			if platforms := check.ObjectsByTags("platform"); len(platforms) > 0 {
-
-				platform := platforms[0]
-
-				if platform != cp.ignorePlatform && cp.speedY >= 0 && cp.object.Bottom() < platform.Y+4 {
-					dy = check.ContactWithObject(platform).Y()
-					cp.onGround = platform
-					cp.speedY = 0
+				
+			
+				minY := platforms[0].Y
+				minP := platforms[0]
+				for i, p := range platforms {
+						minY = math.Max(minY, p.Y) // lower y actually means lower pos
+						if minY == p.Y {
+							minP = platforms[i]
+						}
 				}
 
+				if (minP != cp.ignorePlatform && cp.speedY >= 0 && cp.object.Bottom() < minP.Y+4) {
+					dy = check.ContactWithObject(minP).Y()
+					cp.onGround = minP
+					cp.speedY = 0
+				}
 			}
+			
 			// basic solids collision
 			if check := cp.object.Check(0, cp.speedY, "solid"); check != nil {
 				if check.Objects[0].Y > cp.object.Y {

@@ -199,9 +199,27 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
 	if hitBoxTest.on && hitBoxTest.frame >= 0 {
 		sub = getAnimationFrame(p, hitBoxTest.frame, s)
+		
 	}
 
+	// render player
 	pc.playerCam.Surface.DrawImage(sub, playerOps)
+
+	/*
+	-------------------------------------------------------
+		Uncomment this and place values in NewImage to preview player hitbox— expand this to hitboxTest
+	-------------------------------------------------------
+	*/
+	// rectImg := ebiten.NewImage(50, 98)
+	// rectImg.Fill(color.RGBA{0, 0, 255, 128})
+	// playerOps.GeoM.Translate(p.HitBoxOffsetX, p.HitBoxOffsetY)
+	// pc.playerCam.Surface.DrawImage(rectImg, playerOps)
+	/*
+	-------------------------------------------------------
+	 end
+	-------------------------------------------------------
+	*/		
+	
 }
 
 func getAnimationFrame(p *Player, i int, s *ebiten.Image) *ebiten.Image {

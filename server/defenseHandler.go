@@ -6,6 +6,10 @@ import (
 )
 
 func (cp *player) defenseHandler(input string) {
+	
+	if cp.Role.Defense == nil {
+		return
+	}
 
 	if input == "defense" && !cp.defenseCooldown {
 
