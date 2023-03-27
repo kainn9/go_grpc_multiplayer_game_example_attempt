@@ -103,6 +103,7 @@ func newPlayer(pid string, worldKey string) *player {
 	randomRole[0] = *r.Knight
 	randomRole[1] = *r.Monk
 	randomRole[2] = *r.Demon
+	randomRole[3] = *r.Werewolf
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())
@@ -116,7 +117,7 @@ func newPlayer(pid string, worldKey string) *player {
 
 	randomKey := keys[rand.Intn(len(keys))]
 
-	role := randomRole[randomKey] // change back
+	role := randomRole[randomKey] // change to lock role
 	// end of the temp code
 
 	p := &player{

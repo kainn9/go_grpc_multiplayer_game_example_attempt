@@ -43,7 +43,7 @@ var (
 /*
 Loads the default player sprites
 */
-func LoadmonkSprites() {
+func LoadMonkSprites() {
 	monkSpriteIdleLeft = ut.LoadImg("./sprites/monk/monkIdleLeft.png")
 	monkSpriteIdleRight = ut.LoadImg("./sprites/monk/monkIdleRight.png")
 
@@ -70,7 +70,7 @@ func LoadmonkSprites() {
 }
 
 func InitMonk() *Role {
-	LoadmonkSprites()
+	LoadMonkSprites()
 
 	r := &Role{
 		RoleType:      MonkType,

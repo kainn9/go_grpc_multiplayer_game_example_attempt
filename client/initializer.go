@@ -75,6 +75,7 @@ func initClient() {
 	clientConfig.roles[0] = r.InitKnight()
 	clientConfig.roles[1] = r.InitMonk()
 	clientConfig.roles[2] = r.InitDemon()
+	clientConfig.roles[3] = r.InitWerewolf()
 
 	devConfig = &devSettings{
 		rulerW:         ut.LoadImg("./sprites/rulers/wRuler.png"),
