@@ -27,6 +27,7 @@ type Animation struct {
 	Name        string
 	SpriteSheet *ebiten.Image
 	PosOffsetX  float64
+	PosOffsetY  float64
 }
 
 const (
@@ -34,6 +35,7 @@ const (
 	MageType   PlayerType = "mage"
 	MonkType   PlayerType = "monk"
 	DemonType PlayerType = "demon"
+	WerewolfType PlayerType = "werewolf"
 )
 
 type AnimKey string

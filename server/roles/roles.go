@@ -108,6 +108,7 @@ const (
 	MageType   PlayerType = "mage"
 	MonkType   PlayerType = "monk"
 	DemonType PlayerType = "demon"
+	WerewolfType PlayerType = "werewolf"
 )
 
 type AtKey string
@@ -119,7 +120,7 @@ const (
 	QuaternaryAttackKey AtKey = "quaAtk"
 )
 
-const noBox = -10000
+const noBox = -10000 // TODO deprecate these as you can just use nil for the path in attack sequence
 
 func (path HBoxPath) appendHboxAgg(x float64, y float64, h float64, w float64, index int) HBoxPath {
 

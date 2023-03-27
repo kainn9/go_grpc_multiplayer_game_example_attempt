@@ -176,16 +176,16 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	playerOps := &ebiten.DrawImageOptions{}
 
 	if currentPlayer && p.facingRight {
-		playerOps = pc.playerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+((pc.playerCXpos/2)-p.HitBoxOffsetX), (pc.playerCYpos/2)-p.HitBoxOffsetY)
+		playerOps = pc.playerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+((pc.playerCXpos/2)-p.HitBoxOffsetX), -p.currentAnimation.PosOffsetY+(pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else if currentPlayer && !p.facingRight {
-		playerOps = pc.playerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+pc.playerCXpos/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), (pc.playerCYpos/2)-p.HitBoxOffsetY)
+		playerOps = pc.playerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+pc.playerCXpos/2-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), -p.currentAnimation.PosOffsetY+(pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else if p.facingRight {
-		playerOps = pc.playerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+(x-(pc.playerCXpos/2)-p.HitBoxOffsetX), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
+		playerOps = pc.playerCam.GetTranslation(playerOps, -p.currentAnimation.PosOffsetX+(x-(pc.playerCXpos/2)-p.HitBoxOffsetX), -p.currentAnimation.PosOffsetY+y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
 
 	} else {
-		playerOps = pc.playerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+x-(pc.playerCXpos/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
+		playerOps = pc.playerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+x-(pc.playerCXpos/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), -p.currentAnimation.PosOffsetY+y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
 	}
 
 	// Render the Anims
@@ -210,7 +210,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		Uncomment this and place values in NewImage to preview player hitbox— expand this to hitboxTest
 	-------------------------------------------------------
 	*/
-	// rectImg := ebiten.NewImage(50, 98)
+	// rectImg := ebiten.NewImage(30, 50)
 	// rectImg.Fill(color.RGBA{0, 0, 255, 128})
 	// playerOps.GeoM.Translate(p.HitBoxOffsetX, p.HitBoxOffsetY)
 	// pc.playerCam.Surface.DrawImage(rectImg, playerOps)
