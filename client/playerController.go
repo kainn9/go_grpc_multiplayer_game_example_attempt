@@ -446,11 +446,13 @@ func CurrentPlayerHandler(pc *PlayerController, ps *pb.Player, p *Player) {
 	cw.playerController.x = ps.Lx
 	cw.playerController.y = ps.Ly
 
-	if clientConfig.game.CurrentWorld != ps.World {
+	psWorld := int(ps.World)
 
-		newData := clientConfig.worldsMap[ps.World]
+	if clientConfig.game.CurrentWorld != psWorld {
 
-		UpdateWorldData(cw, &newData, ps.World)
+		newData := clientConfig.worldsMap[psWorld]
+
+		UpdateWorldData(cw, &newData, psWorld)
 	}
 
 	DrawPlayer(cw, p, true)

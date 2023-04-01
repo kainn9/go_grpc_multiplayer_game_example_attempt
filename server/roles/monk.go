@@ -19,7 +19,7 @@ func MonkAttacks() map[AtKey]*AttackData {
 func InitMonk() *Role {
 
 	d := &Defense{
-		Delay:           400,
+		Delay:           0,
 		Cooldown:        300,
 		DefenseDuration: 1000,
 		DefenseType:     DefenseBlock,
@@ -31,7 +31,7 @@ func InitMonk() *Role {
 		HitBoxW:  12,
 		HitBoxH:  35,
 		Defense:  d,
-		Health:   250,
+		Health:   380,
 
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,

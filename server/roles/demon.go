@@ -18,13 +18,12 @@ func DemonAttacks() map[AtKey]*AttackData {
 
 func InitDemon() *Role {
 
-
 	r := &Role{
 		RoleType: DemonType,
 		Attacks:  DemonAttacks(),
 		HitBoxW:  50,
 		HitBoxH:  80,
-		Health:   420,
+		Health:   1300,
 
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,
@@ -43,7 +42,7 @@ func demonPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	atks[PrimaryAttackKey] = &AttackData{
 		Name: PrimaryAttackKey,
 		Consequence: &Consequence{
-			Damage:             100,
+			Damage:             330,
 			KnockbackX:         5,
 			KnockbackY:         1,
 			KnockbackXDuration: 3000,
@@ -58,7 +57,6 @@ func demonPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	}
 
 	path := PrimaryAtkSeq.HBoxPath
-
 
 	// frame 0 - 2 have no hitboxes
 
@@ -95,7 +93,6 @@ func demonPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	path = path.appendHboxAgg(-6, -20, 15, 15, 9)
 	path = path.appendHboxAgg(-2, -24, 15, 15, 9)
 
-
 	// frame 10
 	path = path.appendHboxAgg(-21, 0, 15, 15, 10)
 	path = path.appendHboxAgg(-16, -7.5, 15, 15, 10)
@@ -103,14 +100,12 @@ func demonPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	path = path.appendHboxAgg(-6, -20, 15, 15, 10)
 	path = path.appendHboxAgg(-2, -24, 15, 15, 10)
 
-
 	// frame 11
 	path = path.appendHboxAgg(-21, 0, 15, 15, 11)
 	path = path.appendHboxAgg(-16, -7.5, 15, 15, 11)
 	path = path.appendHboxAgg(-11, -15, 15, 15, 11)
 	path = path.appendHboxAgg(-6, -20, 15, 15, 11)
 	path = path.appendHboxAgg(-2, -24, 15, 15, 11)
-
 
 	// frame 12
 	path = path.appendHboxAgg(105, 70, 15, 15, 12)
@@ -156,7 +151,7 @@ func demonSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Name: SecondaryAttackKey,
 		Type: SecondaryAttackKey,
 		Consequence: &Consequence{
-			Damage:             70,
+			Damage:             100,
 			KnockbackX:         0,
 			KnockbackY:         -0.1,
 			KnockbackXDuration: 0,
@@ -183,7 +178,6 @@ func demonSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	path = path.appendHboxAgg(87, -32, 15, 15, 7)
 	path = path.appendHboxAgg(92, -37, 15, 15, 7)
 
-
 	// frame 8
 	path = path.appendHboxAgg(50, 0, 15, 15, 8)
 	path = path.appendHboxAgg(57, -2, 15, 15, 8)
@@ -196,7 +190,6 @@ func demonSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	path = path.appendHboxAgg(97, -25, 15, 15, 8)
 	path = path.appendHboxAgg(102, -28, 15, 15, 8)
 	path = path.appendHboxAgg(107, -31, 15, 15, 8)
-
 
 	// frame 9
 	path = path.appendHboxAgg(50, 0, 15, 15, 9)
@@ -212,24 +205,21 @@ func demonSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	path = path.appendHboxAgg(112, -25, 15, 15, 9)
 	path = path.appendHboxAgg(117, -28, 15, 15, 9)
 	path = path.appendHboxAgg(122, -31, 15, 15, 9)
-	
+
 	// frame 10
 	path = path.appendHboxAgg(50, 13, 8, 40, 10)
 	path = path.appendHboxAgg(90, -5, 22, 30, 10)
 	path = path.appendHboxAgg(120, -25, 30, 30, 10)
-
 
 	// frame 11
 	path = path.appendHboxAgg(50, 18, 8, 40, 11)
 	path = path.appendHboxAgg(90, 7, 22, 30, 11)
 	path = path.appendHboxAgg(120, -10, 30, 30, 11)
 
-
 	// frame 12
 	path = path.appendHboxAgg(50, 26, 8, 40, 12)
 	path = path.appendHboxAgg(90, 15, 22, 30, 12)
 	path = path.appendHboxAgg(120, 2, 30, 30, 12)
-
 
 	// frame 13
 	path = path.appendHboxAgg(50, 34, 8, 40, 13)
@@ -240,7 +230,6 @@ func demonSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	path = path.appendHboxAgg(50, 42, 8, 40, 14)
 	path = path.appendHboxAgg(90, 38, 22, 30, 14)
 	path = path.appendHboxAgg(120, 30, 30, 30, 14)
-
 
 	// frame 15
 	path = path.appendHboxAgg(50, 46, 8, 40, 15)

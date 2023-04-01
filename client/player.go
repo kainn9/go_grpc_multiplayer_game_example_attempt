@@ -149,6 +149,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	s := p.currentAnimation.SpriteSheet
 
 	if p.currentAnimation.Fixed {
+
 		fixedAnimKey := p.id + p.currentAnimation.Name
 		fixedAnimationCheck := fixedAnims[fixedAnimKey]
 
@@ -199,27 +200,27 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 
 	if hitBoxTest.on && hitBoxTest.frame >= 0 {
 		sub = getAnimationFrame(p, hitBoxTest.frame, s)
-		
+
 	}
 
 	// render player
 	pc.playerCam.Surface.DrawImage(sub, playerOps)
 
 	/*
-	-------------------------------------------------------
-		Uncomment this and place values in NewImage to preview player hitbox— expand this to hitboxTest
-	-------------------------------------------------------
+		-------------------------------------------------------
+			Uncomment this and place values in NewImage to preview player hitbox— expand this to hitboxTest
+		-------------------------------------------------------
 	*/
-	// rectImg := ebiten.NewImage(30, 50)
+	// rectImg := ebiten.NewImage(16, 44)
 	// rectImg.Fill(color.RGBA{0, 0, 255, 128})
 	// playerOps.GeoM.Translate(p.HitBoxOffsetX, p.HitBoxOffsetY)
 	// pc.playerCam.Surface.DrawImage(rectImg, playerOps)
 	/*
-	-------------------------------------------------------
-	 end
-	-------------------------------------------------------
-	*/		
-	
+		-------------------------------------------------------
+		 end
+		-------------------------------------------------------
+	*/
+
 }
 
 func getAnimationFrame(p *Player, i int, s *ebiten.Image) *ebiten.Image {

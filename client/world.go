@@ -41,7 +41,7 @@ type BuilderFunc func(*World, float64, float64)
 /*
 Creates a New World
 */
-func NewWorld(key string) *World {
+func NewWorld(key int) *World {
 	w := &World{
 		worldTex: sync.RWMutex{},
 	}
@@ -53,7 +53,7 @@ func NewWorld(key string) *World {
 /*
 Returns world data using worldsMap + world key
 */
-func GetWorldData(worldKey string) worldData {
+func GetWorldData(worldKey int) worldData {
 	return clientConfig.worldsMap[worldKey]
 }
 
@@ -103,12 +103,14 @@ func Update(world *World) {
 	cp.SubscribeToState()
 	cp.InputListener()
 	cp.SetCameraPosition()
+
 }
 
 /*
 Invokes world's draw based receiver functions
 */
 func (w *World) Draw(screen *ebiten.Image) {
+	screen.Fill(color.RGBA{135, 206, 250, 255})
 	w.DrawBg()
 	w.DrawPlayers()
 }
@@ -134,6 +136,9 @@ func (w *World) DrawBg() {
 				ebitenutil.DrawRect(w.bg, o.X, o.Y, o.W, o.H, drawColor)
 			} else if o.HasTags("hitBox") {
 				drawColor := color.RGBA{180, 34, 50, 120}
+				ebitenutil.DrawRect(w.bg, o.X, o.Y, o.W, o.H, drawColor)
+			} else if o.HasTags("portal") {
+				drawColor := color.RGBA{0, 0, 120, 255}
 				ebitenutil.DrawRect(w.bg, o.X, o.Y, o.W, o.H, drawColor)
 			} else {
 				drawColor := color.RGBA{60, 60, 60, 255}
@@ -199,7 +204,7 @@ client receives the information that
 the currentPlayer is a different world/level
 then the current Game.CurrentWorld(string/key)
 */
-func UpdateWorldData(w *World, new *worldData, key string) {
+func UpdateWorldData(w *World, new *worldData, key int) {
 	w.worldData = clientConfig.worldsMap[key]
 	clientConfig.game.CurrentWorld = key
 }

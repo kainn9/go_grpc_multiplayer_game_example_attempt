@@ -16,7 +16,7 @@ message Player {
   double speedX = 4;     
   double speedY = 5;
   bool FacingRight = 8;
-  string world = 9;
+  int32 world = 9;
   bool jumping = 10;
   string CurrAttack = 11;
   string CC = 12;

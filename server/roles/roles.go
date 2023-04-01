@@ -104,10 +104,10 @@ type RolePhysStruct struct {
 }
 
 const (
-	KnightType PlayerType = "knight"
-	MageType   PlayerType = "mage"
-	MonkType   PlayerType = "monk"
-	DemonType PlayerType = "demon"
+	KnightType   PlayerType = "knight"
+	MageType     PlayerType = "mage"
+	MonkType     PlayerType = "monk"
+	DemonType    PlayerType = "demon"
 	WerewolfType PlayerType = "werewolf"
 )
 
@@ -139,4 +139,16 @@ func (wu *Windup) HasChargeEffect() bool {
 		return false
 	}
 	return wu.ChargeEffect != nil
+}
+
+func (atk *AttackData) HasChargeEffect() bool {
+	if atk == nil {
+		return false
+	}
+
+	if atk.Windup != nil {
+		return false
+	}
+
+	return atk.Windup.HasChargeEffect()
 }

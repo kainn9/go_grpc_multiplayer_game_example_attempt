@@ -8,18 +8,25 @@ import (
 )
 
 type world struct {
-	space       *resolv.Space      // A Resolv space for collision detection
-	height      float64            // The height of the game's world
-	width       float64            // The width of the game's world
-	players     map[string]*player // A map of players currently in the world
-	name        string             // The name of the world
-	events      []*event           // An queue of events to be processed(world scoped)
-	eventsMutex sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
-	hitboxMutex sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
+	space           *resolv.Space      // A Resolv space for collision detection
+	height          float64            // The height of the game's world
+	width           float64            // The width of the game's world
+	players         map[string]*player // A map of players currently in the world
+	name            string             // The name of the world
+	index           int                // index in worlds map
+	events          []*event           // An queue of events to be processed(world scoped)
+	eventsMutex     sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
+	hitboxMutex     sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
+	worldSpawnCords *worldSpawnCords
+}
+
+type worldSpawnCords struct {
+	x int
+	y int
 }
 
 // creates a new game world.
-func newWorld(height float64, width float64, worldBuilder builderFunc, name string) *world {
+func newWorld(height float64, width float64, worldBuilder builderFunc, name string, spawnX int, spawnY int) *world {
 	w := &world{
 		name:        name,
 		width:       width,
@@ -28,6 +35,10 @@ func newWorld(height float64, width float64, worldBuilder builderFunc, name stri
 		eventsMutex: sync.RWMutex{},
 		hitboxMutex: sync.RWMutex{},
 		events:      make([]*event, 0),
+		worldSpawnCords: &worldSpawnCords{
+			x: spawnX,
+			y: spawnY,
+		},
 	}
 
 	// Initialize the world with the specified builder function.
@@ -119,7 +130,8 @@ func (world *world) Update(cp *player, input string) {
 	if c := cp.object.Check(wallNext, 0, "solid"); cp.wallSliding != nil && c == nil {
 		cp.wallSliding = nil
 	}
-
-	cp.object.Update() // Update the player's position in the space.
+	world.hitboxMutex.Lock() // TODO: maybe??
+	cp.object.Update()       // Update the player's position in the space.
+	world.hitboxMutex.Unlock()
 
 }

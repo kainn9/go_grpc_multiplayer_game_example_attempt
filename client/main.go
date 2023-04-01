@@ -6,6 +6,7 @@ import (
 	_ "image/png"
 	"io"
 	"log"
+	"math"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -24,7 +25,7 @@ type Game struct {
 	Screen       *ebiten.Image
 	FontFace     font.Face
 	World        *World
-	CurrentWorld string
+	CurrentWorld int
 }
 
 func (g *Game) InitMusic() {
@@ -140,14 +141,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		msg += fmt.Sprintln("FREE PLAY ON!!!\nPress 2 to toggle rulers\nUse w/s to decrease/increase cam speed")
 		msg += fmt.Sprintf("Cam Speed:%v\n", devConfig.devCamSpeed)
 
-		/*
-			This calc is scuffed.
-			It only works if you dont move and
-			needs 2 be redone if the spawn cords change...
-			need to come up with the right maffz
-			to make it consistent
-		*/
-		msg += fmt.Sprintf("X:%v\nY:%v\n", (pc.playerCam.X + (float64(clientConfig.screenWidth) / 2) + 185), pc.playerCam.Y+(float64(clientConfig.screenHeight)/2)+1898-172)
+		msg += fmt.Sprintf("X:%v\nY:%v\n", math.Round(pc.playerCam.X+(pc.x/2)), math.Round(pc.playerCam.Y+(pc.y/2)))
 
 	} else {
 		msg += fmt.Sprintf("X:%v\nY:%v\n", pc.x, pc.y)
@@ -165,15 +159,12 @@ Creates new game.
 */
 func NewGame() *Game {
 
-	clientConfig.worldsMap["main"] = *NewWorldData(848, 3200, assetsHelper.mainWorldBg)
-	clientConfig.worldsMap["alt"] = *NewWorldData(4000, 6000, assetsHelper.altWorldBg)
-
 	// Set window things.
 	ebiten.SetWindowTitle("MultiPlayer Platformer!")
 	ebiten.SetWindowSize(clientConfig.screenWidth, clientConfig.screenHeight)
 
 	// set/init world
-	w := NewWorld("main")
+	w := NewWorld(0)
 
 	// attach player controller to world
 	w.playerController = NewPlayerController()
@@ -184,7 +175,7 @@ func NewGame() *Game {
 	return &Game{
 		ShowHelpText: true,
 		World:        w,
-		CurrentWorld: "main",
+		CurrentWorld: 0,
 	}
 }
 
