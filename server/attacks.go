@@ -16,7 +16,6 @@ func (cp *player) attackHandler(input string, world *world) {
 		cp.attack(world, r.PrimaryAttackKey)
 	}
 
-	// NEW WAY(WIP)
 	if input == string(r.SecondaryAttackKey) {
 		cp.attack(world, r.SecondaryAttackKey)
 	}

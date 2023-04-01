@@ -20,7 +20,7 @@ type gameSettings struct {
 	screenHeight int
 	streamInit   bool
 	ticks        int
-	worldsMap    map[string]worldData
+	worldsMap    map[int]worldData
 	game         *Game
 	addr         string
 	fullScreen   bool
@@ -43,9 +43,13 @@ type devSettings struct {
 	reqT           time.Time
 }
 
-type assets struct {
-	mainWorldBg *ebiten.Image
-	altWorldBg  *ebiten.Image
+type worldBackgrounds struct {
+	worldOne             *ebiten.Image
+	worldTwo             *ebiten.Image
+	worldThree           *ebiten.Image
+	landOfYohoPassageOne *ebiten.Image
+	landOfYohoPassageTwo *ebiten.Image
+	landOfYohoVillage    *ebiten.Image
 }
 
 type fixedAnimTracker struct {
@@ -56,7 +60,7 @@ type fixedAnimTracker struct {
 
 var clientConfig *gameSettings
 var devConfig *devSettings
-var assetsHelper *assets
+var wBgHelper *worldBackgrounds
 var fixedAnims map[string]*fixedAnimTracker
 
 func initClient() {
@@ -64,7 +68,7 @@ func initClient() {
 		screenWidth:  880,
 		screenHeight: 480,
 		streamInit:   false,
-		worldsMap:    make(map[string]worldData),
+		worldsMap:    make(map[int]worldData),
 		addr:         "localhost:50051",
 		fullScreen:   false,
 		enablePPROF:  false,
@@ -76,6 +80,7 @@ func initClient() {
 	clientConfig.roles[1] = r.InitMonk()
 	clientConfig.roles[2] = r.InitDemon()
 	clientConfig.roles[3] = r.InitWerewolf()
+	clientConfig.roles[4] = r.InitMage()
 
 	devConfig = &devSettings{
 		rulerW:         ut.LoadImg("./sprites/rulers/wRuler.png"),
@@ -88,10 +93,21 @@ func initClient() {
 		reqT:           time.Now(),
 	}
 
-	assetsHelper = &assets{
-		mainWorldBg: ut.LoadImg("./backgrounds/mapMain.png"),
-		altWorldBg:  ut.LoadImg("./backgrounds/mapAlt.png"),
+	wBgHelper = &worldBackgrounds{
+		worldOne:             ut.LoadImg("./backgrounds/worldOne.png"),
+		worldTwo:             ut.LoadImg("./backgrounds/worldTwo.png"),
+		worldThree:           ut.LoadImg("./backgrounds/worldThree.png"),
+		landOfYohoPassageOne: ut.LoadImg("./backgrounds/landOfYoho/landOfYohoPassageOne.png"),
+		landOfYohoPassageTwo: ut.LoadImg("./backgrounds/landOfYoho/landOfYohoPassageTwo.png"),
+		landOfYohoVillage:    ut.LoadImg("./backgrounds/landOfYoho/landOfYohoVillage.png"),
 	}
+
+	clientConfig.worldsMap[0] = *NewWorldData(848, 1600, wBgHelper.worldOne)
+	clientConfig.worldsMap[1] = *NewWorldData(848, 3200, wBgHelper.worldTwo)
+	clientConfig.worldsMap[2] = *NewWorldData(4000, 6000, wBgHelper.worldThree)
+	clientConfig.worldsMap[3] = *NewWorldData(480, 960, wBgHelper.landOfYohoPassageOne)
+	clientConfig.worldsMap[4] = *NewWorldData(756, 1100, wBgHelper.landOfYohoPassageTwo)
+	clientConfig.worldsMap[5] = *NewWorldData(600, 3278, wBgHelper.landOfYohoVillage)
 
 	fixedAnims = make(map[string]*fixedAnimTracker)
 

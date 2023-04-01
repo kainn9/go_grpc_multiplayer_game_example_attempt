@@ -20,7 +20,7 @@ type player struct {
 	facingRight     bool           // Whether the player is facing right or left
 	ignorePlatform  *resolv.Object // The Resolv physics object representing a platform that the player can ignore collision with
 	pid             string         // The player's unique identifier
-	worldKey        string         // The key of the world the player is currently in
+	worldKey        int            // The key of the world the player is currently in
 	r.Role                         // The player's role
 	currAttack      *r.AttackData  // The player's current attack
 	playerPh                       // The player's physics parameters
@@ -96,7 +96,7 @@ func (cp *player) canAcceptInputs() bool {
 }
 
 // newPlayer creates a new player with the given unique identifier and world key
-func newPlayer(pid string, worldKey string) *player {
+func newPlayer(pid string, worldKey int) *player {
 
 	// some tempcode for getting a random role each time a player is spawned
 	randomRole := make(map[int32]r.Role)
@@ -104,6 +104,7 @@ func newPlayer(pid string, worldKey string) *player {
 	randomRole[1] = *r.Monk
 	randomRole[2] = *r.Demon
 	randomRole[3] = *r.Werewolf
+	randomRole[4] = *r.Mage
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())
@@ -164,14 +165,13 @@ func removePlayerFromGame(pid string, w *world) {
 		return
 	}
 
-
 	serverConfig.mutex.RUnlock()
 
 	w.hitboxMutex.Lock()
 	obj := w.players[pid].object
 	w.space.Remove(obj)
 	w.hitboxMutex.Unlock()
-	
+
 	serverConfig.mutex.Lock()
 	delete(w.players, pid)
 	delete(serverConfig.activePlayers, pid)
@@ -180,32 +180,47 @@ func removePlayerFromGame(pid string, w *world) {
 
 // changePlayersWorld swaps a player from their old world to a new world,
 // updating their position and worldKey in the process.
-func changePlayersWorld(oldWorld *world, newWorld *world, cp *player, x float64, y float64) {
+// pass 0 for optX/Y to use world default spawn cords
+func changePlayersWorld(oldWorld *world, newWorld *world, cp *player, optX int, optY int) {
+
+	var x int
+	var y int
+
+	if optX == 0 {
+		x = newWorld.worldSpawnCords.x
+	} else {
+		x = optX
+	}
+
+	if optY == 0 {
+		y = newWorld.worldSpawnCords.y
+	} else {
+		y = optY
+	}
+
 	serverConfig.mutex.Lock()
+	defer serverConfig.mutex.Unlock()
 
 	delete(oldWorld.players, cp.pid)
 	oldWorld.space.Remove(cp.object)
 	newWorld.players[cp.pid] = cp
-	serverConfig.mutex.Unlock()
-	
-	addPlayerToSpace(newWorld, cp, x, y)
-	cp.worldKey = newWorld.name
+
+	addPlayerToSpace(newWorld, cp, float64(x), float64(y))
+	cp.worldKey = newWorld.index
+
 }
 
-// worldTransferHandler handles a player's request to switch worlds.
-// If the input string is "swap", the player's current world is identified,
-// and the player is moved to the alternative world if they are in the main world
-// or the main world if they are in the alternative world.
 func (cp *player) worldTransferHandler(input string) {
-	// World Swap Test!
 	if input == "swap" {
 		w, k := currentPlayerWorld(cp.pid)
 
-		if k == "alt" {
-			changePlayersWorld(w, serverConfig.worldsMap["main"], cp, 612, 500)
-		} else {
-			changePlayersWorld(w, serverConfig.worldsMap["alt"], cp, 1250, 3700)
+		newWorldKey := k + 1
+
+		if newWorldKey >= len(serverConfig.worldsMap) {
+			newWorldKey = 0
 		}
+
+		changePlayersWorld(w, serverConfig.worldsMap[newWorldKey], cp, 0, 0)
 		return
 	}
 }
@@ -287,15 +302,30 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 
 	// Moving horizontally is done fairly simply; we just check to see if something solid is in front of us. If so, we move into contact with it
 	// and stop horizontal movement speed. If not, then we can just move forward.
-	if check := cp.object.Check(cp.speedX, 0, "solid"); check != nil {
+	if check := cp.object.Check(cp.speedX, 0, "solid", "bounds"); check != nil {
 		dx = check.ContactWithCell(check.Cells[0]).X() // set delta movement to the distance to the object we collide with
 		cp.speedX = 0                                  // stop horizontal movement
-		if cp.onGround == nil {
+		if cp.onGround == nil && check.Objects[0].HasTags("solid") {
 			cp.wallSliding = check.Objects[0] // set wallSliding to the object we collide with if player is in the air
 		}
 
 		cp.endMovment()
 		cp.endDefenseMovement()
+	}
+
+	// portal check
+	if check := cp.object.Check(cp.speedX, 0, "portal"); check != nil {
+
+		portal := check.Objects[0]
+		portalData := portalData(portal)
+
+		serverConfig.mutex.RLock()
+		oldWorld := serverConfig.worldsMap[cp.worldKey]
+		newWorld := serverConfig.worldsMap[portalData.worldKey]
+		serverConfig.mutex.RUnlock()
+
+		changePlayersWorld(oldWorld, newWorld, cp, portalData.x, portalData.y)
+
 	}
 
 	// playerOnPlayer X collision
@@ -319,19 +349,7 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 
 	// Then we just apply the horizontal movement to the Player's object.
 	newXPos := cp.object.X + dx // calculate new x position
-
-	// temp hack to prevent player from moving out of world
-	// eventually might just kill player if they go out of bounds
-	// or actually add real walls lol
-	if newXPos > 30 && newXPos < worldWidth-30 {
-		cp.object.X = newXPos // update player's x position if it's within the world's width limits(rando chose 30 for now)
-
-	} else if cp.attackMovementActive() { // don't want players to get stuck in movment(normally will end on collision or distance traveled, but this hack isn't a real collision so...)
-		cp.resolveMovment(cp.currAttack)
-	} else if cp.defending {
-		cp.endDefenseMovement()
-	}
-
+	cp.object.X = newXPos
 }
 
 // This function is responsible for handling the horizontal movement of a player object based on input.
@@ -411,24 +429,23 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 			// to land on. If so, we stand on it.
 
 			if platforms := check.ObjectsByTags("platform"); len(platforms) > 0 {
-				
-			
+
 				minY := platforms[0].Y
 				minP := platforms[0]
 				for i, p := range platforms {
-						minY = math.Max(minY, p.Y) // lower y actually means lower pos
-						if minY == p.Y {
-							minP = platforms[i]
-						}
+					minY = math.Max(minY, p.Y) // lower y actually means lower pos
+					if minY == p.Y {
+						minP = platforms[i]
+					}
 				}
 
-				if (minP != cp.ignorePlatform && cp.speedY >= 0 && cp.object.Bottom() < minP.Y+4) {
+				if minP != cp.ignorePlatform && cp.speedY >= 0 && cp.object.Bottom() < minP.Y+4 {
 					dy = check.ContactWithObject(minP).Y()
 					cp.onGround = minP
 					cp.speedY = 0
 				}
 			}
-			
+
 			// basic solids collision
 			if check := cp.object.Check(0, cp.speedY, "solid"); check != nil {
 				if check.Objects[0].Y > cp.object.Y {
@@ -453,7 +470,9 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 					cp.onGround = check.Objects[0]
 				} else {
 					check.Objects[0].Y += dy
+					world.hitboxMutex.Lock() // TODO: Maybe???
 					check.Objects[0].Update()
+					world.hitboxMutex.Unlock()
 				}
 
 			}
@@ -468,11 +487,16 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 	// Move the object on dy.
 	newYPos := cp.object.Y + dy
 
-	// temp hack to prevent player from moving out of world
-	// eventually might just kill player if they go out of bounds
-	// or actually add real walls lol
-	if newYPos < world.height-10 && newYPos > 10 {
+	// top bounds(top left is 0,0)
+	if newYPos > 0 {
 		cp.object.Y += dy
 	}
+
+	// player fell too far
+	serverConfig.mutex.RLock()
+	if newYPos > serverConfig.worldsMap[cp.worldKey].height-cp.object.H {
+		cp.death()
+	}
+	serverConfig.mutex.RUnlock()
 
 }

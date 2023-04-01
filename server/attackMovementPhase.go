@@ -34,7 +34,7 @@ func (cp *player) movementPhase(atk *r.AttackData) {
 
 		maxDist := mv.Distance
 
-		if atk.ChargeEffect != nil && mv.UseChargeDist {
+		if atk.HasChargeEffect() && mv.UseChargeDist {
 			maxDist = mv.Distance + (cp.chargeValue * atk.MultFactorMvDist)
 		}
 
@@ -48,7 +48,7 @@ func (cp *player) movementPhase(atk *r.AttackData) {
 func movementSpeed(mv *r.Movement, atk *r.AttackData, cp *player) float64 {
 	movmentSpeed := mv.SpeedX
 
-	if atk.ChargeEffect != nil && mv.UseChargeSpeed {
+	if atk.HasChargeEffect() && mv.UseChargeSpeed {
 		movmentSpeed += (cp.chargeValue * atk.MultFactorMvSpeed)
 		if movmentSpeed > 16 {
 			movmentSpeed = 16

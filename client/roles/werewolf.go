@@ -30,7 +30,6 @@ var (
 	werewolfSpriteDeathRight *ebiten.Image
 	werewolfSpriteDeathLeft  *ebiten.Image
 
-
 	werewolfSpriteSPWindupRight *ebiten.Image
 	werewolfSpriteSPWindupLeft  *ebiten.Image
 
@@ -40,18 +39,17 @@ var (
 	werewolfSpriteSPAtkRight *ebiten.Image
 	werewolfSpriteSPAtkLeft  *ebiten.Image
 
-
 	werewolfSpriteDoubleSlashRight *ebiten.Image
 	werewolfSpriteDoubleSlashLeft  *ebiten.Image
 
-	werewolfSpriteFlipSlashLeft *ebiten.Image
+	werewolfSpriteFlipSlashLeft  *ebiten.Image
 	werewolfSpriteFlipSlashRight *ebiten.Image
 )
 
 /*
 Loads the default player sprites
 */
-func LoadWereWolfSprites() {
+func LoadWerewolfSprites() {
 	werewolfSpriteIdleLeft = ut.LoadImg("./sprites/werewolf/werewolfIdleLeft.png")
 	werewolfSpriteIdleRight = ut.LoadImg("./sprites/werewolf/werewolfIdleRight.png")
 
@@ -68,23 +66,23 @@ func LoadWereWolfSprites() {
 	werewolfSpriteDeathLeft = ut.LoadImg("./sprites/werewolf/werewolfDeathLeft.png")
 
 	werewolfSpriteSPWindupRight = ut.LoadImg("./sprites/werewolf/werewolfSPWindupRight.png")
-	werewolfSpriteSPWindupLeft   = ut.LoadImg("./sprites/werewolf/werewolfSPWindupLeft.png")
+	werewolfSpriteSPWindupLeft = ut.LoadImg("./sprites/werewolf/werewolfSPWindupLeft.png")
 
 	werewolfSpriteSPMovementRight = ut.LoadImg("./sprites/werewolf/werewolfSPMovementRight.png")
-	werewolfSpriteSPMovementLeft  = ut.LoadImg("./sprites/werewolf/werewolfSPMovementLeft.png")
+	werewolfSpriteSPMovementLeft = ut.LoadImg("./sprites/werewolf/werewolfSPMovementLeft.png")
 
 	werewolfSpriteSPAtkRight = ut.LoadImg("./sprites/werewolf/werewolfSPAtkRight.png")
-	werewolfSpriteSPAtkLeft  = ut.LoadImg("./sprites/werewolf/werewolfSPAtkLeft.png")
+	werewolfSpriteSPAtkLeft = ut.LoadImg("./sprites/werewolf/werewolfSPAtkLeft.png")
 
 	werewolfSpriteDoubleSlashRight = ut.LoadImg("./sprites/werewolf/werewolfDoubleSlashRight.png")
-	werewolfSpriteDoubleSlashLeft  = ut.LoadImg("./sprites/werewolf/werewolfDoubleSlashLeft.png")
+	werewolfSpriteDoubleSlashLeft = ut.LoadImg("./sprites/werewolf/werewolfDoubleSlashLeft.png")
 
 	werewolfSpriteFlipSlashLeft = ut.LoadImg("./sprites/werewolf/werewolfFlipSlashLeft.png")
 	werewolfSpriteFlipSlashRight = ut.LoadImg("./sprites/werewolf/werewolfFlipSlashRight.png")
 }
 
 func InitWerewolf() *Role {
-	LoadWereWolfSprites()
+	LoadWerewolfSprites()
 
 	r := &Role{
 		RoleType:      WerewolfType,
@@ -205,8 +203,8 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  8,
-		PosOffsetX: 50,
-		PosOffsetY: 15,
+		PosOffsetX:  50,
+		PosOffsetY:  15,
 		SpriteSheet: werewolfSpriteDoubleSlashRight,
 		Fixed:       true,
 	}
@@ -218,8 +216,8 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  8,
-		PosOffsetX: 50,
-		PosOffsetY: 15,
+		PosOffsetX:  50,
+		PosOffsetY:  15,
 		SpriteSheet: werewolfSpriteDoubleSlashLeft,
 		Fixed:       true,
 	}
@@ -243,8 +241,8 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  10,
-		PosOffsetX: 30,
-		PosOffsetY: 50,
+		PosOffsetX:  30,
+		PosOffsetY:  50,
 		SpriteSheet: werewolfSpriteFlipSlashRight,
 		Fixed:       true,
 	}
@@ -257,8 +255,8 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  10,
-		PosOffsetX: 30,
-		PosOffsetY: 50,
+		PosOffsetX:  30,
+		PosOffsetY:  50,
 		SpriteSheet: werewolfSpriteFlipSlashLeft,
 		Fixed:       true,
 	}
@@ -268,10 +266,6 @@ func WerewolfAnims() map[string]*Animation {
 		Secondary End
 		---------------------------------------------------------------------------------
 	*/
-
-
-
-
 
 	/*
 		---------------------------------------------------------------------------------
@@ -286,7 +280,7 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  6,
-		PosOffsetX: 30,
+		PosOffsetX:  30,
 		SpriteSheet: werewolfSpriteSPMovementLeft,
 		Fixed:       true,
 	}
@@ -299,7 +293,7 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  6,
-		PosOffsetX: 30,
+		PosOffsetX:  30,
 		SpriteSheet: werewolfSpriteSPMovementRight,
 		Fixed:       true,
 	}
@@ -312,7 +306,7 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  4,
-		PosOffsetX: 30,
+		PosOffsetX:  30,
 		SpriteSheet: werewolfSpriteSPWindupRight,
 		Fixed:       true,
 	}
@@ -325,7 +319,7 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  4,
-		PosOffsetX: 30,
+		PosOffsetX:  30,
 		SpriteSheet: werewolfSpriteSPWindupLeft,
 		Fixed:       true,
 	}
@@ -338,7 +332,7 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  17,
-		PosOffsetX: 50,
+		PosOffsetX:  50,
 		SpriteSheet: werewolfSpriteSPAtkRight,
 		Fixed:       true,
 	}
@@ -351,7 +345,7 @@ func WerewolfAnims() map[string]*Animation {
 		FrameWidth:  160,
 		FrameHeight: 96,
 		FrameCount:  17,
-		PosOffsetX: 50,
+		PosOffsetX:  50,
 		SpriteSheet: werewolfSpriteSPAtkLeft,
 		Fixed:       true,
 	}

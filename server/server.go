@@ -31,10 +31,9 @@ type stalledWrapper struct {
 	to track which world the player is using these PIDs
 */
 
-func locateFromPID(pid string) (world *world, worldKey string, err error) {
+func locateFromPID(pid string) (world *world, worldKey int, err error) {
 
 	player := serverConfig.activePlayers[pid]
-
 	if player != nil {
 		w := serverConfig.worldsMap[player.worldKey]
 
@@ -44,7 +43,7 @@ func locateFromPID(pid string) (world *world, worldKey string, err error) {
 
 	}
 
-	return nil, "", errors.New("no match found")
+	return nil, 0, errors.New("no match found")
 }
 
 /*
@@ -54,7 +53,7 @@ is currently attached to. Unlike
 LocateFromPID this defaults to returning
 the main/starting world
 */
-func currentPlayerWorld(pid string) (world *world, worldKey string) {
+func currentPlayerWorld(pid string) (world *world, worldKey int) {
 
 	// adding new player to default world
 	// or setting current world to where
@@ -62,7 +61,7 @@ func currentPlayerWorld(pid string) (world *world, worldKey string) {
 	w, k, err := locateFromPID(pid)
 
 	if err != nil {
-		return serverConfig.worldsMap["main"], "main"
+		return serverConfig.worldsMap[0], 0
 	}
 	return w, k
 }
@@ -137,7 +136,11 @@ func initPlayer(r *pb.PlayerReq) (*player, *world) {
 
 	w, k := currentPlayerWorld(pid)
 
-	if serverConfig.activePlayers[pid] == nil {
+	serverConfig.mutex.RLock()
+	activePlayer := serverConfig.activePlayers[pid]
+	serverConfig.mutex.RUnlock()
+
+	if activePlayer == nil {
 
 		cp = newPlayer(pid, k)
 
@@ -146,11 +149,11 @@ func initPlayer(r *pb.PlayerReq) (*player, *world) {
 		w.players[pid] = cp
 		serverConfig.mutex.Unlock()
 	} else {
-		cp = serverConfig.activePlayers[pid]
+		cp = activePlayer
 	}
 
 	if cp.object == nil {
-		addPlayerToSpace(w, cp, 612, 500)
+		addPlayerToSpace(w, cp, float64(w.worldSpawnCords.x), float64(w.worldSpawnCords.y))
 	}
 
 	return cp, w
@@ -188,7 +191,7 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 			FacingRight:    curr.facingRight,
 			SpeedX:         curr.speedX,
 			SpeedY:         curr.speedY,
-			World:          wk,
+			World:          int32(wk),
 			Jumping:        jumping,
 			CurrAttack:     currAtk,
 			CC:             string(curr.isCC()),

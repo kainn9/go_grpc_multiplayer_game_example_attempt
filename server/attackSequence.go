@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"time"
 
 	r "github.com/kainn9/grpc_game/server/roles"
@@ -33,11 +34,12 @@ func spawnAtkBox(world *world, cp *player, atk *r.AttackData, index int, aid str
 	hBoxAgg := path[index]
 
 	for _, hBox := range hBoxAgg {
+		world.hitboxMutex.Lock()
 
 		var atkObj *resolv.Object
 
 		if !cp.facingRight {
-			atkObj = resolv.NewObject(cp.object.X-(hBox.PlayerOffX-hBox.Width/2), cp.object.Y+hBox.PlayerOffY, hBox.Width, hBox.Height, "attack")
+			atkObj = resolv.NewObject(cp.object.X-math.Abs(hBox.PlayerOffX), cp.object.Y+hBox.PlayerOffY, hBox.Width, hBox.Height, "attack")
 		} else {
 			atkObj = resolv.NewObject(cp.object.X+hBox.PlayerOffX, cp.object.Y+hBox.PlayerOffY, hBox.Width, hBox.Height, "attack")
 		}
@@ -49,11 +51,8 @@ func spawnAtkBox(world *world, cp *player, atk *r.AttackData, index int, aid str
 		hitBoxData.player = cp
 		hitBoxData.attackData = cp.currAttack
 
-
-		world.hitboxMutex.Lock()
 		world.space.Add(atkObj)
 		world.hitboxMutex.Unlock()
-
 
 		time.AfterFunc(time.Duration(inc)*time.Millisecond, func() {
 			removeHitboxFromSpace(world, atkObj)
@@ -67,7 +66,7 @@ func spawnAtkBox(world *world, cp *player, atk *r.AttackData, index int, aid str
 
 func removeHitboxFromSpace(world *world, obj *resolv.Object) {
 	world.hitboxMutex.Lock()
-	defer world.hitboxMutex.Unlock()
-
 	world.space.Remove(obj)
+	world.hitboxMutex.Unlock()
+
 }

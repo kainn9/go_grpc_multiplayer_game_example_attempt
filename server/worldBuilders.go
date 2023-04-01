@@ -4,21 +4,165 @@ import "github.com/solarlune/resolv"
 
 type builderFunc func(*world, float64, float64)
 
+func introWorldBuilder(world *world, gw float64, gh float64) {
+	portal := resolv.NewObject(1541, 150, 40, 40, "portal")
+	initPortal(portal, 3, 16, 250)
+
+	world.space.Add(
+
+		// left bounds
+		resolv.NewObject(0, 0, 16, gh, "bounds"),
+		// right bounds
+		resolv.NewObject(gw-16, 0, 16, gh, "bounds"),
+
+		// plat 1
+		resolv.NewObject(0, 752, 468, 5, "platform"),
+
+		// rock
+		resolv.NewObject(318, 548, 127, 200, "solid"),
+
+		// woodPlat long
+		resolv.NewObject(484, 506, 737, 5, "platform"),
+
+		// grassMid floatingPlat
+		resolv.NewObject(361, 276, 800, 5, "platform"),
+
+		// grassTop floatingPlat left
+		resolv.NewObject(0, 245, 278, 5, "platform"),
+
+		// floorPlat
+		resolv.NewObject(546, 732, 470, 5, "platform"),
+
+		// floatingBLock
+		resolv.NewObject(1101, 753, 55, 50, "solid"),
+
+		// castle basePlat
+		resolv.NewObject(1237, 728, 390, 5, "platform"),
+
+		// castle midPlat
+		resolv.NewObject(1362, 419, 250, 5, "platform"),
+
+		// castle topPlat
+		resolv.NewObject(1232, 198, 400, 5, "platform"),
+
+		// castle left side plats p1
+		resolv.NewObject(1237, 55, 30, 5, "platform"),
+		resolv.NewObject(1237, 94, 30, 5, "platform"),
+		resolv.NewObject(1237, 134, 30, 5, "platform"),
+		resolv.NewObject(1237, 165, 30, 5, "platform"),
+
+		// castle left side plats p2
+		resolv.NewObject(1239, 242, 30, 5, "platform"),
+		resolv.NewObject(1239, 293, 30, 5, "platform"),
+		resolv.NewObject(1239, 339, 30, 5, "platform"),
+		resolv.NewObject(1239, 384, 30, 5, "platform"),
+		resolv.NewObject(1239, 437, 30, 5, "platform"),
+		resolv.NewObject(1239, 490, 30, 5, "platform"),
+
+		// inner castle plats small
+		resolv.NewObject(1307, 533, 30, 5, "platform"),
+		resolv.NewObject(1368, 553, 30, 5, "platform"),
+		resolv.NewObject(1436, 590, 30, 5, "platform"),
+
+		// inner castle plats med
+		resolv.NewObject(1463, 640, 60, 5, "platform"),
+		resolv.NewObject(1355, 659, 60, 5, "platform"),
+
+		// ladder1
+		resolv.NewObject(696, 310, 40, 5, "platform"),
+		resolv.NewObject(696, 343, 40, 5, "platform"),
+		resolv.NewObject(696, 376, 40, 5, "platform"),
+		resolv.NewObject(696, 415, 40, 5, "platform"),
+		resolv.NewObject(696, 455, 40, 5, "platform"),
+
+		// ladder2
+		resolv.NewObject(1021, 310, 40, 5, "platform"),
+		resolv.NewObject(1021, 343, 40, 5, "platform"),
+		resolv.NewObject(1021, 376, 40, 5, "platform"),
+		resolv.NewObject(1021, 415, 40, 5, "platform"),
+		resolv.NewObject(1021, 455, 40, 5, "platform"),
+
+		// portal
+		portal,
+	)
+}
+
+func landOfYohoPassageOneBuilder(world *world, gw float64, gh float64) {
+
+	portal := resolv.NewObject(gw-16, 0, 18, gh, "portal")
+	initPortal(portal, 4, 40, 500)
+
+	world.space.Add(
+
+		// left bounds
+		resolv.NewObject(0, 0, 16, gh, "bounds"),
+
+		// floor
+		resolv.NewObject(0, 328, 1000, 40, "solid"),
+
+		portal,
+	)
+}
+
+func landOfYohoPassageTwoBuilder(world *world, gw float64, gh float64) {
+	portalBack := resolv.NewObject(0, 408, 16, 500, "portal")
+	initPortal(portalBack, 3, 880, 250)
+
+	portaForwards := resolv.NewObject(0, 0, 16, 500, "portal")
+	initPortal(portaForwards, 5, 3160, 402)
+
+	world.space.Add(
+
+		// right bounds jumpable
+		resolv.NewObject(gw-16, 0, 16, gh, "solid"),
+
+		// floor left bottom
+		resolv.NewObject(0, 581, 825, 200, "solid"),
+
+		// floor right bottom
+		resolv.NewObject(914, 581, 200, 200, "solid"),
+
+		// plats
+		resolv.NewObject(949, 514, 125, 5, "platform"),
+		resolv.NewObject(949, 459, 125, 5, "platform"),
+		resolv.NewObject(949, 408, 125, 5, "platform"),
+		resolv.NewObject(949, 354, 125, 5, "platform"),
+
+		// top floor
+		resolv.NewObject(0, 336, 938, 80, "solid"),
+		portalBack,
+		portaForwards,
+	)
+}
+
+func landOfYohoVillageBuilder(world *world, gw float64, gh float64) {
+	portalBack := resolv.NewObject(gw-16, 0, 18, gh, "portal")
+	initPortal(portalBack, 4, 104, 292)
+
+	world.space.Add(
+		// left
+		resolv.NewObject(0, 0, 16, gh, "bounds"),
+
+		// floor
+		resolv.NewObject(0, 502, 3400, 300, "solid"),
+
+		// castleZone Sub Solid
+		resolv.NewObject(0, 395, 421, 300, "solid"),
+
+		// castleZone Plat
+		resolv.NewObject(0, 350, 1160, 5, "platform"),
+		portalBack,
+	)
+}
+
 func mainWorldBuilder(world *world, gw float64, gh float64) {
 
 	world.space.Add(
-		// bounds
 
 		// left
-		resolv.NewObject(-16, 0, 16, gh, "solid"),
+		resolv.NewObject(0, 0, 16, gh, "bounds"),
 		// right
-		resolv.NewObject(gw-16, 0, 16, gh, "solid"),
-
-		// bottom
-		resolv.NewObject(0, 0, gw, 16, "solid"),
-
-		// top
-		resolv.NewObject(0, gh-24, gw, 32, "solid"),
+		resolv.NewObject(gw-16, 0, 16, gh, "bounds"),
 
 		// big rock
 		resolv.NewObject(468, 590, 260, 300, "solid"),
@@ -50,8 +194,10 @@ func mainWorldBuilder(world *world, gw float64, gh float64) {
 func altWorldBuilder(world *world, gw float64, gh float64) {
 	world.space.Add(
 
-		// bottom bounds
-		resolv.NewObject(0, gh-16, gw, 16, "solid"),
+		// left bounds
+		resolv.NewObject(0, 0, 16, gh, "bounds"),
+		// right bounds
+		resolv.NewObject(gw-16, 0, 16, gh, "bounds"),
 
 		// Village Plat
 		resolv.NewObject(1166, 3912, 6000, 10, "platform"),

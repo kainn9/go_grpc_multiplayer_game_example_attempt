@@ -64,8 +64,10 @@ func processEventsPerTick(w *world) {
 		dupeKey := ev.Id + ev.Input
 
 		// If there is a player associated with the event, handle the event with the player and world
-		if w.players[ev.Id] != nil && (dupeEvents[dupeKey] < 2) {
-			cp := w.players[ev.Id]
+		serverConfig.mutex.RLock()
+		cp := w.players[ev.Id]
+		serverConfig.mutex.RUnlock()
+		if cp != nil && (dupeEvents[dupeKey] < 2) {
 			w.Update(cp, ev.Input)
 		}
 
