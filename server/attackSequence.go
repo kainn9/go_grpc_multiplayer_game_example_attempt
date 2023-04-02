@@ -1,7 +1,6 @@
 package main
 
 import (
-	"math"
 	"time"
 
 	r "github.com/kainn9/grpc_game/server/roles"
@@ -39,7 +38,7 @@ func spawnAtkBox(world *world, cp *player, atk *r.AttackData, index int, aid str
 		var atkObj *resolv.Object
 
 		if !cp.facingRight {
-			atkObj = resolv.NewObject(cp.object.X-math.Abs(hBox.PlayerOffX), cp.object.Y+hBox.PlayerOffY, hBox.Width, hBox.Height, "attack")
+			atkObj = resolv.NewObject(cp.object.X-hBox.PlayerOffX-hBox.Width+cp.object.W, cp.object.Y+hBox.PlayerOffY, hBox.Width, hBox.Height, "attack")
 		} else {
 			atkObj = resolv.NewObject(cp.object.X+hBox.PlayerOffX, cp.object.Y+hBox.PlayerOffY, hBox.Width, hBox.Height, "attack")
 		}

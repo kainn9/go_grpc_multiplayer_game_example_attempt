@@ -42,10 +42,10 @@ func demonPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	atks[PrimaryAttackKey] = &AttackData{
 		Name: PrimaryAttackKey,
 		Consequence: &Consequence{
-			Damage:             330,
-			KnockbackX:         5,
-			KnockbackY:         1,
-			KnockbackXDuration: 3000,
+			Damage:             420,
+			KnockbackX:         0.1,
+			KnockbackY:         0.1,
+			KnockbackXDuration: 500,
 			KnockbackYDuration: 500,
 		},
 		Type: PrimaryAttackKey,
@@ -58,85 +58,29 @@ func demonPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 
 	path := PrimaryAtkSeq.HBoxPath
 
-	// frame 0 - 2 have no hitboxes
-
-	// frame 3
-	path = path.appendHboxAgg(-15, 40, 20, 15, 3)
-
-	// frame 4
-	path = path.appendHboxAgg(-19, 25, 20, 15, 4)
-
-	// frame 5
-	path = path.appendHboxAgg(-21, 19, 10, 15, 5)
-
-	// frame 6
-	path = path.appendHboxAgg(-21, 9, 20, 15, 6)
-
-	// frame 7
-	path = path.appendHboxAgg(-21, 0, 15, 15, 7)
-	path = path.appendHboxAgg(-16, -7.5, 15, 15, 7)
-	path = path.appendHboxAgg(-11, -15, 15, 15, 7)
-	path = path.appendHboxAgg(-6, -20, 15, 15, 7)
-	path = path.appendHboxAgg(-2, -24, 15, 15, 7)
-
-	// frame 8
-	path = path.appendHboxAgg(-21, 0, 15, 15, 8)
-	path = path.appendHboxAgg(-16, -7.5, 15, 15, 8)
-	path = path.appendHboxAgg(-11, -15, 15, 15, 8)
-	path = path.appendHboxAgg(-6, -20, 15, 15, 8)
-	path = path.appendHboxAgg(-2, -24, 15, 15, 8)
-
-	// frame 9
-	path = path.appendHboxAgg(-21, 0, 15, 15, 9)
-	path = path.appendHboxAgg(-16, -7.5, 15, 15, 9)
-	path = path.appendHboxAgg(-11, -15, 15, 15, 9)
-	path = path.appendHboxAgg(-6, -20, 15, 15, 9)
-	path = path.appendHboxAgg(-2, -24, 15, 15, 9)
-
-	// frame 10
-	path = path.appendHboxAgg(-21, 0, 15, 15, 10)
-	path = path.appendHboxAgg(-16, -7.5, 15, 15, 10)
-	path = path.appendHboxAgg(-11, -15, 15, 15, 10)
-	path = path.appendHboxAgg(-6, -20, 15, 15, 10)
-	path = path.appendHboxAgg(-2, -24, 15, 15, 10)
-
-	// frame 11
-	path = path.appendHboxAgg(-21, 0, 15, 15, 11)
-	path = path.appendHboxAgg(-16, -7.5, 15, 15, 11)
-	path = path.appendHboxAgg(-11, -15, 15, 15, 11)
-	path = path.appendHboxAgg(-6, -20, 15, 15, 11)
-	path = path.appendHboxAgg(-2, -24, 15, 15, 11)
-
 	// frame 12
 	path = path.appendHboxAgg(105, 70, 15, 15, 12)
 	path = path.appendHboxAgg(115, 70, 15, 15, 12)
-	path = path.appendHboxAgg(130, 70, 22, 15, 12)
-	path = path.appendHboxAgg(130, 36, 33, 15, 12)
 
 	// frame 13
 	path = path.appendHboxAgg(102, 67, 15, 15, 13)
 	path = path.appendHboxAgg(115, 70, 15, 15, 13)
-	path = path.appendHboxAgg(130, 70, 22, 15, 13)
 
 	// frame 14
 	path = path.appendHboxAgg(102, 67, 15, 15, 14)
 	path = path.appendHboxAgg(115, 70, 15, 15, 14)
-	path = path.appendHboxAgg(130, 70, 22, 15, 14)
 
 	// frame 15
 	path = path.appendHboxAgg(102, 67, 15, 15, 15)
 	path = path.appendHboxAgg(115, 70, 15, 15, 15)
-	path = path.appendHboxAgg(130, 70, 22, 15, 15)
 
 	// frame 16
 	path = path.appendHboxAgg(102, 67, 15, 15, 16)
 	path = path.appendHboxAgg(115, 70, 15, 15, 16)
-	path = path.appendHboxAgg(130, 70, 22, 15, 16)
 
 	// frame 17
 	path = path.appendHboxAgg(102, 67, 15, 15, 17)
-	path = path.appendHboxAgg(115, 70, 15, 15, 17)
-	path.appendHboxAgg(130, 70, 22, 15, 17)
+	path.appendHboxAgg(115, 70, 15, 15, 17)
 
 	// frame 18+ no hitbox
 
