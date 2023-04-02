@@ -11,10 +11,19 @@ where to place resolv objects on the serverside
 
 // intro-zone
 func DevWorldBuilder(world *World, gw float64, gh float64) {
+	portal := resolv.NewObject(1541, 150, 40, 40, "portal")
 	world.space.Add(
 
-		// plat 1
-		resolv.NewObject(0, 752, 468, 5, "platform"),
+		// left bounds
+		resolv.NewObject(0, 0, 16, gh, "bounds"),
+		// right bounds
+		resolv.NewObject(gw-16, 0, 16, gh, "bounds"),
+
+		// floor 1 left
+		resolv.NewObject(0, 752, 468, 10, "solid"),
+
+		// floor 2 mid
+		resolv.NewObject(546, 732, 470, 10, "solid"),
 
 		// rock
 		resolv.NewObject(318, 548, 127, 200, "solid"),
@@ -28,14 +37,11 @@ func DevWorldBuilder(world *World, gw float64, gh float64) {
 		// grassTop floatingPlat left
 		resolv.NewObject(0, 245, 278, 5, "platform"),
 
-		// floorPlat
-		resolv.NewObject(546, 732, 470, 5, "platform"),
-
 		// floatingBLock
 		resolv.NewObject(1101, 753, 55, 50, "solid"),
 
-		// castle basePlat
-		resolv.NewObject(1237, 728, 390, 5, "platform"),
+		// castle floor
+		resolv.NewObject(1237, 728, 390, 10, "solid"),
 
 		// castle midPlat
 		resolv.NewObject(1362, 419, 250, 5, "platform"),
@@ -81,7 +87,7 @@ func DevWorldBuilder(world *World, gw float64, gh float64) {
 		resolv.NewObject(1021, 455, 40, 5, "platform"),
 
 		// portal
-		resolv.NewObject(1541, 150, 40, 40, "portal"),
+		portal,
 	)
 }
 

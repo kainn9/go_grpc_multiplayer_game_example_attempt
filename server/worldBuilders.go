@@ -15,8 +15,11 @@ func introWorldBuilder(world *world, gw float64, gh float64) {
 		// right bounds
 		resolv.NewObject(gw-16, 0, 16, gh, "bounds"),
 
-		// plat 1
-		resolv.NewObject(0, 752, 468, 5, "platform"),
+		// floor 1 left
+		resolv.NewObject(0, 752, 468, 10, "solid"),
+
+		// floor 2 mid
+		resolv.NewObject(546, 732, 470, 10, "solid"),
 
 		// rock
 		resolv.NewObject(318, 548, 127, 200, "solid"),
@@ -30,14 +33,11 @@ func introWorldBuilder(world *world, gw float64, gh float64) {
 		// grassTop floatingPlat left
 		resolv.NewObject(0, 245, 278, 5, "platform"),
 
-		// floorPlat
-		resolv.NewObject(546, 732, 470, 5, "platform"),
-
 		// floatingBLock
 		resolv.NewObject(1101, 753, 55, 50, "solid"),
 
-		// castle basePlat
-		resolv.NewObject(1237, 728, 390, 5, "platform"),
+		// castle floor
+		resolv.NewObject(1237, 728, 390, 10, "solid"),
 
 		// castle midPlat
 		resolv.NewObject(1362, 419, 250, 5, "platform"),
