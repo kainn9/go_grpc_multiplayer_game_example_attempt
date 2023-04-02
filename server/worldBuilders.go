@@ -108,8 +108,8 @@ func landOfYohoPassageTwoBuilder(world *world, gw float64, gh float64) {
 	portalBack := resolv.NewObject(0, 408, 16, 500, "portal")
 	initPortal(portalBack, 3, 880, 250)
 
-	portaForwards := resolv.NewObject(0, 0, 16, 500, "portal")
-	initPortal(portaForwards, 5, 3160, 402)
+	portalForwards := resolv.NewObject(0, 0, 16, 340, "portal")
+	initPortal(portalForwards, 5, 3160, 402)
 
 	world.space.Add(
 
@@ -131,7 +131,7 @@ func landOfYohoPassageTwoBuilder(world *world, gw float64, gh float64) {
 		// top floor
 		resolv.NewObject(0, 336, 938, 80, "solid"),
 		portalBack,
-		portaForwards,
+		portalForwards,
 	)
 }
 
