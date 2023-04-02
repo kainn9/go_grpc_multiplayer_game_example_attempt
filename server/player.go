@@ -439,9 +439,15 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 					}
 				}
 
+				cp.onGround = minP
+
+				if input == "keyDown" && cp.onGround != nil && cp.onGround.HasTags("platform") {
+					cp.ignorePlatform = cp.onGround
+				}
+
 				if minP != cp.ignorePlatform && cp.speedY >= 0 && cp.object.Bottom() < minP.Y+4 {
 					dy = check.ContactWithObject(minP).Y()
-					cp.onGround = minP
+
 					cp.speedY = 0
 				}
 			}

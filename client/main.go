@@ -129,7 +129,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		to be on highest z-index
 	*/
 	msg := fmt.Sprintf(
-		"Press M to hide this menu!!!!\nPING(Calc is a bit busted rn): %v\nControls: Arrow Keys for Movment\nSpace to jump(you can wall jump too)\nAttacks(Note! not all chars have 4 attacks):\nQ-key for primary Atk\nW-key for secondary Atk\nE-key for tertiary Atk\nR-key for quaternary Atk\nBuffs:\nT-key for 20 sec gravity boost(2 min CD)\nClient Controls:\n 0-key to toggle full-screen\nZ/X-keys to control volume\nCurr volume: %v\n1-key to toggle dev-camera\n3-key to turn on dev world builder preview\nL-key for hitbox mode(Note: this will break client until restart)\n4-key to swap worlds\nTPS: %0.2f\nhealth: %v\n",
+		"Press M to hide this menu!!!!\nPING(Calc is a bit busted rn): %v\nControls: Arrow Keys for Movment(you can use down arrow to drop from platform)\nSpace to jump(you can wall jump too)\nUse shift key for defensive move(not all characters have one)\nAttacks(Note! not all chars have 4 attacks):\nQ-key for primary Atk\nW-key for secondary Atk\nE-key for tertiary Atk\nR-key for quaternary Atk\nBuffs:\nT-key for 20 sec gravity boost(2 min CD)\nClient Controls:\n0-key to toggle full-screen\nZ/X-keys to control volume\nCurr volume: %v\n1-key to toggle dev-camera\n3-key to turn on dev world builder preview\nL-key for hitbox mode(Note: this will break client until restart)\n4-key to swap worlds\nTPS: %0.2f\nhealth: %v\n",
 		devConfig.ping,
 		clientConfig.volume128,
 		ebiten.ActualTPS(),

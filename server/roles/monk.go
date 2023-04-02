@@ -20,8 +20,8 @@ func InitMonk() *Role {
 
 	d := &Defense{
 		Delay:           0,
-		Cooldown:        300,
-		DefenseDuration: 1000,
+		Cooldown:        100,
+		DefenseDuration: 700,
 		DefenseType:     DefenseBlock,
 	}
 

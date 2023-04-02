@@ -249,7 +249,7 @@ func (pc *PlayerController) InputListener() {
 		isPressing = true
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
+	if ebiten.IsKeyPressed(ebiten.KeyDown) {
 		pc.inputHandler("keyDown")
 		isPressing = true
 	}
