@@ -32,8 +32,10 @@ type stalledWrapper struct {
 */
 
 func locateFromPID(pid string) (world *world, worldKey int, err error) {
-
+	serverConfig.mutex.RLock()
 	player := serverConfig.activePlayers[pid]
+	serverConfig.mutex.RUnlock()
+
 	if player != nil {
 		w := serverConfig.worldsMap[player.worldKey]
 
@@ -75,9 +77,8 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 	log.Printf("Player Connection Recieved %v\n", pid)
 
 	for {
-		serverConfig.mutex.RLock()
+
 		w, _ := currentPlayerWorld(pid)
-		serverConfig.mutex.RUnlock()
 
 		stalledWrapperInstance := stalledWrapper{stalled: true}
 
@@ -115,11 +116,13 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 		initPlayer(req)
 
 		// this can be nil when a player is transfering worlds
-		serverConfig.mutex.Lock()
-		if w.players[pid] != nil {
+		w.wPlayersMutex.Lock()
+		p := w.players[pid]
+
+		if p != nil {
 			w.players[pid].prevEvent = prevReq
 		}
-		serverConfig.mutex.Unlock()
+		w.wPlayersMutex.Unlock()
 
 		newEvent := newEvent(req, false)
 		newEvent.enqueue(w)
@@ -146,8 +149,12 @@ func initPlayer(r *pb.PlayerReq) (*player, *world) {
 
 		serverConfig.mutex.Lock()
 		serverConfig.activePlayers[pid] = cp
-		w.players[pid] = cp
 		serverConfig.mutex.Unlock()
+
+		w.wPlayersMutex.Lock()
+		w.players[pid] = cp
+		w.wPlayersMutex.Unlock()
+
 	} else {
 		cp = activePlayer
 	}
@@ -167,13 +174,10 @@ side of stream) resides inside of
 */
 func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) {
 
-	serverConfig.mutex.Lock()
-	defer serverConfig.mutex.Unlock()
-
 	w, wk := currentPlayerWorld(pid)
-
 	res := &pb.PlayerResp{}
 
+	w.wPlayersMutex.RLock()
 	for k := range w.players {
 		curr := w.players[k]
 
@@ -205,8 +209,10 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 
 		res.Players = append(res.Players, p)
 	}
+	w.wPlayersMutex.RUnlock()
 
 	err := stream.Send(res)
+
 	if err != nil {
 		log.Fatalf("Error while sending data to client: %v\n", err)
 	}

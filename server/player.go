@@ -159,21 +159,26 @@ func addPlayerToSpace(w *world, p *player, x float64, y float64) *player {
 
 // removePlayerFromGame removes a player from the game with the given unique identifier and world
 func removePlayerFromGame(pid string, w *world) {
+
+	w.wPlayersMutex.RLock()
+	p := w.players[pid]
+	w.wPlayersMutex.RUnlock()
+
 	// Stop server crash if client disconnects before fully loading/creating a player
-	serverConfig.mutex.RLock()
-	if w.players[pid] == nil {
+	if p == nil {
 		return
 	}
-
-	serverConfig.mutex.RUnlock()
 
 	w.hitboxMutex.Lock()
 	obj := w.players[pid].object
 	w.space.Remove(obj)
 	w.hitboxMutex.Unlock()
 
-	serverConfig.mutex.Lock()
+	w.wPlayersMutex.Lock()
 	delete(w.players, pid)
+	w.wPlayersMutex.Unlock()
+
+	serverConfig.mutex.Lock()
 	delete(serverConfig.activePlayers, pid)
 	serverConfig.mutex.Unlock()
 }
@@ -198,16 +203,20 @@ func changePlayersWorld(oldWorld *world, newWorld *world, cp *player, optX int, 
 		y = optY
 	}
 
-	serverConfig.mutex.Lock()
-	defer serverConfig.mutex.Unlock()
-
+	oldWorld.wPlayersMutex.Lock()
 	delete(oldWorld.players, cp.pid)
+	oldWorld.wPlayersMutex.Unlock()
+
+	oldWorld.hitboxMutex.Lock()
 	oldWorld.space.Remove(cp.object)
+	oldWorld.hitboxMutex.Unlock()
+
+	newWorld.wPlayersMutex.Lock()
 	newWorld.players[cp.pid] = cp
+	newWorld.wPlayersMutex.Unlock()
 
 	addPlayerToSpace(newWorld, cp, float64(x), float64(y))
 	cp.worldKey = newWorld.index
-
 }
 
 func (cp *player) worldTransferHandler(input string) {
@@ -319,10 +328,8 @@ func (cp *player) horizontalMovementHandler(input string, worldWidth float64) {
 		portal := check.Objects[0]
 		portalData := portalData(portal)
 
-		serverConfig.mutex.RLock()
 		oldWorld := serverConfig.worldsMap[cp.worldKey]
 		newWorld := serverConfig.worldsMap[portalData.worldKey]
-		serverConfig.mutex.RUnlock()
 
 		changePlayersWorld(oldWorld, newWorld, cp, portalData.x, portalData.y)
 
@@ -499,10 +506,8 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 	}
 
 	// player fell too far
-	serverConfig.mutex.RLock()
 	if newYPos > serverConfig.worldsMap[cp.worldKey].height-cp.object.H {
 		cp.death()
 	}
-	serverConfig.mutex.RUnlock()
 
 }

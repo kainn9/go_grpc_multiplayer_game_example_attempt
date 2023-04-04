@@ -4,12 +4,28 @@ import (
 	"log"
 	"net"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	pb "github.com/kainn9/grpc_game/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
 
+var (
+	enablePPROF = false
+)
+
 func main() {
+	// pprof for debug
+
+	if enablePPROF {
+		go func() {
+			log.Println(http.ListenAndServe("localhost:6060", nil))
+		}()
+
+	}
+
 	// Initialize server configuration
 	initializer()
 

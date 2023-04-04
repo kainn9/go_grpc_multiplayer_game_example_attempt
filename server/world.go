@@ -15,8 +15,9 @@ type world struct {
 	name            string             // The name of the world
 	index           int                // index in worlds map
 	events          []*event           // An queue of events to be processed(world scoped)
-	eventsMutex     sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
-	hitboxMutex     sync.RWMutex       // A mutex to lock down resources when necessary(world scoped)
+	eventsMutex     sync.RWMutex
+	hitboxMutex     sync.RWMutex
+	wPlayersMutex   sync.RWMutex
 	worldSpawnCords *worldSpawnCords
 }
 
@@ -28,13 +29,14 @@ type worldSpawnCords struct {
 // creates a new game world.
 func newWorld(height float64, width float64, worldBuilder builderFunc, name string, spawnX int, spawnY int) *world {
 	w := &world{
-		name:        name,
-		width:       width,
-		height:      height,
-		players:     make(map[string]*player),
-		eventsMutex: sync.RWMutex{},
-		hitboxMutex: sync.RWMutex{},
-		events:      make([]*event, 0),
+		name:          name,
+		width:         width,
+		height:        height,
+		players:       make(map[string]*player),
+		eventsMutex:   sync.RWMutex{},
+		hitboxMutex:   sync.RWMutex{},
+		wPlayersMutex: sync.RWMutex{},
+		events:        make([]*event, 0),
 		worldSpawnCords: &worldSpawnCords{
 			x: spawnX,
 			y: spawnY,

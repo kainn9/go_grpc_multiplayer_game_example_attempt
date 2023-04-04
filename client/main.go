@@ -202,9 +202,6 @@ func main() {
 		game's functions are called on the same goroutine.
 	*/
 
-	// Need to make Async, as attributes to 90% of startup time rn....
-
-	// so disabling music for now LOL
 	clientConfig.game.InitMusic()
 	ebiten.RunGame(clientConfig.game)
 
