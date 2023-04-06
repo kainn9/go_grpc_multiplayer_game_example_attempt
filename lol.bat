@@ -1,5 +1,5 @@
-@REM Launches 4 clients on windows lol
-cd client
+@REM Launches 12 bots on windows lol
+cd bots
 @start go run .
 @start go run .
 @start go run .
@@ -10,4 +10,5 @@ cd client
 @start go run .
 @start go run .
 @start go run .
-
+@start go run .
+@start go run .

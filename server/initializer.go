@@ -13,6 +13,7 @@ type serverConfigStruct struct {
 	worldsMap     map[int]*world
 	activePlayers map[string]*player
 	roles         map[r.PlayerType]int32
+	startingWorld *world
 }
 
 // worldsStruct holds world objects.
@@ -64,6 +65,8 @@ func initializer() {
 
 	serverConfig.worldsMap[5] = worlds.landOfYohoVillage
 	worlds.landOfYohoVillage.index = 5
+
+	serverConfig.startingWorld = worlds.landOfYohoVillage
 
 	// set up roles
 	serverConfig.roles[r.Knight.RoleType] = 0

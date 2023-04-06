@@ -63,7 +63,7 @@ func currentPlayerWorld(pid string) (world *world, worldKey int) {
 	w, k, err := locateFromPID(pid)
 
 	if err != nil {
-		return serverConfig.worldsMap[0], 0
+		return serverConfig.startingWorld, serverConfig.startingWorld.index
 	}
 	return w, k
 }
