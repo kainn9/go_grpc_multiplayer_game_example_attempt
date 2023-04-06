@@ -9,8 +9,17 @@ import (
 
 type event struct {
 	*pb.PlayerReq
-	stalled bool
+	stalled       bool
+	eventCategory eventCategory
 }
+
+type eventCategory string
+
+const (
+	eventRestricted eventCategory = "rest"
+	eventNormal     eventCategory = "norm"
+	eventAdmin      eventCategory = "admin"
+)
 
 // Starts a new ticker loop that calls processEventsPerTick with the given world
 func newTickLoop(w *world) {
@@ -52,7 +61,7 @@ func processEventsPerTick(w *world) {
 		}
 
 		ev := w.events[i]
-		dupeKey := ev.Id + ev.Input
+		dupeKey := ev.Id + string(ev.eventCategory)
 
 		dupeEvents[dupeKey]++
 	}
@@ -61,7 +70,7 @@ func processEventsPerTick(w *world) {
 	for i := 0; i < eventBatchSize; i++ {
 
 		ev := w.events[i]
-		dupeKey := ev.Id + ev.Input
+		dupeKey := ev.Id + string(ev.eventCategory)
 
 		// If there is a player associated with the event, handle the event with the player and world
 		w.wPlayersMutex.RLock()
@@ -82,11 +91,93 @@ func processEventsPerTick(w *world) {
 	w.events = w.events[eventBatchSize:]
 }
 
+/*
+TODO:
+* Buffering/re-enqueuing dupes experiment...
+* needs to a seperate filter to avoid enqueueing
+* too may dupes(creates lag)
+* something like only one dupe per
+* input or something maybe
+*/
+// func processEventsPerTick(w *world) {
+// 	w.eventsMutex.Lock()
+// 	defer w.eventsMutex.Unlock()
+
+// 	logHighEventCount(w)
+
+// 	dupesToEnqueue := make([]*event, 0)
+// 	dupesToKeep := make(map[string]*event)
+
+// 	eventBatchSize := 100
+
+// 	for i := 0; i < eventBatchSize; i++ {
+
+// 		// Exit function if no events
+// 		if len(w.events) == 0 {
+// 			return
+// 		}
+
+// 		// If current index is out of range, exit the loop, adjust batch length
+// 		if i > len(w.events)-1 {
+// 			eventBatchSize = len(w.events)
+// 			break
+// 		}
+
+// 		ev := w.events[i]
+// 		dupeKey := ev.Id + string(ev.eventCategory)
+
+// 		_, isDupe := dupesToKeep[dupeKey]
+
+// 		if isDupe && ev.Input != "nada" {
+// 			dupesToEnqueue = append(dupesToEnqueue, ev)
+// 		} else {
+// 			dupesToKeep[dupeKey] = ev
+// 		}
+
+// 	}
+
+// 	// Process all "valid" events
+// 	for i := 0; i < eventBatchSize; i++ {
+
+// 		ev := w.events[i]
+// 		dupeKey := ev.Id + string(ev.eventCategory)
+
+// 		// If there is a player associated with the event, handle the event with the player and world
+// 		w.wPlayersMutex.RLock()
+// 		cp := w.players[ev.Id]
+// 		w.wPlayersMutex.RUnlock()
+
+// 		if cp != nil && (dupesToKeep[dupeKey] == ev) {
+// 			w.Update(cp, ev.Input)
+// 		}
+// 	}
+
+// 	// Remove the event from the world's events queue
+// 	w.events = w.events[eventBatchSize:]
+
+// 	// Enqueue dupes at top
+// 	if len(dupesToEnqueue) > 0 {
+// 		// prepend duplicates to the events slice
+// 		w.events = append(dupesToEnqueue, w.events...)
+// 	}
+// }
+
 func newEvent(req *pb.PlayerReq, stalled bool) *event {
-	return &event{
+
+	e := &event{
 		PlayerReq: req,
 		stalled:   stalled,
 	}
+
+	if req.Input == "keyLeft" || req.Input == "keyRight" || req.Input == "keyDown" {
+		e.eventCategory = eventRestricted
+	} else if req.Input == "swap" {
+		e.eventCategory = eventAdmin
+	} else {
+		e.eventCategory = eventNormal
+	}
+
+	return e
 }
 
 func (e *event) enqueue(w *world) {

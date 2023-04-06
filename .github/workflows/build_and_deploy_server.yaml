@@ -1,0 +1,42 @@
+name: Build and Deploy Server to EC2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.19
+
+      - name: Install Go packages
+        run: go mod tidy && go mod download
+
+      - name: Build binary
+        run: |
+          export GOOS=linux
+          export GOARCH=amd64
+          go build -o bin/application ./server
+          chmod +x ./bin/application
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: application
+          path: bin
+
+      - name: SCP binary to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ vars.ADDR }}
+          username: ec2-user
+          key: ${{ secrets.go_game_backend_pem }}
+          source: bin/application
+          target: /home/ec2-user
+

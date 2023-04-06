@@ -2,8 +2,8 @@ package roles
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	utClient "github.com/kainn9/grpc_game/client_util"
 	sr "github.com/kainn9/grpc_game/server/roles"
-	ut "github.com/kainn9/grpc_game/util"
 )
 
 /*
@@ -47,32 +47,32 @@ var (
 Loads the default player sprites
 */
 func LoadMageSprites() {
-	mageSpriteIdleLeft = ut.LoadImg("./sprites/mage/mageIdleLeft.png")
-	mageSpriteIdleRight = ut.LoadImg("./sprites/mage/mageIdleRight.png")
+	mageSpriteIdleLeft = utClient.LoadImage("./sprites/mage/mageIdleLeft.png")
+	mageSpriteIdleRight = utClient.LoadImage("./sprites/mage/mageIdleRight.png")
 
-	mageSpriteWalkingRight = ut.LoadImg("./sprites/mage/mageRunningRight.png")
-	mageSpriteWalkingLeft = ut.LoadImg("./sprites/mage/mageRunningLeft.png")
+	mageSpriteWalkingRight = utClient.LoadImage("./sprites/mage/mageRunningRight.png")
+	mageSpriteWalkingLeft = utClient.LoadImage("./sprites/mage/mageRunningLeft.png")
 
-	mageSpriteJumpLeft = ut.LoadImg("./sprites/mage/mageJumpLeft.png")
-	mageSpriteJumpRight = ut.LoadImg("./sprites/mage/mageJumpRight.png")
+	mageSpriteJumpLeft = utClient.LoadImage("./sprites/mage/mageJumpLeft.png")
+	mageSpriteJumpRight = utClient.LoadImage("./sprites/mage/mageJumpRight.png")
 
-	mageSpriteKBRight = ut.LoadImg("./sprites/mage/mageKnockBackRight.png")
-	mageSpriteKBLeft = ut.LoadImg("./sprites/mage/mageKnockBackLeft.png")
+	mageSpriteKBRight = utClient.LoadImage("./sprites/mage/mageKnockBackRight.png")
+	mageSpriteKBLeft = utClient.LoadImage("./sprites/mage/mageKnockBackLeft.png")
 
-	mageSpriteDeathRight = ut.LoadImg("./sprites/mage/mageDeathRight.png")
-	mageSpriteDeathLeft = ut.LoadImg("./sprites/mage/mageDeathLeft.png")
+	mageSpriteDeathRight = utClient.LoadImage("./sprites/mage/mageDeathRight.png")
+	mageSpriteDeathLeft = utClient.LoadImage("./sprites/mage/mageDeathLeft.png")
 
-	mageSpriteLightSwordsRight = ut.LoadImg("./sprites/mage/mageLightSwordsRight.png")
-	mageSpriteLightSwordsLeft = ut.LoadImg("./sprites/mage/mageLightSwordsLeft.png")
+	mageSpriteLightSwordsRight = utClient.LoadImage("./sprites/mage/mageLightSwordsRight.png")
+	mageSpriteLightSwordsLeft = utClient.LoadImage("./sprites/mage/mageLightSwordsLeft.png")
 
-	mageSpriteDefenseRight = ut.LoadImg("./sprites/mage/mageDefenseRight.png")
-	mageSpriteDefenseLeft = ut.LoadImg("./sprites/mage/mageDefenseLeft.png")
+	mageSpriteDefenseRight = utClient.LoadImage("./sprites/mage/mageDefenseRight.png")
+	mageSpriteDefenseLeft = utClient.LoadImage("./sprites/mage/mageDefenseLeft.png")
 
-	mageSpriteFireBlastRight = ut.LoadImg("./sprites/mage/mageFireBlastRight.png")
-	mageSpriteFireBlastLeft = ut.LoadImg("./sprites/mage/mageFireBlastLeft.png")
+	mageSpriteFireBlastRight = utClient.LoadImage("./sprites/mage/mageFireBlastRight.png")
+	mageSpriteFireBlastLeft = utClient.LoadImage("./sprites/mage/mageFireBlastLeft.png")
 
-	mageSpriteIceBlastRight = ut.LoadImg("./sprites/mage/mageIceBlastRight.png")
-	mageSpriteIceBlastLeft = ut.LoadImg("./sprites/mage/mageIceBlastLeft.png")
+	mageSpriteIceBlastRight = utClient.LoadImage("./sprites/mage/mageIceBlastRight.png")
+	mageSpriteIceBlastLeft = utClient.LoadImage("./sprites/mage/mageIceBlastLeft.png")
 
 }
 

@@ -2,8 +2,8 @@ package roles
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	utClient "github.com/kainn9/grpc_game/client_util"
 	sr "github.com/kainn9/grpc_game/server/roles"
-	ut "github.com/kainn9/grpc_game/util"
 )
 
 /*
@@ -50,35 +50,35 @@ var (
 Loads the default player sprites
 */
 func LoadWerewolfSprites() {
-	werewolfSpriteIdleLeft = ut.LoadImg("./sprites/werewolf/werewolfIdleLeft.png")
-	werewolfSpriteIdleRight = ut.LoadImg("./sprites/werewolf/werewolfIdleRight.png")
+	werewolfSpriteIdleLeft = utClient.LoadImage("./sprites/werewolf/werewolfIdleLeft.png")
+	werewolfSpriteIdleRight = utClient.LoadImage("./sprites/werewolf/werewolfIdleRight.png")
 
-	werewolfSpriteWalkingRight = ut.LoadImg("./sprites/werewolf/werewolfRunningRight.png")
-	werewolfSpriteWalkingLeft = ut.LoadImg("./sprites/werewolf/werewolfRunningLeft.png")
+	werewolfSpriteWalkingRight = utClient.LoadImage("./sprites/werewolf/werewolfRunningRight.png")
+	werewolfSpriteWalkingLeft = utClient.LoadImage("./sprites/werewolf/werewolfRunningLeft.png")
 
-	werewolfSpriteJumpLeft = ut.LoadImg("./sprites/werewolf/werewolfJumpLeft.png")
-	werewolfSpriteJumpRight = ut.LoadImg("./sprites/werewolf/werewolfJumpRight.png")
+	werewolfSpriteJumpLeft = utClient.LoadImage("./sprites/werewolf/werewolfJumpLeft.png")
+	werewolfSpriteJumpRight = utClient.LoadImage("./sprites/werewolf/werewolfJumpRight.png")
 
-	werewolfSpriteKBRight = ut.LoadImg("./sprites/werewolf/werewolfKnockBackRight.png")
-	werewolfSpriteKBLeft = ut.LoadImg("./sprites/werewolf/werewolfKnockBackLeft.png")
+	werewolfSpriteKBRight = utClient.LoadImage("./sprites/werewolf/werewolfKnockBackRight.png")
+	werewolfSpriteKBLeft = utClient.LoadImage("./sprites/werewolf/werewolfKnockBackLeft.png")
 
-	werewolfSpriteDeathRight = ut.LoadImg("./sprites/werewolf/werewolfDeathRight.png")
-	werewolfSpriteDeathLeft = ut.LoadImg("./sprites/werewolf/werewolfDeathLeft.png")
+	werewolfSpriteDeathRight = utClient.LoadImage("./sprites/werewolf/werewolfDeathRight.png")
+	werewolfSpriteDeathLeft = utClient.LoadImage("./sprites/werewolf/werewolfDeathLeft.png")
 
-	werewolfSpriteSPWindupRight = ut.LoadImg("./sprites/werewolf/werewolfSPWindupRight.png")
-	werewolfSpriteSPWindupLeft = ut.LoadImg("./sprites/werewolf/werewolfSPWindupLeft.png")
+	werewolfSpriteSPWindupRight = utClient.LoadImage("./sprites/werewolf/werewolfSPWindupRight.png")
+	werewolfSpriteSPWindupLeft = utClient.LoadImage("./sprites/werewolf/werewolfSPWindupLeft.png")
 
-	werewolfSpriteSPMovementRight = ut.LoadImg("./sprites/werewolf/werewolfSPMovementRight.png")
-	werewolfSpriteSPMovementLeft = ut.LoadImg("./sprites/werewolf/werewolfSPMovementLeft.png")
+	werewolfSpriteSPMovementRight = utClient.LoadImage("./sprites/werewolf/werewolfSPMovementRight.png")
+	werewolfSpriteSPMovementLeft = utClient.LoadImage("./sprites/werewolf/werewolfSPMovementLeft.png")
 
-	werewolfSpriteSPAtkRight = ut.LoadImg("./sprites/werewolf/werewolfSPAtkRight.png")
-	werewolfSpriteSPAtkLeft = ut.LoadImg("./sprites/werewolf/werewolfSPAtkLeft.png")
+	werewolfSpriteSPAtkRight = utClient.LoadImage("./sprites/werewolf/werewolfSPAtkRight.png")
+	werewolfSpriteSPAtkLeft = utClient.LoadImage("./sprites/werewolf/werewolfSPAtkLeft.png")
 
-	werewolfSpriteDoubleSlashRight = ut.LoadImg("./sprites/werewolf/werewolfDoubleSlashRight.png")
-	werewolfSpriteDoubleSlashLeft = ut.LoadImg("./sprites/werewolf/werewolfDoubleSlashLeft.png")
+	werewolfSpriteDoubleSlashRight = utClient.LoadImage("./sprites/werewolf/werewolfDoubleSlashRight.png")
+	werewolfSpriteDoubleSlashLeft = utClient.LoadImage("./sprites/werewolf/werewolfDoubleSlashLeft.png")
 
-	werewolfSpriteFlipSlashLeft = ut.LoadImg("./sprites/werewolf/werewolfFlipSlashLeft.png")
-	werewolfSpriteFlipSlashRight = ut.LoadImg("./sprites/werewolf/werewolfFlipSlashRight.png")
+	werewolfSpriteFlipSlashLeft = utClient.LoadImage("./sprites/werewolf/werewolfFlipSlashLeft.png")
+	werewolfSpriteFlipSlashRight = utClient.LoadImage("./sprites/werewolf/werewolfFlipSlashRight.png")
 }
 
 func InitWerewolf() *Role {

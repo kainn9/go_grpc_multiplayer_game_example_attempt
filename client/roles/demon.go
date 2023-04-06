@@ -2,8 +2,8 @@ package roles
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	utClient "github.com/kainn9/grpc_game/client_util"
 	sr "github.com/kainn9/grpc_game/server/roles"
-	ut "github.com/kainn9/grpc_game/util"
 )
 
 /*
@@ -42,27 +42,27 @@ var (
 Loads the default player sprites
 */
 func LoadDemonSprites() {
-	demonSpriteIdleLeft = ut.LoadImg("./sprites/demon/demonIdleLeft.png")
-	demonSpriteIdleRight = ut.LoadImg("./sprites/demon/demonIdleRight.png")
+	demonSpriteIdleLeft = utClient.LoadImage("./sprites/demon/demonIdleLeft.png")
+	demonSpriteIdleRight = utClient.LoadImage("./sprites/demon/demonIdleRight.png")
 
-	demonSpriteWalkingRight = ut.LoadImg("./sprites/demon/demonRunningRight.png")
-	demonSpriteWalkingLeft = ut.LoadImg("./sprites/demon/demonRunningLeft.png")
+	demonSpriteWalkingRight = utClient.LoadImage("./sprites/demon/demonRunningRight.png")
+	demonSpriteWalkingLeft = utClient.LoadImage("./sprites/demon/demonRunningLeft.png")
 
-	demonSpriteJumpLeft = ut.LoadImg("./sprites/demon/demonJumpLeft.png")
-	demonSpriteJumpRight = ut.LoadImg("./sprites/demon/demonJumpRight.png")
+	demonSpriteJumpLeft = utClient.LoadImage("./sprites/demon/demonJumpLeft.png")
+	demonSpriteJumpRight = utClient.LoadImage("./sprites/demon/demonJumpRight.png")
 
 
-	demonSpriteKBRight = ut.LoadImg("./sprites/demon/demonKnockBackRight.png")
-	demonSpriteKBLeft = ut.LoadImg("./sprites/demon/demonKnockBackLeft.png")
+	demonSpriteKBRight = utClient.LoadImage("./sprites/demon/demonKnockBackRight.png")
+	demonSpriteKBLeft = utClient.LoadImage("./sprites/demon/demonKnockBackLeft.png")
 
-	demonSpriteCleaveAtkRight = ut.LoadImg("./sprites/demon/demonCleaveRight.png")
-	demonSpriteCleaveAtkLeft = ut.LoadImg("./sprites/demon/demonCleaveLeft.png")
+	demonSpriteCleaveAtkRight = utClient.LoadImage("./sprites/demon/demonCleaveRight.png")
+	demonSpriteCleaveAtkLeft = utClient.LoadImage("./sprites/demon/demonCleaveLeft.png")
 
-	demonSpriteFireAtkRight = ut.LoadImg("./sprites/demon/demonFireAtkRight.png")
-	demonSpriteFireAtkLeft = ut.LoadImg("./sprites/demon/demonFireAtkLeft.png")
+	demonSpriteFireAtkRight = utClient.LoadImage("./sprites/demon/demonFireAtkRight.png")
+	demonSpriteFireAtkLeft = utClient.LoadImage("./sprites/demon/demonFireAtkLeft.png")
 
-	demonSpriteDeathRight = ut.LoadImg("./sprites/demon/demonDeathRight.png")
-	demonSpriteDeathLeft = ut.LoadImg("./sprites/demon/demonDeathLeft.png")
+	demonSpriteDeathRight = utClient.LoadImage("./sprites/demon/demonDeathRight.png")
+	demonSpriteDeathLeft = utClient.LoadImage("./sprites/demon/demonDeathLeft.png")
 }
 
 func InitDemon() *Role {

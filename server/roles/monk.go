@@ -31,7 +31,7 @@ func InitMonk() *Role {
 		HitBoxW:  12,
 		HitBoxH:  35,
 		Defense:  d,
-		Health:   380,
+		Health:   480,
 
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,

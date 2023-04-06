@@ -1,0 +1,41 @@
+name: Build and Upload Go Client Ubuntu
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.19
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libasound2-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev
+
+      - name: Install Go packages
+        run: go mod tidy && go mod download
+
+      - name: Build binary
+        run: |
+          export GOOS=linux
+          export GOARCH=amd64
+          ADDR=${{ vars.ADDR }} go build -ldflags "-X github.com/kainn9/grpc_game/client_util.BuildTime=true" -o bin/application ./client && cp -R ./client/sprites ./bin && cp -R ./client/backgrounds ./bin && cp -R ./client/audio ./bin && chmod +x ./bin/application
+          cp -R ./client/sprites ./bin
+          cp -R ./client/backgrounds ./bin
+          cp -R ./client/audio ./bin
+          chmod +x ./bin/application
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: application
+          path: bin
+

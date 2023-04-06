@@ -2,8 +2,8 @@ package roles
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	utClient "github.com/kainn9/grpc_game/client_util"
 	sr "github.com/kainn9/grpc_game/server/roles"
-	ut "github.com/kainn9/grpc_game/util"
 )
 
 /*
@@ -57,41 +57,41 @@ var (
 Loads the default player sprites
 */
 func LoadKnightSprites() {
-	knightSpriteIdleLeft = ut.LoadImg("./sprites/knight/knightIdleLeft.png")
-	knightSpriteIdleRight = ut.LoadImg("./sprites/knight/knightIdleRight.png")
+	knightSpriteIdleLeft = utClient.LoadImage("./sprites/knight/knightIdleLeft.png")
+	knightSpriteIdleRight = utClient.LoadImage("./sprites/knight/knightIdleRight.png")
 
-	knightSpriteWalkingRight = ut.LoadImg("./sprites/knight/knightRunningRight.png")
-	knightSpriteWalkingLeft = ut.LoadImg("./sprites/knight/knightRunningLeft.png")
+	knightSpriteWalkingRight = utClient.LoadImage("./sprites/knight/knightRunningRight.png")
+	knightSpriteWalkingLeft = utClient.LoadImage("./sprites/knight/knightRunningLeft.png")
 
-	knightSpriteJumpLeft = ut.LoadImg("./sprites/knight/knightJumpLeft.png")
-	knightSpriteJumpRight = ut.LoadImg("./sprites/knight/knightJumpRight.png")
+	knightSpriteJumpLeft = utClient.LoadImage("./sprites/knight/knightJumpLeft.png")
+	knightSpriteJumpRight = utClient.LoadImage("./sprites/knight/knightJumpRight.png")
 
-	knightSpriteStabRight = ut.LoadImg("./sprites/knight/knightStabRight.png")
-	knightSpriteStabLeft = ut.LoadImg("./sprites/knight/knightStabLeft.png")
+	knightSpriteStabRight = utClient.LoadImage("./sprites/knight/knightStabRight.png")
+	knightSpriteStabLeft = utClient.LoadImage("./sprites/knight/knightStabLeft.png")
 
-	knightSpriteKBRight = ut.LoadImg("./sprites/knight/knightKnockBackRight.png")
-	knightSpriteKBLeft = ut.LoadImg("./sprites/knight/knightKnockBackLeft.png")
+	knightSpriteKBRight = utClient.LoadImage("./sprites/knight/knightKnockBackRight.png")
+	knightSpriteKBLeft = utClient.LoadImage("./sprites/knight/knightKnockBackLeft.png")
 
-	knightSpriteDashSlashMVLeft = ut.LoadImg("./sprites/knight/knightDashSlashMovementLeft.png")
-	knightSpriteDashSlashMVRight = ut.LoadImg("./sprites/knight/knightDashSlashMovementRight.png")
+	knightSpriteDashSlashMVLeft = utClient.LoadImage("./sprites/knight/knightDashSlashMovementLeft.png")
+	knightSpriteDashSlashMVRight = utClient.LoadImage("./sprites/knight/knightDashSlashMovementRight.png")
 
-	knightSpriteDashSlashWULeft = ut.LoadImg("./sprites/knight/knightDashSlashWindupLeft.png")
-	knightSpriteDashSlashWURight = ut.LoadImg("./sprites/knight/knightDashSlashWindupRight.png")
+	knightSpriteDashSlashWULeft = utClient.LoadImage("./sprites/knight/knightDashSlashWindupLeft.png")
+	knightSpriteDashSlashWURight = utClient.LoadImage("./sprites/knight/knightDashSlashWindupRight.png")
 
-	knightSpriteDashSlashLeft = ut.LoadImg("./sprites/knight/knightDashSlashLeft.png")
-	knightSpriteDashSlashRight = ut.LoadImg("./sprites/knight/knightDashSlashRight.png")
+	knightSpriteDashSlashLeft = utClient.LoadImage("./sprites/knight/knightDashSlashLeft.png")
+	knightSpriteDashSlashRight = utClient.LoadImage("./sprites/knight/knightDashSlashRight.png")
 
-	knightSpriteQuickSlashRight = ut.LoadImg("./sprites/knight/knightQuickSlashRight.png")
-	knightSpriteQuickSlashLeft = ut.LoadImg("./sprites/knight/knightQuickSlashLeft.png")
+	knightSpriteQuickSlashRight = utClient.LoadImage("./sprites/knight/knightQuickSlashRight.png")
+	knightSpriteQuickSlashLeft = utClient.LoadImage("./sprites/knight/knightQuickSlashLeft.png")
 
-	knightSpriteSlideRight = ut.LoadImg("./sprites/knight/knightSlideRight.png")
-	knightSpriteSlideLeft = ut.LoadImg("./sprites/knight/knightSlideLeft.png")
+	knightSpriteSlideRight = utClient.LoadImage("./sprites/knight/knightSlideRight.png")
+	knightSpriteSlideLeft = utClient.LoadImage("./sprites/knight/knightSlideLeft.png")
 
-	knightSpriteQuickSlashWindupLeft = ut.LoadImg("./sprites/knight/knightQuickSlashWindupLeft.png")
-	knightSpriteQuickSlashWindupRight = ut.LoadImg("./sprites/knight/knightQuickSlashWindupRight.png")
+	knightSpriteQuickSlashWindupLeft = utClient.LoadImage("./sprites/knight/knightQuickSlashWindupLeft.png")
+	knightSpriteQuickSlashWindupRight = utClient.LoadImage("./sprites/knight/knightQuickSlashWindupRight.png")
 
-	knightSpriteDeathRight = ut.LoadImg("./sprites/knight/knightDeathRight.png")
-	knightSpriteDeathLeft = ut.LoadImg("./sprites/knight/knightDeathLeft.png")
+	knightSpriteDeathRight = utClient.LoadImage("./sprites/knight/knightDeathRight.png")
+	knightSpriteDeathLeft = utClient.LoadImage("./sprites/knight/knightDeathLeft.png")
 }
 
 func InitKnight() *Role {

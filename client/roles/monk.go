@@ -2,8 +2,8 @@ package roles
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	utClient "github.com/kainn9/grpc_game/client_util"
 	sr "github.com/kainn9/grpc_game/server/roles"
-	ut "github.com/kainn9/grpc_game/util"
 )
 
 /*
@@ -44,29 +44,29 @@ var (
 Loads the default player sprites
 */
 func LoadMonkSprites() {
-	monkSpriteIdleLeft = ut.LoadImg("./sprites/monk/monkIdleLeft.png")
-	monkSpriteIdleRight = ut.LoadImg("./sprites/monk/monkIdleRight.png")
+	monkSpriteIdleLeft = utClient.LoadImage("./sprites/monk/monkIdleLeft.png")
+	monkSpriteIdleRight = utClient.LoadImage("./sprites/monk/monkIdleRight.png")
 
-	monkSpriteWalkingRight = ut.LoadImg("./sprites/monk/monkRunningRight.png")
-	monkSpriteWalkingLeft = ut.LoadImg("./sprites/monk/monkRunningLeft.png")
+	monkSpriteWalkingRight = utClient.LoadImage("./sprites/monk/monkRunningRight.png")
+	monkSpriteWalkingLeft = utClient.LoadImage("./sprites/monk/monkRunningLeft.png")
 
-	monkSpriteJumpLeft = ut.LoadImg("./sprites/monk/monkJumpLeft.png")
-	monkSpriteJumpRight = ut.LoadImg("./sprites/monk/monkJumpRight.png")
+	monkSpriteJumpLeft = utClient.LoadImage("./sprites/monk/monkJumpLeft.png")
+	monkSpriteJumpRight = utClient.LoadImage("./sprites/monk/monkJumpRight.png")
 
-	monkDefenseRight = ut.LoadImg("./sprites/monk/monkDefenseRight.png")
-	monkDefenseLeft = ut.LoadImg("./sprites/monk/monkDefenseLeft.png")
+	monkDefenseRight = utClient.LoadImage("./sprites/monk/monkDefenseRight.png")
+	monkDefenseLeft = utClient.LoadImage("./sprites/monk/monkDefenseLeft.png")
 
-	monkSpriteKBRight = ut.LoadImg("./sprites/monk/monkKnockBackRight.png")
-	monkSpriteKBLeft = ut.LoadImg("./sprites/monk/monkKnockBackLeft.png")
+	monkSpriteKBRight = utClient.LoadImage("./sprites/monk/monkKnockBackRight.png")
+	monkSpriteKBLeft = utClient.LoadImage("./sprites/monk/monkKnockBackLeft.png")
 
-	monkSpriteSmashAtkRight = ut.LoadImg("./sprites/monk/monkSmashAttackRight.png")
-	monkSpriteSmashAtkLeft = ut.LoadImg("./sprites/monk/monkSmashAttackLeft.png")
+	monkSpriteSmashAtkRight = utClient.LoadImage("./sprites/monk/monkSmashAttackRight.png")
+	monkSpriteSmashAtkLeft = utClient.LoadImage("./sprites/monk/monkSmashAttackLeft.png")
 
-	monkSpriteEarthFistSmashRight = ut.LoadImg("./sprites/monk/monkEarthFistSmashRight.png")
-	monkSpriteEarthFistSmashLeft = ut.LoadImg("./sprites/monk/monkEarthFistSmashLeft.png")
+	monkSpriteEarthFistSmashRight = utClient.LoadImage("./sprites/monk/monkEarthFistSmashRight.png")
+	monkSpriteEarthFistSmashLeft = utClient.LoadImage("./sprites/monk/monkEarthFistSmashLeft.png")
 
-	monkSpriteDeathRight = ut.LoadImg("./sprites/monk/monkDeathRight.png")
-	monkSpriteDeathLeft = ut.LoadImg("./sprites/monk/monkDeathLeft.png")
+	monkSpriteDeathRight = utClient.LoadImage("./sprites/monk/monkDeathRight.png")
+	monkSpriteDeathLeft = utClient.LoadImage("./sprites/monk/monkDeathLeft.png")
 }
 
 func InitMonk() *Role {

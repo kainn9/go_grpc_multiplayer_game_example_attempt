@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.4.16
 	github.com/solarlune/resolv v0.6.0
-	github.com/tanema/gween v0.0.0-20221212145351-621cc8a459d1
 	golang.org/x/image v0.3.0
 	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1
@@ -23,7 +22,6 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hajimehoshi/file2byteslice v0.0.0-20210813153925-5340248a8f41 // indirect
 	github.com/jezek/xgb v1.0.1 // indirect
-	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/kvartborg/vector v0.1.2 // indirect
 	github.com/melonfunction/ebiten-camera v0.0.0-20220812153034-695003d18a6d
 	github.com/pborman/uuid v1.2.1

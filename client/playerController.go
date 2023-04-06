@@ -8,9 +8,9 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	utClient "github.com/kainn9/grpc_game/client_util"
 	pb "github.com/kainn9/grpc_game/proto"
 	sr "github.com/kainn9/grpc_game/server/roles"
-	ut "github.com/kainn9/grpc_game/util"
 	camera "github.com/melonfunction/ebiten-camera"
 	"github.com/pborman/uuid"
 	"google.golang.org/grpc"
@@ -352,8 +352,8 @@ func (pc *PlayerController) SetCameraPosition() {
 		ny := y - yOff
 		nx := (ScreenWidth / 2) - x
 
-		nx = ut.CamLerp(pc.playerCam.X, nx)
-		ny = ut.CamLerp(pc.playerCam.Y, ny)
+		nx = utClient.CamLerp(pc.playerCam.X, nx)
+		ny = utClient.CamLerp(pc.playerCam.Y, ny)
 
 		pc.playerCam.SetPosition(nx, ny)
 
@@ -362,8 +362,8 @@ func (pc *PlayerController) SetCameraPosition() {
 		nx := (ScreenWidth / 2) - x
 		ny := (ScreenHeight / 2) - y
 
-		nx = ut.CamLerp(pc.playerCam.X, nx)
-		ny = ut.CamLerp(pc.playerCam.Y, ny)
+		nx = utClient.CamLerp(pc.playerCam.X, nx)
+		ny = utClient.CamLerp(pc.playerCam.Y, ny)
 
 		pc.playerCam.SetPosition(nx, ny)
 
@@ -374,8 +374,8 @@ func (pc *PlayerController) SetCameraPosition() {
 		nx := x - ((ScreenWidth / 2) - (gw - pc.x))
 		ny := y - yOff
 
-		nx = ut.CamLerp(pc.playerCam.X, nx)
-		ny = ut.CamLerp(pc.playerCam.Y, ny)
+		nx = utClient.CamLerp(pc.playerCam.X, nx)
+		ny = utClient.CamLerp(pc.playerCam.Y, ny)
 
 		pc.playerCam.SetPosition(nx, ny)
 
@@ -384,8 +384,8 @@ func (pc *PlayerController) SetCameraPosition() {
 		nx := x - ((ScreenWidth / 2) - (gw - pc.x))
 		ny := (ScreenHeight / 2) - y
 
-		nx = ut.CamLerp(pc.playerCam.X, nx)
-		ny = ut.CamLerp(pc.playerCam.Y, ny)
+		nx = utClient.CamLerp(pc.playerCam.X, nx)
+		ny = utClient.CamLerp(pc.playerCam.Y, ny)
 
 		pc.playerCam.SetPosition(nx, ny)
 
@@ -393,8 +393,8 @@ func (pc *PlayerController) SetCameraPosition() {
 
 		nx := (ScreenWidth / 2) - x
 
-		nx = ut.CamLerp(pc.playerCam.X, nx)
-		ny := ut.CamLerp(pc.playerCam.Y, y)
+		nx = utClient.CamLerp(pc.playerCam.X, nx)
+		ny := utClient.CamLerp(pc.playerCam.Y, y)
 
 		pc.playerCam.SetPosition(nx, ny)
 
@@ -402,8 +402,8 @@ func (pc *PlayerController) SetCameraPosition() {
 
 		nx := x - ((ScreenWidth / 2) - (gw - pc.x))
 
-		nx = ut.CamLerp(pc.playerCam.X, nx)
-		ny := ut.CamLerp(pc.playerCam.Y, y)
+		nx = utClient.CamLerp(pc.playerCam.X, nx)
+		ny := utClient.CamLerp(pc.playerCam.Y, y)
 
 		pc.playerCam.SetPosition(nx, ny)
 
@@ -413,8 +413,8 @@ func (pc *PlayerController) SetCameraPosition() {
 
 		ny := y - yOff
 
-		nx := ut.CamLerp(pc.playerCam.X, x)
-		ny = ut.CamLerp(pc.playerCam.Y, ny)
+		nx := utClient.CamLerp(pc.playerCam.X, x)
+		ny = utClient.CamLerp(pc.playerCam.Y, ny)
 
 		pc.playerCam.SetPosition(nx, ny)
 
@@ -422,14 +422,14 @@ func (pc *PlayerController) SetCameraPosition() {
 
 		ny := (ScreenHeight / 2) - y
 
-		nx := ut.CamLerp(pc.playerCam.X, x)
-		ny = ut.CamLerp(pc.playerCam.Y, ny)
+		nx := utClient.CamLerp(pc.playerCam.X, x)
+		ny = utClient.CamLerp(pc.playerCam.Y, ny)
 
 		pc.playerCam.SetPosition(nx, ny)
 
 	} else {
-		nx := ut.CamLerp(pc.playerCam.X, x)
-		ny := ut.CamLerp(pc.playerCam.Y, y)
+		nx := utClient.CamLerp(pc.playerCam.X, x)
+		ny := utClient.CamLerp(pc.playerCam.Y, y)
 
 		pc.playerCam.SetPosition(nx, ny)
 

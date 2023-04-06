@@ -9,7 +9,7 @@ func WerewolfAttacks() map[AtKey]*AttackData {
 	atks = werewolfPrimaryAtk(atks)
 	atks = werewolfSecondaryAtk(atks)
 	atks = werewolfTertAtk(atks)
-	atks[QuaternaryAttackKey] = atks[TertAttackKey]
+	atks[QuaternaryAttackKey] = atks[PrimaryAttackKey]
 
 	return atks
 }
@@ -21,7 +21,7 @@ func InitWerewolf() *Role {
 		Attacks:  WerewolfAttacks(),
 		HitBoxW:  30,
 		HitBoxH:  50,
-		Health:   125,
+		Health:   240,
 
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,
@@ -65,7 +65,6 @@ func werewolfPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	path = path.appendHboxAgg(56, -8, 18, 20, 3)
 	path = path.appendHboxAgg(46, 20, 10, 20, 3)
 
-
 	// frame 4
 	path = path.appendHboxAgg(56, -8, 18, 20, 4)
 	path = path.appendHboxAgg(46, 20, 10, 20, 4)
@@ -77,7 +76,6 @@ func werewolfPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	// frame 6
 	path = path.appendHboxAgg(56, 16, 20, 26, 6)
 	path.appendHboxAgg(39, 20, 20, 20, 6)
-
 
 	// frame 7 no hitboxes
 
@@ -93,9 +91,7 @@ func werewolfSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Type: SecondaryAttackKey,
 		Consequence: &Consequence{
 			Damage:             65,
-			KnockbackX:         6,
 			KnockbackY:         1,
-			KnockbackXDuration: 1600,
 			KnockbackYDuration: 500,
 		},
 	}
@@ -122,13 +118,11 @@ func werewolfSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	// frame 7
 	path.appendHboxAgg(18, 20, 26, 80, 7)
 
-
 	// frame 8 - 10 no hitboxes
 
 	atks[SecondaryAttackKey].HitBoxSequence = atkSeq
 	return atks
 }
-
 
 func werewolfTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	windup := &Windup{
@@ -136,8 +130,8 @@ func werewolfTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	}
 
 	movement := &Movement{
-		Distance:       800,
-		SpeedX:         16,
+		Distance: 800,
+		SpeedX:   16,
 	}
 
 	atks[TertAttackKey] = &AttackData{
@@ -182,7 +176,6 @@ func werewolfTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	// frame 5
 	path = path.appendHboxAgg(35, 0, 32, 35, 5)
 
-
 	// frame 6
 	path = path.appendHboxAgg(35, 0, 32, 38, 6)
 
@@ -200,7 +193,6 @@ func werewolfTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	// frame 10
 	path = path.appendHboxAgg(25, 10, 20, 43, 10)
 	path = path.appendHboxAgg(25, 20, 20, 28, 10)
-
 
 	// frame 11
 	path = path.appendHboxAgg(45, 0, 40, 34, 12)

@@ -137,7 +137,12 @@ func landOfYohoPassageTwoBuilder(world *world, gw float64, gh float64) {
 
 func landOfYohoVillageBuilder(world *world, gw float64, gh float64) {
 	portalBack := resolv.NewObject(gw-16, 0, 18, gh, "portal")
+
+	portalToNoWater := resolv.NewObject(16, 452, 45, 45, "portal")
+
 	initPortal(portalBack, 4, 104, 292)
+
+	initPortal(portalToNoWater, 2, 2675, 2500)
 
 	world.space.Add(
 		// left
@@ -146,16 +151,22 @@ func landOfYohoVillageBuilder(world *world, gw float64, gh float64) {
 		// floor
 		resolv.NewObject(0, 502, 3400, 300, "solid"),
 
-		// castleZone Sub Solid
-		resolv.NewObject(0, 395, 421, 300, "solid"),
+		// castleZone Sub plat and blocker
+		resolv.NewObject(0, 395, 421, 10, "platform"),
+
+		resolv.NewObject(400, 395, 10, 300, "solid"),
 
 		// castleZone Plat
 		resolv.NewObject(0, 350, 1160, 5, "platform"),
 		portalBack,
+		portalToNoWater,
 	)
+
 }
 
 func mainWorldBuilder(world *world, gw float64, gh float64) {
+	introPortal := resolv.NewObject(2303, 90, 50, 50, "portal")
+	initPortal(introPortal, 0, 80, 690)
 
 	world.space.Add(
 
@@ -188,15 +199,18 @@ func mainWorldBuilder(world *world, gw float64, gh float64) {
 
 		// floating rock top right
 		resolv.NewObject(2496, 100, 158, 5, "platform"),
+		introPortal,
 	)
 }
 
 func altWorldBuilder(world *world, gw float64, gh float64) {
-	world.space.Add(
+	dezPortal := resolv.NewObject(1878, 770, 60, 50, "portal")
+	initPortal(dezPortal, 1, 581, 500)
 
-		// left bounds
+	world.space.Add(
+		// left
 		resolv.NewObject(0, 0, 16, gh, "bounds"),
-		// right bounds
+		// right
 		resolv.NewObject(gw-16, 0, 16, gh, "bounds"),
 
 		// Village Plat
@@ -282,10 +296,7 @@ func altWorldBuilder(world *world, gw float64, gh float64) {
 		// castle floating plats
 		resolv.NewObject(2093, 2484, 70, 10, "platform"),
 		resolv.NewObject(2196, 2466, 30, 10, "platform"),
-		resolv.NewObject(2400, 2450, 63, 10, "platform"),
-		resolv.NewObject(2516, 2448, 63, 10, "platform"),
-		resolv.NewObject(2611, 2428, 63, 10, "platform"),
-		resolv.NewObject(2293, 2453, 63, 10, "platform"),
+		resolv.NewObject(2613, 2624, 115, 10, "platform"),
 
 		// sky-town wallStalk and floaters
 		resolv.NewObject(1278, 811, 54, 10, "platform"),
@@ -310,5 +321,8 @@ func altWorldBuilder(world *world, gw float64, gh float64) {
 		resolv.NewObject(0, 2848, 80, 10, "platform"),
 		resolv.NewObject(143, 2760, 160, 10, "platform"),
 		resolv.NewObject(152, 2668, 50, 10, "platform"),
+
+		// portal to dez land
+		dezPortal,
 	)
 }

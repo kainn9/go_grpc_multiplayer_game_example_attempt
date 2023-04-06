@@ -13,6 +13,8 @@ type serverConfigStruct struct {
 	worldsMap     map[int]*world
 	activePlayers map[string]*player
 	roles         map[r.PlayerType]int32
+	startingWorld *world
+	randomSpawn   bool
 }
 
 // worldsStruct holds world objects.
@@ -26,12 +28,12 @@ type worldsStruct struct {
 }
 
 var worlds = worldsStruct{
-	worldOne:             newWorld(848, 1600, introWorldBuilder, "introZone", 22, 600),
-	worldTwo:             newWorld(848, 3200, mainWorldBuilder, "desert passage", 612, 500),
-	worldThree:           newWorld(4000, 6000, altWorldBuilder, "land of poisoned water", 1250, 3700),
-	landOfYohoPassageOne: newWorld(480, 960, landOfYohoPassageOneBuilder, "land of yoho passage one", 100, 100),
-	landOfYohoPassageTwo: newWorld(756, 1100, landOfYohoPassageTwoBuilder, "land of yoho passage two", 100, 100),
-	landOfYohoVillage:    newWorld(6000, 3278, landOfYohoVillageBuilder, "land of yoho village", 100, 100),
+	worldOne:             newWorld(848, 1600, introWorldBuilder, "introZone", 564, 418),
+	worldTwo:             newWorld(848, 3200, mainWorldBuilder, "desert passage", 1658, 500),
+	worldThree:           newWorld(4000, 6000, altWorldBuilder, "land of poisoned water", 1298, 672),
+	landOfYohoPassageOne: newWorld(480, 960, landOfYohoPassageOneBuilder, "land of yoho passage one", 430, 131),
+	landOfYohoPassageTwo: newWorld(756, 1100, landOfYohoPassageTwoBuilder, "land of yoho passage two", 426, 488),
+	landOfYohoVillage:    newWorld(6000, 3278, landOfYohoVillageBuilder, "land of yoho village", 1819, 153),
 }
 
 var serverConfig = serverConfigStruct{
@@ -40,6 +42,7 @@ var serverConfig = serverConfigStruct{
 	activePlayers: make(map[string]*player),
 	mutex:         sync.RWMutex{},
 	roles:         make(map[r.PlayerType]int32),
+	randomSpawn:   false,
 }
 
 // initializer sets up initial configuration for the game.
@@ -64,6 +67,9 @@ func initializer() {
 
 	serverConfig.worldsMap[5] = worlds.landOfYohoVillage
 	worlds.landOfYohoVillage.index = 5
+
+	// intro world
+	serverConfig.startingWorld = worlds.worldOne
 
 	// set up roles
 	serverConfig.roles[r.Knight.RoleType] = 0

@@ -1,0 +1,36 @@
+name: Build and Upload Go Client macOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.19
+
+      - name: Install dependencies
+        run: |
+          brew install libsndfile
+          brew install openal-soft
+
+      - name: Install Go packages
+        run: go mod tidy && go mod download
+
+      - name: Build binary
+        run: |
+          export GOOS=darwin
+          export GOARCH=amd64
+          ADDR=${{ vars.ADDR }} go build -ldflags "-X github.com/kainn9/grpc_game/client_util.BuildTime=true" -o bin/application ./client && cp -R ./client/sprites ./bin && cp -R ./client/backgrounds ./bin && cp -R ./client/audio ./bin && chmod +x ./bin/application
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: application
+          path: bin

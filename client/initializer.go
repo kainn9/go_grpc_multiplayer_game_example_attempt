@@ -2,12 +2,13 @@ package main
 
 // TODO move these out of Global Scope and into "config" structs
 import (
+	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	r "github.com/kainn9/grpc_game/client/roles"
-	ut "github.com/kainn9/grpc_game/util"
+	utClient "github.com/kainn9/grpc_game/client_util"
 	"google.golang.org/grpc"
 )
 
@@ -64,12 +65,18 @@ var wBgHelper *worldBackgrounds
 var fixedAnims map[string]*fixedAnimTracker
 
 func initClient() {
+	addr := os.Getenv("ADDR")
+
+	if addr == "" {
+		addr = "localhost"
+	}
+
 	clientConfig = &gameSettings{
 		screenWidth:  880,
 		screenHeight: 480,
 		streamInit:   false,
 		worldsMap:    make(map[int]worldData),
-		addr:         "localhost:50051",
+		addr:         addr + ":50051",
 		fullScreen:   false,
 		enablePPROF:  false,
 		showHelp:     true,
@@ -83,8 +90,8 @@ func initClient() {
 	clientConfig.roles[4] = r.InitMage()
 
 	devConfig = &devSettings{
-		rulerW:         ut.LoadImg("./sprites/rulers/wRuler.png"),
-		rulerH:         ut.LoadImg("./sprites/rulers/hRuler.png"),
+		rulerW:         utClient.LoadImage("./sprites/rulers/wRuler.png"),
+		rulerH:         utClient.LoadImage("./sprites/rulers/hRuler.png"),
 		devPreview:     false,
 		useHeightRuler: false,
 		devCamSpeed:    float64(2),
@@ -94,12 +101,12 @@ func initClient() {
 	}
 
 	wBgHelper = &worldBackgrounds{
-		worldOne:             ut.LoadImg("./backgrounds/worldOne.png"),
-		worldTwo:             ut.LoadImg("./backgrounds/worldTwo.png"),
-		worldThree:           ut.LoadImg("./backgrounds/worldThree.png"),
-		landOfYohoPassageOne: ut.LoadImg("./backgrounds/landOfYoho/landOfYohoPassageOne.png"),
-		landOfYohoPassageTwo: ut.LoadImg("./backgrounds/landOfYoho/landOfYohoPassageTwo.png"),
-		landOfYohoVillage:    ut.LoadImg("./backgrounds/landOfYoho/landOfYohoVillage.png"),
+		worldOne:             utClient.LoadImage("./backgrounds/worldOne.png"),
+		worldTwo:             utClient.LoadImage("./backgrounds/worldTwo.png"),
+		worldThree:           utClient.LoadImage("./backgrounds/worldThree.png"),
+		landOfYohoPassageOne: utClient.LoadImage("./backgrounds/landOfYoho/landOfYohoPassageOne.png"),
+		landOfYohoPassageTwo: utClient.LoadImage("./backgrounds/landOfYoho/landOfYohoPassageTwo.png"),
+		landOfYohoVillage:    utClient.LoadImage("./backgrounds/landOfYoho/landOfYohoVillage.png"),
 	}
 
 	clientConfig.worldsMap[0] = *NewWorldData(848, 1600, wBgHelper.worldOne)

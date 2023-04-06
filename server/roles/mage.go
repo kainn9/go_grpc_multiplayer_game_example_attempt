@@ -34,7 +34,7 @@ func InitMage() *Role {
 		HitBoxW:  16,
 		HitBoxH:  44,
 		Defense:  d,
-		Health:   85,
+		Health:   215,
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,
 			DefaultMaxSpeed: 5.0,
@@ -191,8 +191,8 @@ func mageTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 			Damage:             1,
 			KnockbackX:         0.1,
 			KnockbackY:         0.1,
-			KnockbackXDuration: 4000,
-			KnockbackYDuration: 4000,
+			KnockbackXDuration: 2000,
+			KnockbackYDuration: 2000,
 		},
 	}
 

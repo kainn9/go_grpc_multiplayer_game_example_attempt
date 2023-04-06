@@ -7,6 +7,7 @@ import (
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
+	u "github.com/kainn9/grpc_game/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -63,7 +64,12 @@ func currentPlayerWorld(pid string) (world *world, worldKey int) {
 	w, k, err := locateFromPID(pid)
 
 	if err != nil {
-		return serverConfig.worldsMap[0], 0
+		if serverConfig.randomSpawn {
+			wKey := int(u.RandomInt(int64(len(serverConfig.worldsMap))))
+			return serverConfig.worldsMap[wKey], wKey
+		}
+
+		return serverConfig.startingWorld, serverConfig.startingWorld.index
 	}
 	return w, k
 }
@@ -181,6 +187,9 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 	for k := range w.players {
 		curr := w.players[k]
 
+		if curr == nil || curr.object == nil {
+			continue
+		}
 		jumping := curr.onGround == nil && curr.wallSliding == nil
 
 		currAtk := ""
