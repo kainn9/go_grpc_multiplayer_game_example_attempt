@@ -6,13 +6,12 @@ import (
 	"io"
 	"log"
 	"math"
-	"math/rand"
-	"time"
-
 	_ "net/http/pprof"
+	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
 	sr "github.com/kainn9/grpc_game/server/roles"
+	ut "github.com/kainn9/grpc_game/util"
 	"github.com/pborman/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -44,12 +43,6 @@ var (
 	}
 )
 
-// returns random number from 0 -> n - 1
-func randomInt(n int64) int64 {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return r.Int63n(n)
-}
-
 // only goes up to 10 as counter caps at 599 ticks(starts at 0)
 func secondsPassed(seconds int) bool {
 	mod := seconds * 60
@@ -73,7 +66,7 @@ func (*yoloBot) sendCurrentInput() {
 func sendRandomMovementEvent() {
 
 	if secondsPassed(3) {
-		bot.leftOrRight = randomInt(2)
+		bot.leftOrRight = ut.RandomInt(2)
 	}
 
 	// change req
@@ -91,7 +84,7 @@ func sendRandomJumpEvent() {
 		return
 	}
 
-	jumpMaybe := randomInt(4)
+	jumpMaybe := ut.RandomInt(4)
 
 	if jumpMaybe == 0 {
 		bot.inputQueue = append(bot.inputQueue, "keySpace")
@@ -112,10 +105,10 @@ func sendRandomAttackEvent() {
 	attacks[2] = sr.TertAttackKey
 	attacks[3] = sr.QuaternaryAttackKey
 
-	attackMaybe := randomInt(3)
+	attackMaybe := ut.RandomInt(3)
 
 	if attackMaybe == 0 {
-		atKey := int(randomInt(4))
+		atKey := int(ut.RandomInt(4))
 		bot.inputQueue = append(bot.inputQueue, string(attacks[atKey]))
 	}
 
@@ -127,7 +120,7 @@ func sendRandomDefenseEvent() {
 		return
 	}
 
-	defMaybe := randomInt(2)
+	defMaybe := ut.RandomInt(2)
 
 	if defMaybe == 0 {
 		bot.inputQueue = append(bot.inputQueue, "defense")

@@ -14,6 +14,7 @@ type serverConfigStruct struct {
 	activePlayers map[string]*player
 	roles         map[r.PlayerType]int32
 	startingWorld *world
+	randomSpawn   bool
 }
 
 // worldsStruct holds world objects.
@@ -41,6 +42,7 @@ var serverConfig = serverConfigStruct{
 	activePlayers: make(map[string]*player),
 	mutex:         sync.RWMutex{},
 	roles:         make(map[r.PlayerType]int32),
+	randomSpawn:   false,
 }
 
 // initializer sets up initial configuration for the game.
@@ -66,7 +68,8 @@ func initializer() {
 	serverConfig.worldsMap[5] = worlds.landOfYohoVillage
 	worlds.landOfYohoVillage.index = 5
 
-	serverConfig.startingWorld = worlds.landOfYohoVillage
+	// intro world
+	serverConfig.startingWorld = worlds.worldOne
 
 	// set up roles
 	serverConfig.roles[r.Knight.RoleType] = 0

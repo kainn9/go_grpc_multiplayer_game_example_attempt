@@ -33,7 +33,7 @@ func InitKnight() *Role {
 		HitBoxW:  16,
 		HitBoxH:  44,
 		Defense:  d,
-		Health:   150,
+		Health:   280,
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,
 			DefaultMaxSpeed: 4.0,
@@ -149,6 +149,7 @@ func knightTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 			MultFactorDmg:      3,
 			MultFactorKbxSpeed: 1.5,
 			MultFactorKbxDur:   333,
+			MultFactorKbyDur:   333,
 			TimeLimit:          10,
 		},
 	}
@@ -168,9 +169,9 @@ func knightTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Consequence: &Consequence{
 			Damage:             10,
 			KnockbackX:         6,
-			KnockbackY:         6,
+			KnockbackY:         3,
 			KnockbackXDuration: 500,
-			KnockbackYDuration: 150,
+			KnockbackYDuration: 80,
 
 			UseChargeKbxDuration: true,
 			UseChargeDmg:         true,

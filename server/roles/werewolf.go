@@ -21,7 +21,7 @@ func InitWerewolf() *Role {
 		Attacks:  WerewolfAttacks(),
 		HitBoxW:  30,
 		HitBoxH:  50,
-		Health:   125,
+		Health:   240,
 
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,
@@ -91,9 +91,7 @@ func werewolfSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Type: SecondaryAttackKey,
 		Consequence: &Consequence{
 			Damage:             65,
-			KnockbackX:         6,
 			KnockbackY:         1,
-			KnockbackXDuration: 1600,
 			KnockbackYDuration: 500,
 		},
 	}

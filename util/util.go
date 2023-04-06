@@ -3,9 +3,11 @@ package util
 import (
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -66,3 +68,8 @@ func CamLerp(a float64, b float64) float64 {
 	return a*(1-t) + b*t
 }
 
+// returns random number from 0 -> n - 1
+func RandomInt(n int64) int64 {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return r.Int63n(n)
+}

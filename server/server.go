@@ -7,6 +7,7 @@ import (
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
+	ut "github.com/kainn9/grpc_game/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -63,6 +64,11 @@ func currentPlayerWorld(pid string) (world *world, worldKey int) {
 	w, k, err := locateFromPID(pid)
 
 	if err != nil {
+		if serverConfig.randomSpawn {
+			wKey := int(ut.RandomInt(int64(len(serverConfig.worldsMap))))
+			return serverConfig.worldsMap[wKey], wKey
+		}
+
 		return serverConfig.startingWorld, serverConfig.startingWorld.index
 	}
 	return w, k

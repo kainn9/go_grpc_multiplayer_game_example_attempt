@@ -34,7 +34,7 @@ func InitMage() *Role {
 		HitBoxW:  16,
 		HitBoxH:  44,
 		Defense:  d,
-		Health:   85,
+		Health:   215,
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,
 			DefaultMaxSpeed: 5.0,
