@@ -17,6 +17,7 @@ type AttackData struct {
 	Name     AtKey
 	Duration int
 	Type     AtKey
+	FixedKby bool
 	*Windup
 	*Movement
 	*Consequence
@@ -104,11 +105,12 @@ type RolePhysStruct struct {
 }
 
 const (
-	KnightType   PlayerType = "knight"
-	MageType     PlayerType = "mage"
-	MonkType     PlayerType = "monk"
-	DemonType    PlayerType = "demon"
-	WerewolfType PlayerType = "werewolf"
+	KnightType      PlayerType = "knight"
+	MageType        PlayerType = "mage"
+	MonkType        PlayerType = "monk"
+	DemonType       PlayerType = "demon"
+	WerewolfType    PlayerType = "werewolf"
+	HeavyKnightType PlayerType = "heavyKnight"
 )
 
 type AtKey string

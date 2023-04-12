@@ -1,6 +1,9 @@
 package roles
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+	sr "github.com/kainn9/grpc_game/server/roles"
+)
 
 /*
 	Root file for roles(player classes i.e., mage, knight, etc)
@@ -8,13 +11,17 @@ import "github.com/hajimehoshi/ebiten/v2"
 	TODO: Questionable if this should be its own
 	package(creates scope issues)
 */
-type PlayerType string
 
 type Role struct {
-	RoleType      PlayerType
-	Animations    map[string]*Animation
-	HitBoxOffsetX float64
-	HitBoxOffsetY float64
+	RoleType           sr.PlayerType
+	Animations         map[string]*Animation
+	HitBoxOffsetX      float64
+	HitBoxOffsetY      float64
+	Health             int
+	HitBoxW            float64
+	HitBoxH            float64
+	HealthBarOffset    *Offset
+	StatusEffectOffset *Offset
 }
 
 type Animation struct {
@@ -30,15 +37,12 @@ type Animation struct {
 	PosOffsetY  float64
 }
 
-const (
-	KnightType   PlayerType = "knight"
-	MageType     PlayerType = "mage"
-	MonkType     PlayerType = "monk"
-	DemonType    PlayerType = "demon"
-	WerewolfType PlayerType = "werewolf"
-)
-
 type AnimKey string
+
+type Offset struct {
+	X float64
+	Y float64
+}
 
 const (
 	DeathRight   AnimKey = "deathRight"
@@ -49,8 +53,12 @@ const (
 	WalkLeft     AnimKey = "walkLeft"
 	JumpLeft     AnimKey = "jumpLeft"
 	JumpRight    AnimKey = "jumpRight"
-	KbRight      AnimKey = "KbRight"
-	KbLeft       AnimKey = "KbLeft"
+	KbRight      AnimKey = "kbRight"
+	KbLeft       AnimKey = "kbLeft"
+	HitRight     AnimKey = "hitRight"
+	HitLeft      AnimKey = "hitLeft"
+	StunRight    AnimKey = "stunRight"
+	StunLeft     AnimKey = "stunLeft"
 	DefenseRight AnimKey = "defenseRight"
 	DefenseLeft  AnimKey = "defenseLeft"
 )

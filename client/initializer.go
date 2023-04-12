@@ -17,20 +17,21 @@ import (
 */
 
 type gameSettings struct {
-	screenWidth  int
-	screenHeight int
-	streamInit   bool
-	ticks        int
-	worldsMap    map[int]worldData
-	game         *Game
-	addr         string
-	fullScreen   bool
-	enablePPROF  bool
-	connRef      *grpc.ClientConn
-	audPlayer    *audio.Player
-	volume128    int
-	showHelp     bool
-	roles        map[int32]*r.Role
+	screenWidth      int
+	screenHeight     int
+	streamInit       bool
+	ticks            int
+	worldsMap        map[int]worldData
+	game             *Game
+	addr             string
+	fullScreen       bool
+	enablePPROF      bool
+	connRef          *grpc.ClientConn
+	audPlayer        *audio.Player
+	volume128        int
+	showHelp         bool
+	roles            map[int32]*r.Role
+	showPlayerHitbox bool
 }
 
 type devSettings struct {
@@ -72,15 +73,16 @@ func initClient() {
 	}
 
 	clientConfig = &gameSettings{
-		screenWidth:  880,
-		screenHeight: 480,
-		streamInit:   false,
-		worldsMap:    make(map[int]worldData),
-		addr:         addr + ":50051",
-		fullScreen:   false,
-		enablePPROF:  false,
-		showHelp:     true,
-		roles:        make(map[int32]*r.Role),
+		screenWidth:      880,
+		screenHeight:     480,
+		streamInit:       false,
+		worldsMap:        make(map[int]worldData),
+		addr:             addr + ":50051",
+		fullScreen:       false,
+		enablePPROF:      false,
+		showHelp:         true,
+		roles:            make(map[int32]*r.Role),
+		showPlayerHitbox: false,
 	}
 
 	clientConfig.roles[0] = r.InitKnight()
@@ -88,6 +90,7 @@ func initClient() {
 	clientConfig.roles[2] = r.InitDemon()
 	clientConfig.roles[3] = r.InitWerewolf()
 	clientConfig.roles[4] = r.InitMage()
+	clientConfig.roles[5] = r.InitHeavyKnight()
 
 	devConfig = &devSettings{
 		rulerW:         utClient.LoadImage("./sprites/rulers/wRuler.png"),

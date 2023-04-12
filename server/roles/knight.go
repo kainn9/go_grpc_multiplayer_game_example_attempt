@@ -1,5 +1,9 @@
 package roles
 
+import (
+	se "github.com/kainn9/grpc_game/server/statusEffects"
+)
+
 var (
 	Knight *Role = InitKnight()
 )
@@ -16,8 +20,8 @@ func KnightAttacks() map[AtKey]*AttackData {
 
 func InitKnight() *Role {
 	dm := &DefenseMovement{
-		Speed:       5.7,
-		Displacment: 75,
+		Speed:       8,
+		Displacment: 100,
 	}
 
 	d := &Defense{
@@ -51,7 +55,7 @@ func knightPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	atks[PrimaryAttackKey] = &AttackData{
 		Name: PrimaryAttackKey,
 		Consequence: &Consequence{
-			Damage:             25,
+			Damage:             38,
 			KnockbackX:         16,
 			KnockbackY:         2,
 			KnockbackXDuration: 250,
@@ -86,10 +90,10 @@ func knightSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Type: SecondaryAttackKey,
 		Consequence: &Consequence{
 			Damage:             34,
-			KnockbackX:         12,
-			KnockbackY:         4,
-			KnockbackXDuration: 120,
-			KnockbackYDuration: 60,
+			KnockbackX:         se.HitFloat,
+			KnockbackY:         se.HitFloat,
+			KnockbackXDuration: se.HitDuration,
+			KnockbackYDuration: se.HitDuration,
 		},
 	}
 
@@ -251,10 +255,10 @@ func knightQuaternaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Windup: windup,
 		Consequence: &Consequence{
 			Damage:             34,
-			KnockbackX:         12,
-			KnockbackY:         4,
-			KnockbackXDuration: 120,
-			KnockbackYDuration: 60,
+			KnockbackX:         se.StunFloat,
+			KnockbackY:         se.StunFloat,
+			KnockbackXDuration: 1300,
+			KnockbackYDuration: 1300,
 
 			UseChargeDmg: true,
 		},

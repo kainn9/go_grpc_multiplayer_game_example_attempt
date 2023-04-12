@@ -1,5 +1,7 @@
 package roles
 
+import se "github.com/kainn9/grpc_game/server/statusEffects"
+
 var (
 	Demon *Role = InitDemon()
 )
@@ -42,11 +44,11 @@ func demonPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	atks[PrimaryAttackKey] = &AttackData{
 		Name: PrimaryAttackKey,
 		Consequence: &Consequence{
-			Damage:             420,
-			KnockbackX:         0.1,
-			KnockbackY:         0.1,
-			KnockbackXDuration: 500,
-			KnockbackYDuration: 500,
+			Damage:             300,
+			KnockbackX:         se.StunFloat,
+			KnockbackY:         se.StunFloat,
+			KnockbackXDuration: 1000,
+			KnockbackYDuration: 1000,
 		},
 		Type: PrimaryAttackKey,
 	}
@@ -96,10 +98,10 @@ func demonSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Type: SecondaryAttackKey,
 		Consequence: &Consequence{
 			Damage:             100,
-			KnockbackX:         0,
-			KnockbackY:         -0.1,
-			KnockbackXDuration: 0,
-			KnockbackYDuration: 1500,
+			KnockbackX:         se.HitFloat,
+			KnockbackY:         se.HitFloat,
+			KnockbackXDuration: se.HitDuration,
+			KnockbackYDuration: se.HitDuration,
 		},
 	}
 
