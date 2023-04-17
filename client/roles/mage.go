@@ -24,6 +24,9 @@ var (
 	mageSpriteJumpLeft  *ebiten.Image
 	mageSpriteJumpRight *ebiten.Image
 
+	mageSpriteHitRight *ebiten.Image
+	mageSpriteHitLeft  *ebiten.Image
+
 	mageSpriteKBRight *ebiten.Image
 	mageSpriteKBLeft  *ebiten.Image
 
@@ -56,6 +59,9 @@ func LoadMageSprites() {
 	mageSpriteJumpLeft = utClient.LoadImage("./sprites/mage/mageJumpLeft.png")
 	mageSpriteJumpRight = utClient.LoadImage("./sprites/mage/mageJumpRight.png")
 
+	mageSpriteHitRight = utClient.LoadImage("./sprites/mage/mageHitRight.png")
+	mageSpriteHitLeft = utClient.LoadImage("./sprites/mage/mageHitRight.png")
+
 	mageSpriteKBRight = utClient.LoadImage("./sprites/mage/mageKnockBackRight.png")
 	mageSpriteKBLeft = utClient.LoadImage("./sprites/mage/mageKnockBackLeft.png")
 
@@ -80,10 +86,21 @@ func InitMage() *Role {
 	LoadMageSprites()
 
 	r := &Role{
-		RoleType:      MageType,
+		RoleType:      sr.MageType,
 		Animations:    MageAnims(),
 		HitBoxOffsetY: 52,
 		HitBoxOffsetX: 88,
+		Health:        sr.Mage.Health,
+		HitBoxW:       sr.Mage.HitBoxW,
+		HitBoxH:       sr.Mage.HitBoxH,
+		HealthBarOffset: &Offset{
+			X: 75,
+			Y: 28,
+		},
+		StatusEffectOffset: &Offset{
+			X: 75,
+			Y: 34,
+		},
 	}
 
 	return r
@@ -145,6 +162,34 @@ func MageAnims() map[string]*Animation {
 		FrameCount:  3,
 		SpriteSheet: mageSpriteJumpRight,
 	}
+
+	anims[string(HitRight)] = &Animation{
+		Name:        string(HitRight),
+		FrameOX:     0,
+		FrameOY:     0,
+		FrameWidth:  192,
+		FrameHeight: 112,
+		FrameCount:  6,
+		SpriteSheet: mageSpriteHitRight,
+		Fixed:       true,
+	}
+
+	anims[string(HitLeft)] = &Animation{
+		Name:        string(HitLeft),
+		FrameOX:     1152,
+		FrameOY:     0,
+		FrameWidth:  192,
+		FrameHeight: 112,
+		FrameCount:  6,
+		SpriteSheet: mageSpriteHitLeft,
+		Fixed:       true,
+	}
+
+	stunAnimCopyRight := *anims[string(HitRight)]
+	anims[string(StunRight)] = &stunAnimCopyRight
+
+	stunAnimCopyLeft := *anims[string(HitLeft)]
+	anims[string(StunLeft)] = &stunAnimCopyLeft
 
 	anims[string(KbRight)] = &Animation{
 		FrameOX:     0,
@@ -214,7 +259,7 @@ func MageAnims() map[string]*Animation {
 		---------------------------------------------------------------------------------
 	*/
 	anims[string(sr.PrimaryAttackKey)+"Right"] = &Animation{
-		Name:        "primaryAtkRight",
+		Name:        string(sr.PrimaryAttackKey) + "Right",
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  192,
@@ -225,7 +270,7 @@ func MageAnims() map[string]*Animation {
 	}
 
 	anims[string(sr.PrimaryAttackKey)+"Left"] = &Animation{
-		Name:        "primaryAtkleft",
+		Name:        string(sr.PrimaryAttackKey) + "Left",
 		FrameOX:     4032,
 		FrameOY:     0,
 		FrameWidth:  192,

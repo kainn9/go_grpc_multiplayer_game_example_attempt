@@ -1,5 +1,7 @@
 package roles
 
+import se "github.com/kainn9/grpc_game/server/statusEffects"
+
 var (
 	Monk *Role = InitMonk()
 )
@@ -50,11 +52,11 @@ func monkPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	atks[PrimaryAttackKey] = &AttackData{
 		Name: PrimaryAttackKey,
 		Consequence: &Consequence{
-			Damage:             15,
-			KnockbackX:         0.5,
-			KnockbackY:         0.5,
-			KnockbackXDuration: 1500,
-			KnockbackYDuration: 1500,
+			Damage:             30,
+			KnockbackX:         se.StunFloat,
+			KnockbackY:         se.StunFloat,
+			KnockbackXDuration: 1650,
+			KnockbackYDuration: 1650,
 		},
 		Type: PrimaryAttackKey,
 	}
@@ -127,11 +129,11 @@ func monkSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Name: SecondaryAttackKey,
 		Type: SecondaryAttackKey,
 		Consequence: &Consequence{
-			Damage:             15,
+			Damage:             65,
 			KnockbackX:         0,
-			KnockbackY:         -0.1,
+			KnockbackY:         4,
 			KnockbackXDuration: 0,
-			KnockbackYDuration: 1500,
+			KnockbackYDuration: 700,
 		},
 	}
 

@@ -7,6 +7,7 @@ import (
 
 	pb "github.com/kainn9/grpc_game/proto"
 	r "github.com/kainn9/grpc_game/server/roles"
+	se "github.com/kainn9/grpc_game/server/statusEffects"
 	"github.com/solarlune/resolv"
 )
 
@@ -49,19 +50,32 @@ type playerPh struct {
 	kby      float64 // The force of the knockback on the player
 }
 
-type ccString string
+// temp for new system testing
+func (cp *player) GetHealth() int {
+	return cp.health
+}
 
-const (
-	None      ccString = ""
-	KnockBack ccString = "Kb"
-)
-
-func (cp *player) isCC() ccString {
-	if cp.isKnockedBack() {
-		return KnockBack
+func (cp *player) isCC() se.CCString {
+	if cp.isHit() {
+		return se.Hit
 	}
 
-	return None
+	if cp.isStunned() {
+		return se.Stun
+	}
+
+	if cp.isKnockedBack() {
+		return se.KnockBack
+	}
+	return se.None
+}
+
+func (cp *player) isHit() bool {
+	return cp.kbx == se.HitFloat && cp.kby == se.HitFloat
+}
+
+func (cp *player) isStunned() bool {
+	return cp.kbx == se.StunFloat && cp.kby == se.StunFloat
 }
 
 func (cp *player) isKnockedBack() bool {
@@ -105,6 +119,7 @@ func newPlayer(pid string, worldKey int) *player {
 	randomRole[2] = *r.Demon
 	randomRole[3] = *r.Werewolf
 	randomRole[4] = *r.Mage
+	randomRole[5] = *r.HeavyKnight
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())

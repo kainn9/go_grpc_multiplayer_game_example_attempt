@@ -6,6 +6,7 @@ import (
 	"time"
 
 	r "github.com/kainn9/grpc_game/server/roles"
+	se "github.com/kainn9/grpc_game/server/statusEffects"
 )
 
 func (cp *player) attackedHandler() {
@@ -32,7 +33,7 @@ func (cp *player) attackedHandler() {
 			}
 
 			cp.healthHandler(attacker, atk, hitBoxData.aid)
-			cp.knockBackHandler(attacker, atk)
+			cp.applyAttackCC(attacker, atk)
 			cp.interruptWindup()
 			cp.interruptMovment()
 		}
@@ -40,11 +41,11 @@ func (cp *player) attackedHandler() {
 
 	// TODO: Should this really live here(inside the attackedHandler())?
 	if cp.isKnockedBackX() {
-		cp.speedX += cp.kbx
+		cp.speedX = cp.kbx
 	}
 
 	if cp.isKnockedBackY() {
-		cp.speedY += cp.kby
+		cp.speedY = cp.kby
 	}
 }
 
@@ -60,7 +61,7 @@ func (cp *player) healthHandler(attacker *player, atk *r.AttackData, aid string)
 
 	dmg := atk.Damage
 
-	if atk.Windup != nil && atk.ChargeEffect != nil && atk.UseChargeDmg {
+	if atk.HasChargeEffect() && atk.UseChargeDmg {
 		dmg += int(math.Round(attacker.chargeValue * atk.ChargeEffect.MultFactorDmg))
 	}
 
@@ -85,10 +86,16 @@ func (cp *player) healthHandler(attacker *player, atk *r.AttackData, aid string)
 // and currently refers to speed instead of distance
 // allthough probably will refactor to use distance instead of speed
 // down the line(like the attack movment does)
-func (cp *player) knockBackHandler(attacker *player, atk *r.AttackData) {
+func (cp *player) applyAttackCC(attacker *player, atk *r.AttackData) {
 
+	// speed
 	kbx := atk.KnockbackX
-	if atk.Windup != nil && atk.ChargeEffect != nil && atk.UseChargeKbxSpeed {
+	kby := atk.KnockbackY
+
+	isStun := kbx == se.StunFloat && kby == se.StunFloat
+	isHit := kbx == se.HitFloat && kby == se.HitFloat
+
+	if atk.HasChargeEffect() && atk.UseChargeKbxSpeed {
 		kbx += (attacker.chargeValue * atk.ChargeEffect.MultFactorKbxSpeed)
 		kbx = math.Min(kbx, 16)
 	}
@@ -99,25 +106,35 @@ func (cp *player) knockBackHandler(attacker *player, atk *r.AttackData) {
 		cp.kbx = kbx
 	}
 
-	kby := atk.KnockbackY
-	if atk.Windup != nil && atk.ChargeEffect != nil && atk.UseChargeKbySpeed {
+	if atk.HasChargeEffect() && atk.UseChargeKbySpeed {
 		kby += (attacker.chargeValue * atk.ChargeEffect.MultFactorKbySpeed)
 		kby = math.Min(kby, 16)
 	}
 
-	if attacker.object.Y >= cp.object.Y {
+	if (attacker.object.Y - attacker.HitBoxH) >= (cp.object.Y - cp.HitBoxH) {
 		cp.kby = -kby
-	} else {
+	} else if !atk.FixedKby {
 		cp.kby = kby
 	}
 
+	if isStun {
+		cp.kby = se.StunFloat
+		cp.kbx = se.StunFloat
+	}
+
+	if isHit {
+		cp.kby = se.HitFloat
+		cp.kbx = se.HitFloat
+	}
+
+	// duration
 	kbxDur := atk.KnockbackXDuration
-	if atk.Windup != nil && atk.ChargeEffect != nil && atk.UseChargeKbxDuration {
+	if atk.HasChargeEffect() && atk.UseChargeKbxDuration {
 		kbxDur += int(attacker.chargeValue * atk.ChargeEffect.MultFactorKbxDur)
 	}
 
 	kbyDur := atk.KnockbackYDuration
-	if atk.Windup != nil && atk.ChargeEffect != nil && atk.UseChargeKbyDuration {
+	if atk.HasChargeEffect() && atk.UseChargeKbyDuration {
 		kbyDur = int(attacker.chargeValue * atk.ChargeEffect.MultFactorKbyDur)
 	}
 

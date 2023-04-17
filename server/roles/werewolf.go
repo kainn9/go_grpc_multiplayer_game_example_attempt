@@ -1,5 +1,7 @@
 package roles
 
+import se "github.com/kainn9/grpc_game/server/statusEffects"
+
 var (
 	Werewolf *Role = InitWerewolf()
 )
@@ -41,10 +43,10 @@ func werewolfPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Name: PrimaryAttackKey,
 		Consequence: &Consequence{
 			Damage:             65,
-			KnockbackX:         6,
-			KnockbackY:         1,
-			KnockbackXDuration: 1600,
-			KnockbackYDuration: 500,
+			KnockbackX:         se.StunFloat,
+			KnockbackY:         se.StunFloat,
+			KnockbackXDuration: 700,
+			KnockbackYDuration: 700,
 		},
 		Type: PrimaryAttackKey,
 	}
@@ -87,11 +89,12 @@ func werewolfPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 func werewolfSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 
 	atks[SecondaryAttackKey] = &AttackData{
-		Name: SecondaryAttackKey,
-		Type: SecondaryAttackKey,
+		Name:     SecondaryAttackKey,
+		Type:     SecondaryAttackKey,
+		FixedKby: true,
 		Consequence: &Consequence{
 			Damage:             65,
-			KnockbackY:         1,
+			KnockbackY:         6,
 			KnockbackYDuration: 500,
 		},
 	}
@@ -141,10 +144,10 @@ func werewolfTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Movement: movement,
 		Consequence: &Consequence{
 			Damage:             50,
-			KnockbackX:         6,
-			KnockbackY:         1,
-			KnockbackXDuration: 1600,
-			KnockbackYDuration: 500,
+			KnockbackX:         se.HitFloat,
+			KnockbackY:         se.HitFloat,
+			KnockbackXDuration: se.HitDuration,
+			KnockbackYDuration: se.HitDuration,
 		},
 	}
 

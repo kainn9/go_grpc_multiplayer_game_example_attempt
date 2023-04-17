@@ -77,6 +77,7 @@ func initializer() {
 	serverConfig.roles[r.Demon.RoleType] = 2
 	serverConfig.roles[r.Werewolf.RoleType] = 3
 	serverConfig.roles[r.Mage.RoleType] = 4
+	serverConfig.roles[r.HeavyKnight.RoleType] = 5
 
 	// Start tick loops for each world.
 	for _, w := range serverConfig.worldsMap {

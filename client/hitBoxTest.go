@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	sr "github.com/kainn9/grpc_game/server/roles"
 )
 
 type hitboxTest struct {
@@ -15,8 +16,9 @@ type hitboxTest struct {
 	frame int
 	left  bool
 	inc   float64
-	// sadly pWidth needs to be hard coded for accurate sim when left is set to true, since client doesn't actually know player
-	// player width. Width of player hitboxes can be found in roles folder in server
+	// TODO: Make this dynamic
+	// Current BLocker: We only have playerController(not player)
+	// player has the role ref with dynamic width
 	pWidth float64
 }
 
@@ -49,6 +51,160 @@ func previewPathAllFrames(x float64, y float64, h float64, w float64, path hBoxP
 	------------------------------------------------
 		SETUP TEST HITBOX TEST HERE
 	------------------------------------------------
+*/
+
+// -----------------------------------------------------------------------------
+// HeavyKnight Tert Attack Example(only works if cp is HeavyKnight)
+// -----------------------------------------------------------------------------
+// */
+
+var (
+	hitBoxTest = &hitboxTest{
+		name:  string(sr.TertAttackKey),
+		on:    false,
+		count: 9,
+		// set to -1 to play whole anim
+		frame:  -1,
+		left:   false,
+		inc:    16.666 * 5, // 1 frame at 60fps,
+		pWidth: 28,
+	}
+)
+
+func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
+	inc, path := hitBoxSimSetup(hitBoxTest.inc)
+
+	// frame 0 - 2 no hitboxes
+
+	// frame 3
+	path = path.appendHboxAgg(-50, 0, 35, 35, 3)
+
+	// frame 4
+	path = path.appendHboxAgg(-50, 0, 35, 35, 4)
+
+	// frame 5
+	path = path.appendHboxAgg(-53, -5, 35, 35, 5)
+
+	// frame 6
+	path = path.appendHboxAgg(60, 20, 35, 45, 6)
+	path = path.appendHboxAgg(70, 0, 35, 45, 6)
+	path = path.appendHboxAgg(65, -20, 35, 45, 6)
+	path = path.appendHboxAgg(65, -35, 25, 35, 6)
+	path = path.appendHboxAgg(55, -45, 25, 35, 6)
+	path = path.appendHboxAgg(45, -55, 25, 35, 6)
+	path = path.appendHboxAgg(25, -58, 25, 35, 6)
+	path = path.appendHboxAgg(10, -58, 10, 35, 6)
+	path = path.appendHboxAgg(0, -58, 10, 35, 6)
+	path = path.appendHboxAgg(-10, -53, 10, 10, 6)
+	path = path.appendHboxAgg(-20, -43, 10, 10, 6)
+	path = path.appendHboxAgg(-30, -33, 10, 10, 6)
+
+	// frame 7
+	path = path.appendHboxAgg(60, 20, 35, 30, 7)
+	path = path.appendHboxAgg(90, -10, 40, 10, 7)
+
+	// frame 8
+	path = path.appendHboxAgg(60, 20, 35, 30, 8)
+
+	startHitboxSim(screen, cp, inc, path, 0)
+}
+
+/*
+-----------------------------------------------------------------------------
+HeavyKnight Tert Attack Example End
+-----------------------------------------------------------------------------
+*/
+
+// -----------------------------------------------------------------------------
+// HeavyKnight Secondary Attack Example(only works if cp is HeavyKnight)
+// -----------------------------------------------------------------------------
+// */
+
+// var (
+// 	hitBoxTest = &hitboxTest{
+// 		name:  "secondaryAtk",
+// 		on:    false,
+// 		count: 6,
+// 		// set to -1 to play whole anim
+// 		frame:  -1,
+// 		left:   false,
+// 		inc:    16.666 * 5, // 1 frame at 60fps,
+// 		pWidth: 28,
+// 	}
+// )
+
+// func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
+// 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
+
+// 	// frame 0 - 2 no hitboxes
+
+// 	// frame 3
+// 	path = path.appendHboxAgg(-37, 10, 40, 20, 3)
+// 	path = path.appendHboxAgg(-20, 25, 30, 110, 3)
+
+// 	// frame 4
+// 	path = path.appendHboxAgg(30, 25, 30, 60, 4)
+
+// 	// frame 5
+// 	path = path.appendHboxAgg(60, 25, 30, 30, 5)
+
+// 	startHitboxSim(screen, cp, inc, path, 0)
+// }
+
+/*
+-----------------------------------------------------------------------------
+HeavyKnight Secondary Attack Example End
+-----------------------------------------------------------------------------
+*/
+
+// -----------------------------------------------------------------------------
+// HeavyKnight Primary Attack Example(only works if cp is HeavyKnight)
+// -----------------------------------------------------------------------------
+// */
+
+// var (
+// 	hitBoxTest = &hitboxTest{
+// 		name:  "primaryAtk",
+// 		on:    false,
+// 		count: 6,
+// 		// set to -1 to play whole anim
+// 		frame:  -1,
+// 		left:   false,
+// 		inc:    16.666 * 5, // 1 frame at 60fps,
+// 		pWidth: 28,
+// 	}
+// )
+
+// func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
+// 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
+
+// 	// frame 0 - 2 no hitboxes
+
+// 	// frame 3
+// 	path = path.appendHboxAgg(-45, 10, 30, 30, 3)
+// 	path = path.appendHboxAgg(-30, 20, 30, 30, 3)
+// 	path = path.appendHboxAgg(0, 23, 30, 30, 3)
+// 	path = path.appendHboxAgg(30, 18, 30, 30, 3)
+// 	path = path.appendHboxAgg(45, 3, 30, 30, 3)
+// 	path = path.appendHboxAgg(58, -13, 25, 30, 3)
+// 	path = path.appendHboxAgg(58, -23, 15, 25, 3)
+// 	path = path.appendHboxAgg(63, -33, 30, 15, 3)
+// 	path = path.appendHboxAgg(48, -43, 30, 15, 3)
+
+// 	// frame 4
+// 	path = path.appendHboxAgg(-45, 10, 30, 30, 4)
+// 	path = path.appendHboxAgg(-30, 20, 30, 30, 4)
+// 	path = path.appendHboxAgg(0, 23, 30, 30, 4)
+
+// 	// frame 5+ no hitbox
+
+// 	startHitboxSim(screen, cp, inc, path, 0)
+// }
+
+/*
+-----------------------------------------------------------------------------
+HeavyKnight Primary Attack Example End
+-----------------------------------------------------------------------------
 */
 
 /*
@@ -615,52 +771,52 @@ Demon Secondary Attack Example End
 // -----------------------------------------------------------------------------
 // */
 
-var (
-	hitBoxTest = &hitboxTest{
-		name:  "primaryAtk",
-		on:    false,
-		count: 22,
-		// set to -1 to play whole anim
-		frame:  -1,
-		left:   true,
-		inc:    16.666 * 5, // 1 frame at 60fps,
-		pWidth: 50.0,
-	}
-)
+// var (
+// 	hitBoxTest = &hitboxTest{
+// 		name:  "primaryAtk",
+// 		on:    false,
+// 		count: 22,
+// 		// set to -1 to play whole anim
+// 		frame:  -1,
+// 		left:   true,
+// 		inc:    16.666 * 5, // 1 frame at 60fps,
+// 		pWidth: 50.0,
+// 	}
+// )
 
-func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
-	inc, path := hitBoxSimSetup(hitBoxTest.inc)
+// func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
+// 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
 
-	// frame 0 - 11 have no hitboxes
+// 	// frame 0 - 11 have no hitboxes
 
-	// frame 12
-	path = path.appendHboxAgg(105, 70, 15, 15, 12)
-	path = path.appendHboxAgg(115, 70, 15, 15, 12)
+// 	// frame 12
+// 	path = path.appendHboxAgg(105, 70, 15, 15, 12)
+// 	path = path.appendHboxAgg(115, 70, 15, 15, 12)
 
-	// frame 13
-	path = path.appendHboxAgg(102, 67, 15, 15, 13)
-	path = path.appendHboxAgg(115, 70, 15, 15, 13)
+// 	// frame 13
+// 	path = path.appendHboxAgg(102, 67, 15, 15, 13)
+// 	path = path.appendHboxAgg(115, 70, 15, 15, 13)
 
-	// frame 14
-	path = path.appendHboxAgg(102, 67, 15, 15, 14)
-	path = path.appendHboxAgg(115, 70, 15, 15, 14)
+// 	// frame 14
+// 	path = path.appendHboxAgg(102, 67, 15, 15, 14)
+// 	path = path.appendHboxAgg(115, 70, 15, 15, 14)
 
-	// frame 15
-	path = path.appendHboxAgg(102, 67, 15, 15, 15)
-	path = path.appendHboxAgg(115, 70, 15, 15, 15)
+// 	// frame 15
+// 	path = path.appendHboxAgg(102, 67, 15, 15, 15)
+// 	path = path.appendHboxAgg(115, 70, 15, 15, 15)
 
-	// frame 16
-	path = path.appendHboxAgg(102, 67, 15, 15, 16)
-	path = path.appendHboxAgg(115, 70, 15, 15, 16)
+// 	// frame 16
+// 	path = path.appendHboxAgg(102, 67, 15, 15, 16)
+// 	path = path.appendHboxAgg(115, 70, 15, 15, 16)
 
-	// frame 17
-	path = path.appendHboxAgg(102, 67, 15, 15, 17)
-	path = path.appendHboxAgg(115, 70, 15, 15, 17)
+// 	// frame 17
+// 	path = path.appendHboxAgg(102, 67, 15, 15, 17)
+// 	path = path.appendHboxAgg(115, 70, 15, 15, 17)
 
-	// frame 18+ no hitbox
+// 	// frame 18+ no hitbox
 
-	startHitboxSim(screen, cp, inc, path, 0)
-}
+// 	startHitboxSim(screen, cp, inc, path, 0)
+// }
 
 /*
 -----------------------------------------------------------------------------

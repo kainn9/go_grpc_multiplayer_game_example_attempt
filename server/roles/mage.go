@@ -1,5 +1,7 @@
 package roles
 
+import se "github.com/kainn9/grpc_game/server/statusEffects"
+
 var (
 	Mage *Role = InitMage()
 )
@@ -18,12 +20,12 @@ func InitMage() *Role {
 
 	dm := &DefenseMovement{
 		Speed:       16,
-		Displacment: 500,
+		Displacment: 250,
 	}
 
 	d := &Defense{
 		Delay:           0,
-		Cooldown:        100,
+		Cooldown:        2000,
 		DefenseType:     DefenseDodge,
 		DefenseMovement: dm,
 	}
@@ -53,10 +55,10 @@ func magePrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		Name: PrimaryAttackKey,
 		Consequence: &Consequence{
 			Damage:             70,
-			KnockbackX:         0.1,
-			KnockbackY:         0.1,
-			KnockbackXDuration: 1250,
-			KnockbackYDuration: 1250,
+			KnockbackX:         se.HitFloat,
+			KnockbackY:         se.HitFloat,
+			KnockbackXDuration: se.HitDuration,
+			KnockbackYDuration: se.HitDuration,
 		},
 		Type: PrimaryAttackKey,
 	}
@@ -178,7 +180,7 @@ func mageSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 func mageTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 
 	movement := &Movement{
-		Distance: 100,
+		Distance: 70,
 		SpeedX:   13,
 	}
 
@@ -188,9 +190,9 @@ func mageTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 
 		Movement: movement,
 		Consequence: &Consequence{
-			Damage:             1,
-			KnockbackX:         0.1,
-			KnockbackY:         0.1,
+			Damage:             0,
+			KnockbackX:         se.StunFloat,
+			KnockbackY:         se.StunFloat,
 			KnockbackXDuration: 2000,
 			KnockbackYDuration: 2000,
 		},

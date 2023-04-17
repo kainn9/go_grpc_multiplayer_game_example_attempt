@@ -71,6 +71,11 @@ func (world *world) Init(worldBuilder builderFunc) {
 // The physics are basically a rip of the Resolv example: https://github.com/SolarLune/resolv/blob/master/examples/worldPlatformer.go.
 func (world *world) Update(cp *player, input string) {
 
+	// temp for testing new system
+	// if input == "keySpace" {
+	// 	sq.PrintHealth(cp)
+	// }
+
 	if cp.dead {
 		return
 	}

@@ -24,6 +24,8 @@ var (
 	demonSpriteJumpLeft  *ebiten.Image
 	demonSpriteJumpRight *ebiten.Image
 
+	demonSpriteHitRight *ebiten.Image
+	demonSpriteHitLeft  *ebiten.Image
 
 	demonSpriteKBRight *ebiten.Image
 	demonSpriteKBLeft  *ebiten.Image
@@ -51,6 +53,8 @@ func LoadDemonSprites() {
 	demonSpriteJumpLeft = utClient.LoadImage("./sprites/demon/demonJumpLeft.png")
 	demonSpriteJumpRight = utClient.LoadImage("./sprites/demon/demonJumpRight.png")
 
+	demonSpriteHitRight = utClient.LoadImage("./sprites/demon/demonHitRight.png")
+	demonSpriteHitLeft = utClient.LoadImage("./sprites/demon/demonHitLeft.png")
 
 	demonSpriteKBRight = utClient.LoadImage("./sprites/demon/demonKnockBackRight.png")
 	demonSpriteKBLeft = utClient.LoadImage("./sprites/demon/demonKnockBackLeft.png")
@@ -69,16 +73,26 @@ func InitDemon() *Role {
 	LoadDemonSprites()
 
 	r := &Role{
-		RoleType:      DemonType,
+		RoleType:      sr.DemonType,
 		Animations:    DemonAnims(),
 		HitBoxOffsetY: 30,
 		HitBoxOffsetX: 30,
+		Health:        sr.Demon.Health,
+		HitBoxW:       sr.Demon.HitBoxW,
+		HitBoxH:       sr.Demon.HitBoxH,
+		HealthBarOffset: &Offset{
+			X: 30,
+			Y: -10,
+		},
+		StatusEffectOffset: &Offset{
+			X: 30,
+			Y: -6,
+		},
 	}
 
 	return r
 }
 
-// TODO MAKE ANIM KEYS CONSTS
 func DemonAnims() map[string]*Animation {
 	anims := make(map[string]*Animation)
 
@@ -106,7 +120,7 @@ func DemonAnims() map[string]*Animation {
 		FrameWidth:  89,
 		FrameHeight: 135,
 		FrameCount:  12,
-		PosOffsetX: -10,
+		PosOffsetX:  -10,
 		SpriteSheet: demonSpriteWalkingRight,
 	}
 
@@ -116,7 +130,7 @@ func DemonAnims() map[string]*Animation {
 		FrameWidth:  89,
 		FrameHeight: 135,
 		FrameCount:  12,
-		PosOffsetX: -10,
+		PosOffsetX:  -10,
 		SpriteSheet: demonSpriteWalkingLeft,
 	}
 
@@ -138,32 +152,69 @@ func DemonAnims() map[string]*Animation {
 		SpriteSheet: demonSpriteJumpRight,
 	}
 
+	anims[string(HitRight)] = &Animation{
+		Name:        string(HitRight),
+		FrameOX:     0,
+		FrameOY:     0,
+		FrameWidth:  126,
+		FrameHeight: 126,
+		FrameCount:  6,
+		PosOffsetX:  28,
+		PosOffsetY:  16,
+		SpriteSheet: demonSpriteHitRight,
+		Fixed:       true,
+	}
+
+	anims[string(HitLeft)] = &Animation{
+		Name:        string(HitLeft),
+		FrameOX:     756,
+		FrameOY:     0,
+		FrameWidth:  126,
+		FrameHeight: 126,
+		FrameCount:  6,
+		PosOffsetX:  28,
+		PosOffsetY:  16,
+		SpriteSheet: demonSpriteHitLeft,
+		Fixed:       true,
+	}
+
+	stunAnimCopyRight := *anims[string(HitRight)]
+	anims[string(StunRight)] = &stunAnimCopyRight
+
+	stunAnimCopyLeft := *anims[string(HitLeft)]
+	anims[string(StunLeft)] = &stunAnimCopyLeft
+
 	anims[string(KbRight)] = &Animation{
 		FrameOX:     0,
 		FrameOY:     0,
-		FrameWidth:  116,
-		FrameHeight: 116,
-		FrameCount:  1,
+		FrameWidth:  126,
+		FrameHeight: 126,
+		FrameCount:  6,
+		PosOffsetX:  28,
+		PosOffsetY:  16,
 		SpriteSheet: demonSpriteKBRight,
 	}
 
 	anims[string(KbLeft)] = &Animation{
-		FrameOX:     116,
+		FrameOX:     756,
 		FrameOY:     0,
-		FrameWidth:  116,
-		FrameHeight: 116,
-		FrameCount:  1,
+		FrameWidth:  126,
+		FrameHeight: 126,
+		FrameCount:  6,
+		PosOffsetX:  28,
+		PosOffsetY:  16,
 		SpriteSheet: demonSpriteKBLeft,
 	}
 
 	anims[string(DeathRight)] = &Animation{
 		Name:        string(DeathRight),
 		FrameOX:     0,
-		FrameOY:     26,
+		FrameOY:     0,
 		FrameWidth:  147,
 		FrameHeight: 138,
 		FrameCount:  24,
-		PosOffsetX: 28,
+		PosOffsetX:  28,
+		PosOffsetY:  26,
 		SpriteSheet: demonSpriteDeathRight,
 		Fixed:       true,
 	}
@@ -171,11 +222,12 @@ func DemonAnims() map[string]*Animation {
 	anims[string(DeathLeft)] = &Animation{
 		Name:        string(DeathLeft),
 		FrameOX:     3528,
-		FrameOY:     26,
+		FrameOY:     0,
 		FrameWidth:  147,
 		FrameHeight: 138,
 		FrameCount:  24,
-		PosOffsetX: 28,
+		PosOffsetX:  28,
+		PosOffsetY:  26,
 		SpriteSheet: demonSpriteDeathLeft,
 		Fixed:       true,
 	}
@@ -186,25 +238,27 @@ func DemonAnims() map[string]*Animation {
 		---------------------------------------------------------------------------------
 	*/
 	anims[string(sr.PrimaryAttackKey)+"Right"] = &Animation{
-		Name:        string(sr.PrimaryAttackKey)+"Right",
+		Name:        string(sr.PrimaryAttackKey) + "Right",
 		FrameOX:     0,
-		FrameOY:     5,
+		FrameOY:     0,
 		FrameWidth:  176,
 		FrameHeight: 121,
 		FrameCount:  22,
-		PosOffsetX: 10,
+		PosOffsetX:  10,
+		PosOffsetY:  5,
 		SpriteSheet: demonSpriteCleaveAtkRight,
 		Fixed:       true,
 	}
 
 	anims[string(sr.PrimaryAttackKey)+"Left"] = &Animation{
-		Name:        string(sr.PrimaryAttackKey)+"Left",
+		Name:        string(sr.PrimaryAttackKey) + "Left",
 		FrameOX:     3872,
-		FrameOY:     5,
+		FrameOY:     0,
 		FrameWidth:  176,
 		FrameHeight: 121,
 		FrameCount:  22,
-		PosOffsetX: 10,
+		PosOffsetX:  10,
+		PosOffsetY:  5,
 		SpriteSheet: demonSpriteCleaveAtkLeft,
 		Fixed:       true,
 	}
@@ -224,11 +278,12 @@ func DemonAnims() map[string]*Animation {
 	anims[a2arKey] = &Animation{
 		Name:        a2arKey,
 		FrameOX:     0,
-		FrameOY:     50,
+		FrameOY:     0,
 		FrameWidth:  288,
 		FrameHeight: 160,
 		FrameCount:  21,
-		PosOffsetX: 80,
+		PosOffsetX:  80,
+		PosOffsetY:  50,
 		SpriteSheet: demonSpriteFireAtkRight,
 		Fixed:       true,
 	}
@@ -237,11 +292,12 @@ func DemonAnims() map[string]*Animation {
 	anims[a2alKey] = &Animation{
 		Name:        a2alKey,
 		FrameOX:     6048,
-		FrameOY:     50,
+		FrameOY:     0,
 		FrameWidth:  288,
 		FrameHeight: 160,
 		FrameCount:  21,
-		PosOffsetX: 80,
+		PosOffsetX:  80,
+		PosOffsetY:  50,
 		SpriteSheet: demonSpriteFireAtkLeft,
 		Fixed:       true,
 	}

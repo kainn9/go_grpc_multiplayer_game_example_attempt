@@ -27,6 +27,9 @@ var (
 	monkDefenseLeft  *ebiten.Image
 	monkDefenseRight *ebiten.Image
 
+	monkSpriteHitRight *ebiten.Image
+	monkSpriteHitLeft  *ebiten.Image
+
 	monkSpriteKBRight *ebiten.Image
 	monkSpriteKBLeft  *ebiten.Image
 
@@ -56,6 +59,9 @@ func LoadMonkSprites() {
 	monkDefenseRight = utClient.LoadImage("./sprites/monk/monkDefenseRight.png")
 	monkDefenseLeft = utClient.LoadImage("./sprites/monk/monkDefenseLeft.png")
 
+	monkSpriteHitRight = utClient.LoadImage("./sprites/monk/monkHitRight.png")
+	monkSpriteHitLeft = utClient.LoadImage("./sprites/monk/monkHitLeft.png")
+
 	monkSpriteKBRight = utClient.LoadImage("./sprites/monk/monkKnockBackRight.png")
 	monkSpriteKBLeft = utClient.LoadImage("./sprites/monk/monkKnockBackLeft.png")
 
@@ -73,20 +79,30 @@ func InitMonk() *Role {
 	LoadMonkSprites()
 
 	r := &Role{
-		RoleType:      MonkType,
+		RoleType:      sr.MonkType,
 		Animations:    MonkAnims(),
 		HitBoxOffsetY: 4,
 		HitBoxOffsetX: 4,
+		Health:        sr.Monk.Health,
+		HitBoxW:       sr.Monk.HitBoxW,
+		HitBoxH:       sr.Monk.HitBoxH,
+		HealthBarOffset: &Offset{
+			X: -7,
+			Y: -10,
+		},
+		StatusEffectOffset: &Offset{
+			X: 0,
+			Y: -6,
+		},
 	}
 
 	return r
 }
 
-// TODO MAKE ANIM KEYS CONSTS
 func MonkAnims() map[string]*Animation {
 	anims := make(map[string]*Animation)
 
-	anims["idleRight"] = &Animation{
+	anims[string(IdleRight)] = &Animation{
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  30,
@@ -95,7 +111,7 @@ func MonkAnims() map[string]*Animation {
 		SpriteSheet: monkSpriteIdleRight,
 	}
 
-	anims["idleLeft"] = &Animation{
+	anims[string(IdleLeft)] = &Animation{
 		FrameOX:     180,
 		FrameOY:     0,
 		FrameWidth:  30,
@@ -104,25 +120,27 @@ func MonkAnims() map[string]*Animation {
 		SpriteSheet: monkSpriteIdleLeft,
 	}
 
-	anims["walkRight"] = &Animation{
+	anims[string(WalkRight)] = &Animation{
 		FrameOX:     0,
-		FrameOY:     14,
+		FrameOY:     0,
 		FrameWidth:  33,
 		FrameHeight: 62,
 		FrameCount:  8,
+		PosOffsetY:  14,
 		SpriteSheet: monkSpriteWalkingRight,
 	}
 
-	anims["walkLeft"] = &Animation{
+	anims[string(WalkLeft)] = &Animation{
 		FrameOX:     264,
-		FrameOY:     14,
+		FrameOY:     0,
 		FrameWidth:  33,
 		FrameHeight: 62,
 		FrameCount:  8,
+		PosOffsetY:  14,
 		SpriteSheet: monkSpriteWalkingLeft,
 	}
 
-	anims["jumpLeft"] = &Animation{
+	anims[string(JumpLeft)] = &Animation{
 		FrameOX:     105,
 		FrameOY:     0,
 		FrameWidth:  35,
@@ -131,7 +149,7 @@ func MonkAnims() map[string]*Animation {
 		SpriteSheet: monkSpriteJumpLeft,
 	}
 
-	anims["jumpRight"] = &Animation{
+	anims[string(JumpRight)] = &Animation{
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  35,
@@ -140,31 +158,63 @@ func MonkAnims() map[string]*Animation {
 		SpriteSheet: monkSpriteJumpRight,
 	}
 
-	anims["defenseRight"] = &Animation{
-		Name:        "defenseRight",
+	anims[string(DefenseRight)] = &Animation{
+		Name:        string(DefenseRight),
 		FrameOX:     0,
-		FrameOY:     7,
+		FrameOY:     0,
 		FrameWidth:  45,
 		FrameHeight: 48,
 		FrameCount:  8,
 		PosOffsetX:  10,
+		PosOffsetY:  7,
 		SpriteSheet: monkDefenseRight,
 		Fixed:       true,
 	}
 
-	anims["defenseLeft"] = &Animation{
-		Name:        "defenseLeft",
+	anims[string(DefenseLeft)] = &Animation{
+		Name:        string(DefenseLeft),
 		FrameOX:     360,
-		FrameOY:     7,
+		FrameOY:     0,
 		FrameWidth:  45,
 		FrameHeight: 48,
 		FrameCount:  8,
 		PosOffsetX:  10,
+		PosOffsetY:  7,
 		SpriteSheet: monkDefenseLeft,
 		Fixed:       true,
 	}
 
-	anims["KbRight"] = &Animation{
+	anims[string(HitRight)] = &Animation{
+		Name:        string(HitRight),
+		FrameOX:     0,
+		FrameOY:     0,
+		FrameWidth:  57,
+		FrameHeight: 44,
+		FrameCount:  6,
+		PosOffsetX:  10,
+		SpriteSheet: monkSpriteHitRight,
+		Fixed:       true,
+	}
+
+	anims[string(HitLeft)] = &Animation{
+		Name:        string(HitLeft),
+		FrameOX:     342,
+		FrameOY:     0,
+		FrameWidth:  57,
+		FrameHeight: 44,
+		FrameCount:  6,
+		PosOffsetX:  10,
+		SpriteSheet: monkSpriteHitLeft,
+		Fixed:       true,
+	}
+
+	stunAnimCopyRight := *anims[string(HitRight)]
+	anims[string(StunRight)] = &stunAnimCopyRight
+
+	stunAnimCopyLeft := *anims[string(HitLeft)]
+	anims[string(StunLeft)] = &stunAnimCopyLeft
+
+	anims[string(KbRight)] = &Animation{
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  50,
@@ -173,7 +223,7 @@ func MonkAnims() map[string]*Animation {
 		SpriteSheet: monkSpriteKBRight,
 	}
 
-	anims["KbLeft"] = &Animation{
+	anims[string(KbLeft)] = &Animation{
 		FrameOX:     150,
 		FrameOY:     0,
 		FrameWidth:  50,
@@ -210,7 +260,7 @@ func MonkAnims() map[string]*Animation {
 		---------------------------------------------------------------------------------
 	*/
 	anims[string(sr.PrimaryAttackKey)+"Right"] = &Animation{
-		Name:        "primaryAtkRight",
+		Name:        string(sr.PrimaryAttackKey) + "Right",
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  111,
@@ -221,7 +271,7 @@ func MonkAnims() map[string]*Animation {
 	}
 
 	anims[string(sr.PrimaryAttackKey)+"Left"] = &Animation{
-		Name:        "primaryAtkleft",
+		Name:        string(sr.PrimaryAttackKey) + "Left",
 		FrameOX:     1443,
 		FrameOY:     0,
 		FrameWidth:  111,
@@ -246,10 +296,11 @@ func MonkAnims() map[string]*Animation {
 	anims[a2arKey] = &Animation{
 		Name:        a2arKey,
 		FrameOX:     0,
-		FrameOY:     15,
+		FrameOY:     0,
 		FrameWidth:  89,
 		FrameHeight: 55,
 		FrameCount:  8,
+		PosOffsetY:  15,
 		SpriteSheet: monkSpriteEarthFistSmashRight,
 		Fixed:       true,
 	}
@@ -258,10 +309,11 @@ func MonkAnims() map[string]*Animation {
 	anims[a2alKey] = &Animation{
 		Name:        a2alKey,
 		FrameOX:     712,
-		FrameOY:     15,
+		FrameOY:     0,
 		FrameWidth:  89,
 		FrameHeight: 55,
 		FrameCount:  8,
+		PosOffsetY:  15,
 		SpriteSheet: monkSpriteEarthFistSmashLeft,
 		Fixed:       true,
 	}

@@ -28,6 +28,9 @@ var (
 	knightSpriteStabLeft  *ebiten.Image
 	knightSpriteStabRight *ebiten.Image
 
+	knightSpriteHitRight *ebiten.Image
+	knightSpriteHitLeft  *ebiten.Image
+
 	knightSpriteKBRight *ebiten.Image
 	knightSpriteKBLeft  *ebiten.Image
 
@@ -69,6 +72,9 @@ func LoadKnightSprites() {
 	knightSpriteStabRight = utClient.LoadImage("./sprites/knight/knightStabRight.png")
 	knightSpriteStabLeft = utClient.LoadImage("./sprites/knight/knightStabLeft.png")
 
+	knightSpriteHitRight = utClient.LoadImage("./sprites/knight/knightHitRight.png")
+	knightSpriteHitLeft = utClient.LoadImage("./sprites/knight/knightHitLeft.png")
+
 	knightSpriteKBRight = utClient.LoadImage("./sprites/knight/knightKnockBackRight.png")
 	knightSpriteKBLeft = utClient.LoadImage("./sprites/knight/knightKnockBackLeft.png")
 
@@ -98,10 +104,21 @@ func InitKnight() *Role {
 	LoadKnightSprites()
 
 	r := &Role{
-		RoleType:      KnightType,
+		RoleType:      sr.KnightType,
 		Animations:    KnightAnims(),
 		HitBoxOffsetY: 4,
 		HitBoxOffsetX: 8,
+		Health:        sr.Knight.Health,
+		HitBoxW:       sr.Knight.HitBoxW,
+		HitBoxH:       sr.Knight.HitBoxH,
+		HealthBarOffset: &Offset{
+			X: -5,
+			Y: -10,
+		},
+		StatusEffectOffset: &Offset{
+			X: 0,
+			Y: -6,
+		},
 	}
 
 	return r
@@ -111,7 +128,7 @@ func InitKnight() *Role {
 func KnightAnims() map[string]*Animation {
 	anims := make(map[string]*Animation)
 
-	anims["idleRight"] = &Animation{
+	anims[string(IdleRight)] = &Animation{
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  32,
@@ -120,7 +137,7 @@ func KnightAnims() map[string]*Animation {
 		SpriteSheet: knightSpriteIdleRight,
 	}
 
-	anims["idleLeft"] = &Animation{
+	anims[string(IdleLeft)] = &Animation{
 		FrameOX:     256,
 		FrameOY:     0,
 		FrameWidth:  32,
@@ -129,7 +146,7 @@ func KnightAnims() map[string]*Animation {
 		SpriteSheet: knightSpriteIdleLeft,
 	}
 
-	anims["walkRight"] = &Animation{
+	anims[string(WalkRight)] = &Animation{
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  35,
@@ -138,7 +155,7 @@ func KnightAnims() map[string]*Animation {
 		SpriteSheet: knightSpriteWalkingRight,
 	}
 
-	anims["walkLeft"] = &Animation{
+	anims[string(WalkLeft)] = &Animation{
 		FrameOX:     280,
 		FrameOY:     0,
 		FrameWidth:  35,
@@ -147,7 +164,7 @@ func KnightAnims() map[string]*Animation {
 		SpriteSheet: knightSpriteWalkingLeft,
 	}
 
-	anims["jumpLeft"] = &Animation{
+	anims[string(JumpLeft)] = &Animation{
 		FrameOX:     35,
 		FrameOY:     0,
 		FrameWidth:  35,
@@ -156,7 +173,7 @@ func KnightAnims() map[string]*Animation {
 		SpriteSheet: knightSpriteJumpLeft,
 	}
 
-	anims["jumpRight"] = &Animation{
+	anims[string(JumpRight)] = &Animation{
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  35,
@@ -165,8 +182,8 @@ func KnightAnims() map[string]*Animation {
 		SpriteSheet: knightSpriteJumpRight,
 	}
 
-	anims["defenseRight"] = &Animation{
-		Name:        "defenseRight",
+	anims[string(DefenseRight)] = &Animation{
+		Name:        string(DefenseRight),
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  50,
@@ -176,8 +193,8 @@ func KnightAnims() map[string]*Animation {
 		Fixed:       true,
 	}
 
-	anims["defenseLeft"] = &Animation{
-		Name:        "defenseLeft",
+	anims[string(DefenseLeft)] = &Animation{
+		Name:        string(DefenseLeft),
 		FrameOX:     1000,
 		FrameOY:     0,
 		FrameWidth:  50,
@@ -187,16 +204,44 @@ func KnightAnims() map[string]*Animation {
 		Fixed:       true,
 	}
 
-	anims["KbRight"] = &Animation{
+	anims[string(HitRight)] = &Animation{
+		Name:        string(HitRight),
+		FrameOX:     0,
+		FrameOY:     0,
+		FrameWidth:  36,
+		FrameHeight: 49,
+		FrameCount:  6,
+		SpriteSheet: knightSpriteHitRight,
+		Fixed:       true,
+	}
+
+	anims[string(HitLeft)] = &Animation{
+		Name:        string(HitLeft),
+		FrameOX:     216,
+		FrameOY:     0,
+		FrameWidth:  36,
+		FrameHeight: 49,
+		FrameCount:  6,
+		SpriteSheet: knightSpriteHitLeft,
+		Fixed:       true,
+	}
+
+	stunAnimCopyRight := *anims[string(HitRight)]
+	anims[string(StunRight)] = &stunAnimCopyRight
+
+	stunAnimCopyLeft := *anims[string(HitLeft)]
+	anims[string(StunLeft)] = &stunAnimCopyLeft
+
+	anims[string(KbRight)] = &Animation{
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  30,
-		FrameHeight: 48,
+		FrameHeight: 32,
 		FrameCount:  4,
 		SpriteSheet: knightSpriteKBRight,
 	}
 
-	anims["KbLeft"] = &Animation{
+	anims[string(KbLeft)] = &Animation{
 		FrameOX:     120,
 		FrameOY:     0,
 		FrameWidth:  30,
@@ -233,7 +278,7 @@ func KnightAnims() map[string]*Animation {
 		---------------------------------------------------------------------------------
 	*/
 	anims[string(sr.PrimaryAttackKey)+"Right"] = &Animation{
-		Name:        "primaryAtkRight",
+		Name:        string(sr.PrimaryAttackKey) + "Right",
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  65,
@@ -244,7 +289,7 @@ func KnightAnims() map[string]*Animation {
 	}
 
 	anims[string(sr.PrimaryAttackKey)+"Left"] = &Animation{
-		Name:        "primaryAtkleft",
+		Name:        string(sr.PrimaryAttackKey) + "Left",
 		FrameOX:     260,
 		FrameOY:     0,
 		FrameWidth:  65,
@@ -269,11 +314,12 @@ func KnightAnims() map[string]*Animation {
 	anims[a2arKey] = &Animation{
 		Name:        a2arKey,
 		FrameOX:     0,
-		FrameOY:     20,
+		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 70,
 		FrameCount:  5,
 		PosOffsetX:  14,
+		PosOffsetY:  20,
 		SpriteSheet: knightSpriteQuickSlashRight,
 		Fixed:       true,
 	}
@@ -282,11 +328,12 @@ func KnightAnims() map[string]*Animation {
 	anims[a2alKey] = &Animation{
 		Name:        a2alKey,
 		FrameOX:     350,
-		FrameOY:     20,
+		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 70,
 		FrameCount:  5,
 		PosOffsetX:  14,
+		PosOffsetY:  20,
 		SpriteSheet: knightSpriteQuickSlashLeft,
 		Fixed:       true,
 	}
@@ -356,10 +403,11 @@ func KnightAnims() map[string]*Animation {
 	anims[a3arKey] = &Animation{
 		Name:        a3arKey,
 		FrameOX:     0,
-		FrameOY:     10,
+		FrameOY:     0,
 		FrameWidth:  75,
 		FrameHeight: 60,
 		FrameCount:  12,
+		PosOffsetY:  10,
 		SpriteSheet: knightSpriteDashSlashRight,
 		Fixed:       true,
 	}
@@ -368,10 +416,11 @@ func KnightAnims() map[string]*Animation {
 	anims[a3alKey] = &Animation{
 		Name:        a3alKey,
 		FrameOX:     900,
-		FrameOY:     10,
+		FrameOY:     0,
 		FrameWidth:  75,
 		FrameHeight: 60,
 		FrameCount:  12,
+		PosOffsetY:  10,
 		SpriteSheet: knightSpriteDashSlashLeft,
 		Fixed:       true,
 	}
@@ -392,11 +441,12 @@ func KnightAnims() map[string]*Animation {
 	anims[a4wurKey] = &Animation{
 		Name:        a4wurKey,
 		FrameOX:     0,
-		FrameOY:     20,
+		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 70,
 		FrameCount:  12,
 		PosOffsetX:  14,
+		PosOffsetY:  20,
 		SpriteSheet: knightSpriteQuickSlashWindupRight,
 		Fixed:       true,
 	}
@@ -405,11 +455,12 @@ func KnightAnims() map[string]*Animation {
 	anims[a4wulKey] = &Animation{
 		Name:        a4wulKey,
 		FrameOX:     840,
-		FrameOY:     20,
+		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 70,
 		FrameCount:  12,
 		PosOffsetX:  14,
+		PosOffsetY:  20,
 		SpriteSheet: knightSpriteQuickSlashWindupLeft,
 		Fixed:       true,
 	}
@@ -418,11 +469,12 @@ func KnightAnims() map[string]*Animation {
 	anims[a4arKey] = &Animation{
 		Name:        a4arKey,
 		FrameOX:     0,
-		FrameOY:     20,
+		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 70,
 		FrameCount:  5,
 		PosOffsetX:  14,
+		PosOffsetY:  20,
 		SpriteSheet: knightSpriteQuickSlashRight,
 		Fixed:       true,
 	}
@@ -431,11 +483,12 @@ func KnightAnims() map[string]*Animation {
 	anims[a4alKey] = &Animation{
 		Name:        a4alKey,
 		FrameOX:     350,
-		FrameOY:     20,
+		FrameOY:     0,
 		FrameWidth:  70,
 		FrameHeight: 70,
 		FrameCount:  5,
 		PosOffsetX:  14,
+		PosOffsetY:  20,
 		SpriteSheet: knightSpriteQuickSlashLeft,
 		Fixed:       true,
 	}
