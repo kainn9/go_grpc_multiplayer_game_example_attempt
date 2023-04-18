@@ -51,7 +51,10 @@ func (cp *player) attackedHandler() {
 
 // returns true if the attack is invalid, used to skip collision
 func hitIsInvalid(cp *player, hitBoxData *hitBoxData) bool {
-	return cp.hits[hitBoxData.aid] || hitBoxData.player == cp
+	serverConfig.mutex.RLock()
+	hit := cp.hits[hitBoxData.aid]
+	serverConfig.mutex.RUnlock()
+	return hit || hitBoxData.player == cp
 }
 
 func (cp *player) healthHandler(attacker *player, atk *r.AttackData, aid string) {
@@ -111,9 +114,9 @@ func (cp *player) applyAttackCC(attacker *player, atk *r.AttackData) {
 		kby = math.Min(kby, 16)
 	}
 
-	if (attacker.object.Y - attacker.HitBoxH) >= (cp.object.Y - cp.HitBoxH) {
+	if (attacker.object.Y-attacker.HitBoxH) >= (cp.object.Y-cp.HitBoxH) || atk.FixedKby {
 		cp.kby = -kby
-	} else if !atk.FixedKby {
+	} else {
 		cp.kby = kby
 	}
 

@@ -19,11 +19,10 @@ func WerewolfAttacks() map[AtKey]*AttackData {
 func InitWerewolf() *Role {
 
 	r := &Role{
-		RoleType: WerewolfType,
-		Attacks:  WerewolfAttacks(),
-		HitBoxW:  30,
-		HitBoxH:  50,
-		Health:   240,
+		Attacks: WerewolfAttacks(),
+		HitBoxW: 30,
+		HitBoxH: 50,
+		Health:  240,
 
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,

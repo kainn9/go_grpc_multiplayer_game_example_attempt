@@ -31,12 +31,11 @@ func InitMage() *Role {
 	}
 
 	r := &Role{
-		RoleType: MageType,
-		Attacks:  MageAttacks(),
-		HitBoxW:  16,
-		HitBoxH:  44,
-		Defense:  d,
-		Health:   215,
+		Attacks: MageAttacks(),
+		HitBoxW: 16,
+		HitBoxH: 44,
+		Defense: d,
+		Health:  215,
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,
 			DefaultMaxSpeed: 5.0,

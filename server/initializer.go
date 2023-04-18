@@ -12,7 +12,7 @@ type serverConfigStruct struct {
 	addr          string
 	worldsMap     map[int]*world
 	activePlayers map[string]*player
-	roles         map[r.PlayerType]int32
+	roles         map[*r.Role]int32
 	startingWorld *world
 	randomSpawn   bool
 }
@@ -41,7 +41,7 @@ var serverConfig = serverConfigStruct{
 	worldsMap:     make(map[int]*world),
 	activePlayers: make(map[string]*player),
 	mutex:         sync.RWMutex{},
-	roles:         make(map[r.PlayerType]int32),
+	roles:         make(map[*r.Role]int32),
 	randomSpawn:   false,
 }
 
@@ -72,12 +72,12 @@ func initializer() {
 	serverConfig.startingWorld = worlds.worldOne
 
 	// set up roles
-	serverConfig.roles[r.Knight.RoleType] = 0
-	serverConfig.roles[r.Monk.RoleType] = 1
-	serverConfig.roles[r.Demon.RoleType] = 2
-	serverConfig.roles[r.Werewolf.RoleType] = 3
-	serverConfig.roles[r.Mage.RoleType] = 4
-	serverConfig.roles[r.HeavyKnight.RoleType] = 5
+	serverConfig.roles[r.Knight] = 0
+	serverConfig.roles[r.Monk] = 1
+	serverConfig.roles[r.Demon] = 2
+	serverConfig.roles[r.Werewolf] = 3
+	serverConfig.roles[r.Mage] = 4
+	serverConfig.roles[r.HeavyKnight] = 5
 
 	// Start tick loops for each world.
 	for _, w := range serverConfig.worldsMap {

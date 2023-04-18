@@ -3,6 +3,7 @@ package main
 import (
 	"image"
 	"image/color"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	r "github.com/kainn9/grpc_game/client/roles"
@@ -103,8 +104,36 @@ func (p *Player) drawHealth(world *World, currentPlayer bool) {
 	}
 
 	pc := world.playerController
-	healthBar := ebiten.NewImage(int(health), 5)
-	healthBarOutline := ebiten.NewImage(int(maxWidth+4), 9)
+
+	// using SyncMap to cache the healthbar sprite
+	// to avoid creating a new image every TPS
+	var healthBar *ebiten.Image
+	var healthBarOutline *ebiten.Image
+	outlineCacheKey := "hbOutline"
+
+	if hbOutlineResult, ok := clientConfig.imageCache.Load(outlineCacheKey); ok {
+		healthBarOutline = hbOutlineResult.(cachedImage).img
+	} else {
+		healthBarOutline = ebiten.NewImage(int(maxWidth+4), 9)
+
+		cImgOL := cachedImage{
+			img:       healthBarOutline,
+			timestamp: time.Now(),
+		}
+		clientConfig.imageCache.Store(outlineCacheKey, cImgOL)
+
+	}
+
+	if hbResult, ok := clientConfig.imageCache.Load(healthRatio); ok {
+		healthBar = hbResult.(cachedImage).img
+	} else {
+		healthBar = ebiten.NewImage(int(health), 5)
+		cImgHB := cachedImage{
+			img:       healthBar,
+			timestamp: time.Now(),
+		}
+		clientConfig.imageCache.Store(healthRatio, cImgHB)
+	}
 
 	healthBarOpts := standardDrawOpts(currentPlayer, pc, p)
 

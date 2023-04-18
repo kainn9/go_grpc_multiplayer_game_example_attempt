@@ -97,6 +97,8 @@ func (world *world) Update(cp *player, input string) {
 	// ATM, this is spammable w/e for dev purposes
 	cp.worldTransferHandler(input)
 
+	cp.rotateRole(input)
+
 	// Can't do reg movement when attacking
 	if !cp.canAcceptInputs() {
 		cp.speedX = 0

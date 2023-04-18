@@ -104,7 +104,6 @@ func InitKnight() *Role {
 	LoadKnightSprites()
 
 	r := &Role{
-		RoleType:      sr.KnightType,
 		Animations:    KnightAnims(),
 		HitBoxOffsetY: 4,
 		HitBoxOffsetX: 8,

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
+	"github.com/kainn9/grpc_game/server/roles"
 	r "github.com/kainn9/grpc_game/server/roles"
 	se "github.com/kainn9/grpc_game/server/statusEffects"
 	"github.com/solarlune/resolv"
@@ -22,7 +23,7 @@ type player struct {
 	ignorePlatform  *resolv.Object // The Resolv physics object representing a platform that the player can ignore collision with
 	pid             string         // The player's unique identifier
 	worldKey        int            // The key of the world the player is currently in
-	r.Role                         // The player's role
+	*r.Role                        // The player's role
 	currAttack      *r.AttackData  // The player's current attack
 	playerPh                       // The player's physics parameters
 	gravBoost       bool           // Whether the player is receiving a gravity boost
@@ -113,13 +114,13 @@ func (cp *player) canAcceptInputs() bool {
 func newPlayer(pid string, worldKey int) *player {
 
 	// some tempcode for getting a random role each time a player is spawned
-	randomRole := make(map[int32]r.Role)
-	randomRole[0] = *r.Knight
-	randomRole[1] = *r.Monk
-	randomRole[2] = *r.Demon
-	randomRole[3] = *r.Werewolf
-	randomRole[4] = *r.Mage
-	randomRole[5] = *r.HeavyKnight
+	randomRole := make(map[int32]*r.Role)
+	randomRole[0] = r.Knight
+	randomRole[1] = r.Monk
+	randomRole[2] = r.Demon
+	randomRole[3] = r.Werewolf
+	randomRole[4] = r.Mage
+	randomRole[5] = r.HeavyKnight
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())
@@ -230,7 +231,7 @@ func changePlayersWorld(oldWorld *world, newWorld *world, cp *player, optX int, 
 	newWorld.players[cp.pid] = cp
 	newWorld.wPlayersMutex.Unlock()
 
-	addPlayerToSpace(newWorld, cp, float64(x), float64(y))
+	addPlayerToSpace(newWorld, cp, float64(x), float64(y-20))
 	cp.worldKey = newWorld.index
 }
 
@@ -525,4 +526,48 @@ func (cp *player) verticalMovmentHandler(input string, world *world) {
 		cp.death()
 	}
 
+}
+
+func (cp *player) rotateRole(input string) {
+	if input == "roleSwap" {
+		getKey := func(m map[*roles.Role]int32, target int32) *roles.Role {
+			for key, value := range m {
+				if value == target {
+					return key
+				}
+			}
+			return nil
+		}
+
+		currentRoleKey := serverConfig.roles[cp.Role] + 1
+
+		maxKey := len(serverConfig.roles)
+
+		if currentRoleKey > int32(maxKey)-1 {
+			currentRoleKey = 0
+		}
+
+		newRole := getKey(serverConfig.roles, currentRoleKey)
+
+		serverConfig.mutex.Lock()
+		cp.Role = newRole
+		cp.health = cp.Role.Health
+
+		cp.playerPh = playerPh{
+			friction: cp.Role.Phys.DefaultFriction,
+			accel:    cp.Role.Phys.DefaultAccel,
+			maxSpeed: cp.Role.Phys.DefaultMaxSpeed,
+			jumpSpd:  cp.Role.Phys.DefaultJumpSpd,
+			gravity:  cp.Role.Phys.DefaultGravity,
+		}
+		serverConfig.mutex.Unlock()
+
+		w, _ := currentPlayerWorld(cp.pid)
+
+		w.hitboxMutex.Lock()
+		w.space.Remove(cp.object)
+		w.hitboxMutex.Unlock()
+
+		addPlayerToSpace(w, cp, cp.object.X, cp.object.Y)
+	}
 }

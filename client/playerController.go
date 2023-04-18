@@ -170,6 +170,10 @@ func (pc *PlayerController) InputListener() {
 		pc.inputHandler("swap")
 	}
 
+	if inpututil.IsKeyJustPressed(ebiten.KeyN) {
+		pc.inputHandler("roleSwap")
+	}
+
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		devConfig.freePlay = !devConfig.freePlay
 	}

@@ -21,11 +21,10 @@ func DemonAttacks() map[AtKey]*AttackData {
 func InitDemon() *Role {
 
 	r := &Role{
-		RoleType: DemonType,
-		Attacks:  DemonAttacks(),
-		HitBoxW:  50,
-		HitBoxH:  80,
-		Health:   1300,
+		Attacks: DemonAttacks(),
+		HitBoxW: 50,
+		HitBoxH: 80,
+		Health:  1300,
 
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,

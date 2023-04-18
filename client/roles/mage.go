@@ -86,7 +86,6 @@ func InitMage() *Role {
 	LoadMageSprites()
 
 	r := &Role{
-		RoleType:      sr.MageType,
 		Animations:    MageAnims(),
 		HitBoxOffsetY: 52,
 		HitBoxOffsetX: 88,

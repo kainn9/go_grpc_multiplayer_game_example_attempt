@@ -21,10 +21,9 @@ func HeavyKnightAttacks() map[AtKey]*AttackData {
 func InitHeavyKnight() *Role {
 
 	r := &Role{
-		RoleType: HeavyKnightType,
-		Attacks:  HeavyKnightAttacks(),
-		HitBoxW:  28,
-		HitBoxH:  55,
+		Attacks: HeavyKnightAttacks(),
+		HitBoxW: 28,
+		HitBoxH: 55,
 
 		Health: 380,
 		Phys: &RolePhysStruct{

@@ -2,7 +2,6 @@ package roles
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	sr "github.com/kainn9/grpc_game/server/roles"
 )
 
 /*
@@ -13,7 +12,6 @@ import (
 */
 
 type Role struct {
-	RoleType           sr.PlayerType
 	Animations         map[string]*Animation
 	HitBoxOffsetX      float64
 	HitBoxOffsetY      float64

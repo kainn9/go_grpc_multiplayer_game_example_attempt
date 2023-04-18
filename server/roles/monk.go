@@ -28,12 +28,11 @@ func InitMonk() *Role {
 	}
 
 	r := &Role{
-		RoleType: MonkType,
-		Attacks:  MonkAttacks(),
-		HitBoxW:  12,
-		HitBoxH:  35,
-		Defense:  d,
-		Health:   480,
+		Attacks: MonkAttacks(),
+		HitBoxW: 12,
+		HitBoxH: 35,
+		Defense: d,
+		Health:  480,
 
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,

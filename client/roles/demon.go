@@ -73,7 +73,6 @@ func InitDemon() *Role {
 	LoadDemonSprites()
 
 	r := &Role{
-		RoleType:      sr.DemonType,
 		Animations:    DemonAnims(),
 		HitBoxOffsetY: 30,
 		HitBoxOffsetX: 30,

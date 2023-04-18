@@ -171,7 +171,7 @@ func newEvent(req *pb.PlayerReq, stalled bool) *event {
 
 	if req.Input == "keyLeft" || req.Input == "keyRight" || req.Input == "keyDown" {
 		e.eventCategory = eventRestricted
-	} else if req.Input == "swap" {
+	} else if req.Input == "swap" || req.Input == "roleSwap" {
 		e.eventCategory = eventAdmin
 	} else {
 		e.eventCategory = eventNormal

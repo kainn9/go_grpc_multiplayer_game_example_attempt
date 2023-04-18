@@ -91,7 +91,6 @@ func InitWerewolf() *Role {
 	LoadWerewolfSprites()
 
 	r := &Role{
-		RoleType:      sr.WerewolfType,
 		Animations:    WerewolfAnims(),
 		HitBoxOffsetY: 0,
 		HitBoxOffsetX: 20,

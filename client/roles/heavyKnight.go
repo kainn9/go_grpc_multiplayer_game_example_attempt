@@ -80,7 +80,6 @@ func InitHeavyKnight() *Role {
 	LoadHeavyKnightSprites()
 
 	r := &Role{
-		RoleType:      sr.HeavyKnightType,
 		Animations:    HeavyKnightAnims(),
 		HitBoxOffsetY: 72,
 		HitBoxOffsetX: 85,

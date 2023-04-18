@@ -212,7 +212,7 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 			AttackMovement: string(curr.attackMovement),
 			Health:         int32(curr.health),
 			Defending:      curr.defending,
-			Role:           serverConfig.roles[curr.RoleType],
+			Role:           serverConfig.roles[curr.Role],
 			Dead:           curr.dead,
 		}
 

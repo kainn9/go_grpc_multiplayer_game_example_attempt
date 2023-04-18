@@ -79,7 +79,6 @@ func InitMonk() *Role {
 	LoadMonkSprites()
 
 	r := &Role{
-		RoleType:      sr.MonkType,
 		Animations:    MonkAnims(),
 		HitBoxOffsetY: 4,
 		HitBoxOffsetX: 4,

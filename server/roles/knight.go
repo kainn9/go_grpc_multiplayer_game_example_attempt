@@ -32,12 +32,11 @@ func InitKnight() *Role {
 	}
 
 	r := &Role{
-		RoleType: KnightType,
-		Attacks:  KnightAttacks(),
-		HitBoxW:  16,
-		HitBoxH:  44,
-		Defense:  d,
-		Health:   280,
+		Attacks: KnightAttacks(),
+		HitBoxW: 16,
+		HitBoxH: 44,
+		Defense: d,
+		Health:  280,
 		Phys: &RolePhysStruct{
 			DefaultFriction: 0.5,
 			DefaultMaxSpeed: 4.0,

@@ -1,14 +1,11 @@
 package roles
 
-type PlayerType string
-
 type Role struct {
-	RoleType PlayerType
-	Attacks  map[AtKey]*AttackData
-	HitBoxW  float64
-	HitBoxH  float64
-	Defense  *Defense
-	Health   int
+	Attacks map[AtKey]*AttackData
+	HitBoxW float64
+	HitBoxH float64
+	Defense *Defense
+	Health  int
 
 	Phys *RolePhysStruct
 }
@@ -103,15 +100,6 @@ type RolePhysStruct struct {
 	DefaultJumpSpd  float64
 	DefaultGravity  float64
 }
-
-const (
-	KnightType      PlayerType = "knight"
-	MageType        PlayerType = "mage"
-	MonkType        PlayerType = "monk"
-	DemonType       PlayerType = "demon"
-	WerewolfType    PlayerType = "werewolf"
-	HeavyKnightType PlayerType = "heavyKnight"
-)
 
 type AtKey string
 

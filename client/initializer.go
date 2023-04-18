@@ -3,6 +3,7 @@ package main
 // TODO move these out of Global Scope and into "config" structs
 import (
 	"os"
+	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -32,6 +33,7 @@ type gameSettings struct {
 	showHelp         bool
 	roles            map[int32]*r.Role
 	showPlayerHitbox bool
+	imageCache       sync.Map
 }
 
 type devSettings struct {
@@ -60,6 +62,11 @@ type fixedAnimTracker struct {
 	ticks    int
 }
 
+type cachedImage struct {
+	img       *ebiten.Image
+	timestamp time.Time // TODO create a go routine to clear cache based on timestamp
+}
+
 var clientConfig *gameSettings
 var devConfig *devSettings
 var wBgHelper *worldBackgrounds
@@ -83,6 +90,7 @@ func initClient() {
 		showHelp:         true,
 		roles:            make(map[int32]*r.Role),
 		showPlayerHitbox: false,
+		imageCache:       sync.Map{},
 	}
 
 	clientConfig.roles[0] = r.InitKnight()
