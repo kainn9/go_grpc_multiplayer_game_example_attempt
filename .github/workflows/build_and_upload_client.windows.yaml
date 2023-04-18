@@ -23,8 +23,7 @@ jobs:
         run: |
           $env:GOOS="windows"
           $env:GOARCH="amd64"
-          $env:ADDR="${{ vars.ADDR }}"
-          go build -ldflags "-X github.com/kainn9/grpc_game/client_util.BuildTime=true" -o bin/application.exe ./client
+          go build -ldflags "-X github.com/kainn9/grpc_game/client_util.BuildTime=true -X main.ADDR=${{ vars.ADDR }}" -o bin/application.exe ./client
           Copy-Item -Path ".\client\sprites" -Destination ".\bin\sprites" -Recurse
           Copy-Item -Path ".\client\backgrounds" -Destination ".\bin\backgrounds" -Recurse
           Copy-Item -Path ".\client\audio" -Destination ".\bin\audio" -Recurse

@@ -2,7 +2,6 @@ package main
 
 // TODO move these out of Global Scope and into "config" structs
 import (
-	"os"
 	"sync"
 	"time"
 
@@ -71,9 +70,10 @@ var clientConfig *gameSettings
 var devConfig *devSettings
 var wBgHelper *worldBackgrounds
 var fixedAnims map[string]*fixedAnimTracker
+var ADDR string
 
 func initClient() {
-	addr := os.Getenv("ADDR")
+	addr := ADDR
 
 	if addr == "" {
 		addr = "localhost"

@@ -22,12 +22,16 @@ jobs:
 
       - name: Install Go packages
         run: go mod tidy && go mod download
-
+        
+        # Note even though were are using chmod in the Build Binary command, github/upload-artifact(s) won't actually preserve the permissions
+        # and so 'chmod +x' will need to be run on the client appliaction again after downloading
+        # see: https://github.com/actions/upload-artifact/issues/38
+        #(not an issue for windows as it builds as an EXE)
       - name: Build binary
         run: |
           export GOOS=linux
           export GOARCH=amd64
-          ADDR=${{ vars.ADDR }} go build -ldflags "-X github.com/kainn9/grpc_game/client_util.BuildTime=true" -o bin/application ./client && cp -R ./client/sprites ./bin && cp -R ./client/backgrounds ./bin && cp -R ./client/audio ./bin && chmod +x ./bin/application
+          go build -ldflags "-X github.com/kainn9/grpc_game/client_util.BuildTime=true -X main.ADDR=${{ vars.ADDR }}" -o bin/application ./client && cp -R ./client/sprites ./bin && cp -R ./client/backgrounds ./bin && cp -R ./client/audio ./bin && chmod +x ./bin/application
           cp -R ./client/sprites ./bin
           cp -R ./client/backgrounds ./bin
           cp -R ./client/audio ./bin
