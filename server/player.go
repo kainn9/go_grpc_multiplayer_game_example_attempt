@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"math/rand"
+	"sync"
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
@@ -38,6 +39,8 @@ type player struct {
 	defenseCooldown bool
 	hits            map[string]bool
 	dead            bool
+	kbStamp         time.Time
+	kbStampMutex    sync.RWMutex
 }
 
 // playerPh represents the physics parameters of a player
@@ -144,6 +147,7 @@ func newPlayer(pid string, worldKey int) *player {
 		movmentStartX: -100,
 		health:        role.Health,
 		hits:          make(map[string]bool),
+		kbStampMutex:  sync.RWMutex{},
 	}
 
 	ph := &playerPh{

@@ -141,8 +141,30 @@ func (cp *player) applyAttackCC(attacker *player, atk *r.AttackData) {
 		kbyDur = int(attacker.chargeValue * atk.ChargeEffect.MultFactorKbyDur)
 	}
 
-	time.AfterFunc((time.Duration(kbxDur))*time.Millisecond, func() { cp.kbx = 0 })
-	time.AfterFunc((time.Duration(kbyDur))*time.Millisecond, func() { cp.kby = 0 })
+	stamp := time.Now()
+
+	cp.kbStampMutex.Lock()
+	cp.kbStamp = stamp
+	cp.kbStampMutex.Unlock()
+
+	time.AfterFunc((time.Duration(kbxDur))*time.Millisecond, func() {
+		cp.kbStampMutex.RLock()
+		defer cp.kbStampMutex.RUnlock()
+
+		if cp.kbStamp == stamp {
+			cp.kbx = 0
+		}
+
+	})
+
+	time.AfterFunc((time.Duration(kbyDur))*time.Millisecond, func() {
+		cp.kbStampMutex.RLock()
+		defer cp.kbStampMutex.RUnlock()
+
+		if cp.kbStamp == stamp {
+			cp.kby = 0
+		}
+	})
 }
 
 // simple death for now(this will just cause the player to respawn with a new PID/Full health)
