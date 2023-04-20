@@ -63,7 +63,7 @@ func LoadHeavyKnightSprites() {
 	heavyKnightSpriteKBRight = utClient.LoadImage("./sprites/heavyKnight/heavyKnightKnockBackRight.png")
 	heavyKnightSpriteKBLeft = utClient.LoadImage("./sprites/heavyKnight/heavyKnightKnockBackLeft.png")
 
-	heavyKnightSpriteDeathRight = utClient.LoadImage("./sprites/heavyKnight/heavyKnightDeathLeft.png")
+	heavyKnightSpriteDeathRight = utClient.LoadImage("./sprites/heavyKnight/heavyKnightDeathRight.png")
 	heavyKnightSpriteDeathLeft = utClient.LoadImage("./sprites/heavyKnight/heavyKnightDeathLeft.png")
 
 	heavyKnightSpriteSweepSlashRight = utClient.LoadImage("./sprites/heavyKnight/heavyKnightSweepSlashRight.png")
@@ -208,7 +208,7 @@ func HeavyKnightAnims() map[string]*Animation {
 	}
 
 	anims[string(DeathRight)] = &Animation{
-		Name:        string(DeathLeft),
+		Name:        string(DeathRight),
 		FrameOX:     0,
 		FrameOY:     0,
 		FrameWidth:  200,

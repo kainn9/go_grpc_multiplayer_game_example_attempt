@@ -1,4 +1,4 @@
-package main
+package player
 
 import (
 	"log"
@@ -8,15 +8,15 @@ import (
 )
 
 type hitBoxData struct {
-	player     *player
-	attackData *r.AttackData
-	aid        string // attack id that applied universal to every hitbox per attack
+	Player     *Player
+	AttackData *r.AttackData
+	Aid        string // attack id that applied universal to every hitbox per attack
 }
 
-func initHitboxData(o *resolv.Object, p *player, atk *r.AttackData) {
+func InitHitboxData(o *resolv.Object, p *Player, atk *r.AttackData) {
 	o.Data = &hitBoxData{
-		player:     p,
-		attackData: atk,
+		Player:     p,
+		AttackData: atk,
 	}
 }
 
@@ -29,7 +29,7 @@ func assertHitboxData(o *resolv.Object) *hitBoxData {
 	return nil
 }
 
-func hBoxData(o *resolv.Object) *hitBoxData {
+func HBoxData(o *resolv.Object) *hitBoxData {
 	data := assertHitboxData(o)
 	return data
 }

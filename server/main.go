@@ -8,6 +8,8 @@ import (
 	_ "net/http/pprof"
 
 	pb "github.com/kainn9/grpc_game/proto"
+	gc "github.com/kainn9/grpc_game/server/globalConstants"
+	wr "github.com/kainn9/grpc_game/server/worlds"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -27,17 +29,17 @@ func main() {
 	}
 
 	// Initialize server configuration
-	initializer()
+	wr.Initializer()
 
 	// Listen for incoming connections
-	lis, err := net.Listen("tcp", serverConfig.addr)
+	lis, err := net.Listen("tcp", gc.ADDR)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v\n", err)
 	}
 	defer lis.Close()
 
 	// Log the server's listening address
-	log.Printf("Listening at %s\n", serverConfig.addr)
+	log.Printf("Listening at %s\n", gc.ADDR)
 
 	// Set options for the gRPC server
 	opts := []grpc.ServerOption{

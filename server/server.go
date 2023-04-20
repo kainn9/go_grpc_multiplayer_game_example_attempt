@@ -1,13 +1,13 @@
 package main
 
 import (
-	"errors"
 	"io"
 	"log"
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
-	u "github.com/kainn9/grpc_game/util"
+	pl "github.com/kainn9/grpc_game/server/player"
+	wr "github.com/kainn9/grpc_game/server/worlds"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -21,59 +21,6 @@ type stalledWrapper struct {
 	stalled bool
 }
 
-/*
-	There is no authN or persistance currently.
-	Identity boils down to a randomly generated
-	"Player ID"(pid) that is created when the
-	client first connects to the server and the
-	bidirectional stream is setup
-
-	Anwyay, we use the following two functions
-	to track which world the player is using these PIDs
-*/
-
-func locateFromPID(pid string) (world *world, worldKey int, err error) {
-	serverConfig.mutex.RLock()
-	player := serverConfig.activePlayers[pid]
-	serverConfig.mutex.RUnlock()
-
-	if player != nil {
-		w := serverConfig.worldsMap[player.worldKey]
-
-		if w != nil {
-			return w, player.worldKey, nil
-		}
-
-	}
-
-	return nil, 0, errors.New("no match found")
-}
-
-/*
-Helper that uses LocateFromPID
-to return a world that a player
-is currently attached to. Unlike
-LocateFromPID this defaults to returning
-the main/starting world
-*/
-func currentPlayerWorld(pid string) (world *world, worldKey int) {
-
-	// adding new player to default world
-	// or setting current world to where
-	// the active player is located
-	w, k, err := locateFromPID(pid)
-
-	if err != nil {
-		if serverConfig.randomSpawn {
-			wKey := int(u.RandomInt(int64(len(serverConfig.worldsMap))))
-			return serverConfig.worldsMap[wKey], wKey
-		}
-
-		return serverConfig.startingWorld, serverConfig.startingWorld.index
-	}
-	return w, k
-}
-
 func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) error {
 
 	md, _ := metadata.FromIncomingContext(stream.Context())
@@ -84,7 +31,7 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 	for {
 
-		w, _ := currentPlayerWorld(pid)
+		w, _ := wr.CurrentPlayerWorldOrDefault(pid)
 
 		stalledWrapperInstance := stalledWrapper{stalled: true}
 
@@ -94,7 +41,7 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 		if err == io.EOF {
 			log.Printf("EOF")
-			removePlayerFromGame(pid, w)
+			wr.RemovePlayerFromWorld(pid, w)
 			return nil
 		}
 
@@ -104,13 +51,13 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 				log.Println("connection has been closed")
 				log.Printf("Removing player: %v\n", pid)
-				removePlayerFromGame(pid, w)
+				wr.RemovePlayerFromWorld(pid, w)
 
 			default:
 
 				log.Printf("Error while reading client stream %v\n", err)
 				log.Printf("Removing player: %v\n", pid)
-				removePlayerFromGame(pid, w)
+				wr.RemovePlayerFromWorld(pid, w)
 			}
 
 			return nil
@@ -122,16 +69,16 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 		initPlayer(req)
 
 		// this can be nil when a player is transfering worlds
-		w.wPlayersMutex.Lock()
-		p := w.players[pid]
+		w.WPlayersMutex.Lock()
+		p := w.Players[pid]
 
 		if p != nil {
-			w.players[pid].prevEvent = prevReq
+			w.Players[pid].PrevEvent = prevReq
 		}
-		w.wPlayersMutex.Unlock()
+		w.WPlayersMutex.Unlock()
 
-		newEvent := newEvent(req, false)
-		newEvent.enqueue(w)
+		newEvent := wr.NewEvent(req, false)
+		newEvent.Enqueue(w)
 
 		responseHandler(stream, pid)
 
@@ -139,34 +86,34 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 
 }
 
-func initPlayer(r *pb.PlayerReq) (*player, *world) {
-	var cp *player
+func initPlayer(r *pb.PlayerReq) (*pl.Player, *wr.World) {
+	var cp *pl.Player
 	pid := r.Id
 
-	w, k := currentPlayerWorld(pid)
+	w, _ := wr.CurrentPlayerWorldOrDefault(pid)
 
-	serverConfig.mutex.RLock()
-	activePlayer := serverConfig.activePlayers[pid]
-	serverConfig.mutex.RUnlock()
+	wr.WorldsConfig.Mutex.RLock()
+	activePlayer := wr.WorldsConfig.ActivePlayers[pid]
+	wr.WorldsConfig.Mutex.RUnlock()
 
 	if activePlayer == nil {
 
-		cp = newPlayer(pid, k)
+		cp = pl.NewPlayer(pid, w)
 
-		serverConfig.mutex.Lock()
-		serverConfig.activePlayers[pid] = cp
-		serverConfig.mutex.Unlock()
+		wr.WorldsConfig.Mutex.Lock()
+		wr.WorldsConfig.ActivePlayers[pid] = cp
+		wr.WorldsConfig.Mutex.Unlock()
 
-		w.wPlayersMutex.Lock()
-		w.players[pid] = cp
-		w.wPlayersMutex.Unlock()
+		w.WPlayersMutex.Lock()
+		w.Players[pid] = cp
+		w.WPlayersMutex.Unlock()
 
 	} else {
 		cp = activePlayer
 	}
 
-	if cp.object == nil {
-		addPlayerToSpace(w, cp, float64(w.worldSpawnCords.x), float64(w.worldSpawnCords.y))
+	if cp.Object == nil {
+		wr.AddPlayerToSpace(w, cp, float64(w.WorldSpawnCords.X), float64(w.WorldSpawnCords.Y))
 	}
 
 	return cp, w
@@ -180,45 +127,45 @@ side of stream) resides inside of
 */
 func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) {
 
-	w, wk := currentPlayerWorld(pid)
+	w, wk := wr.CurrentPlayerWorldOrDefault(pid)
 	res := &pb.PlayerResp{}
 
-	w.wPlayersMutex.RLock()
-	for k := range w.players {
-		curr := w.players[k]
+	w.WPlayersMutex.RLock()
+	for k := range w.Players {
+		curr := w.Players[k]
 
-		if curr == nil || curr.object == nil {
+		if curr == nil || curr.Object == nil {
 			continue
 		}
-		jumping := curr.onGround == nil && curr.wallSliding == nil
+		jumping := curr.OnGround == nil && curr.WallSliding == nil
 
 		currAtk := ""
-		if curr.currAttack != nil && curr.currAttack.Type != "" {
-			currAtk = string(curr.currAttack.Type)
+		if curr.CurrAttack != nil && curr.CurrAttack.Type != "" {
+			currAtk = string(curr.CurrAttack.Type)
 		}
 
 		p := &pb.Player{
-			Id:             curr.pid,
-			Lx:             curr.object.X,
-			Ly:             curr.object.Y,
-			FacingRight:    curr.facingRight,
-			SpeedX:         curr.speedX,
-			SpeedY:         curr.speedY,
+			Id:             curr.Pid,
+			Lx:             curr.Object.X,
+			Ly:             curr.Object.Y,
+			FacingRight:    curr.FacingRight,
+			SpeedX:         curr.SpeedX,
+			SpeedY:         curr.SpeedY,
 			World:          int32(wk),
 			Jumping:        jumping,
 			CurrAttack:     currAtk,
-			CC:             string(curr.isCC()),
-			Windup:         string(curr.windup),
-			AttackMovement: string(curr.attackMovement),
-			Health:         int32(curr.health),
-			Defending:      curr.defending,
-			Role:           serverConfig.roles[curr.Role],
-			Dead:           curr.dead,
+			CC:             string(curr.IsCC()),
+			Windup:         string(curr.Windup),
+			AttackMovement: string(curr.AttackMovement),
+			Health:         int32(curr.Health),
+			Defending:      curr.Defending,
+			Role:           wr.WorldsConfig.Roles[curr.Role],
+			Dead:           curr.Dying,
 		}
 
 		res.Players = append(res.Players, p)
 	}
-	w.wPlayersMutex.RUnlock()
+	w.WPlayersMutex.RUnlock()
 
 	err := stream.Send(res)
 
@@ -243,13 +190,13 @@ func (s *stalledWrapper) stalledHandler(pid string, prevReq *pb.PlayerReq) {
 				// Questionable if prevRequest should be used.
 				if prevReq != nil && s.stalled {
 
-					w, _, err := locateFromPID(pid)
+					w, _, err := wr.LocateFromPID(pid)
 					if err != nil {
 						return
 					}
 
-					prevEvent := newEvent(prevReq, true)
-					prevEvent.enqueue(w)
+					prevEvent := wr.NewEvent(prevReq, true)
+					prevEvent.Enqueue(w)
 				} else {
 					return
 				}

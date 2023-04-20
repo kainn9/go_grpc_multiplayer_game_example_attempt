@@ -1,10 +1,10 @@
-package main
+package worlds
 
 import "github.com/solarlune/resolv"
 
-type builderFunc func(*world, float64, float64)
+type builderFunc func(*World, float64, float64)
 
-func introWorldBuilder(world *world, gw float64, gh float64) {
+func IntroWorldBuilder(world *World, gw float64, gh float64) {
 	portal := resolv.NewObject(1541, 150, 40, 40, "portal")
 	initPortal(portal, 3, 16, 250)
 
@@ -87,7 +87,7 @@ func introWorldBuilder(world *world, gw float64, gh float64) {
 	)
 }
 
-func landOfYohoPassageOneBuilder(world *world, gw float64, gh float64) {
+func LandOfYohoPassageOneBuilder(world *World, gw float64, gh float64) {
 
 	portal := resolv.NewObject(gw-16, 0, 18, gh, "portal")
 	initPortal(portal, 4, 40, 500)
@@ -104,7 +104,7 @@ func landOfYohoPassageOneBuilder(world *world, gw float64, gh float64) {
 	)
 }
 
-func landOfYohoPassageTwoBuilder(world *world, gw float64, gh float64) {
+func LandOfYohoPassageTwoBuilder(world *World, gw float64, gh float64) {
 	portalBack := resolv.NewObject(0, 408, 16, 500, "portal")
 	initPortal(portalBack, 3, 880, 250)
 
@@ -135,7 +135,7 @@ func landOfYohoPassageTwoBuilder(world *world, gw float64, gh float64) {
 	)
 }
 
-func landOfYohoVillageBuilder(world *world, gw float64, gh float64) {
+func LandOfYohoVillageBuilder(world *World, gw float64, gh float64) {
 	portalBack := resolv.NewObject(gw-16, 0, 18, gh, "portal")
 
 	portalToNoWater := resolv.NewObject(16, 452, 45, 45, "portal")
@@ -164,7 +164,7 @@ func landOfYohoVillageBuilder(world *world, gw float64, gh float64) {
 
 }
 
-func mainWorldBuilder(world *world, gw float64, gh float64) {
+func MainWorldBuilder(world *World, gw float64, gh float64) {
 	introPortal := resolv.NewObject(2303, 90, 50, 50, "portal")
 	initPortal(introPortal, 0, 80, 690)
 
@@ -203,7 +203,7 @@ func mainWorldBuilder(world *world, gw float64, gh float64) {
 	)
 }
 
-func altWorldBuilder(world *world, gw float64, gh float64) {
+func AltWorldBuilder(world *World, gw float64, gh float64) {
 	dezPortal := resolv.NewObject(1878, 770, 60, 50, "portal")
 	initPortal(dezPortal, 1, 581, 500)
 
