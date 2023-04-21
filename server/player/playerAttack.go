@@ -1,14 +1,14 @@
-package main
+package player
 
 import (
 	r "github.com/kainn9/grpc_game/server/roles"
 )
 
 // attackHandler handles player's attack inputs
-func (cp *player) attackHandler(input string, world *world) {
+func (cp *Player) AttackHandler(input string, world World) {
 
 	// can't attack while attacking yo
-	if cp.currAttack != nil {
+	if cp.CurrAttack != nil {
 		return
 	}
 
@@ -29,7 +29,7 @@ func (cp *player) attackHandler(input string, world *world) {
 	}
 }
 
-func (cp *player) attack(world *world, atKey r.AtKey) {
+func (cp *Player) attack(world World, atKey r.AtKey) {
 
 	atk := cp.Attacks[atKey]
 

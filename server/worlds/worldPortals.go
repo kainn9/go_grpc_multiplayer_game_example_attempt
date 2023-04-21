@@ -1,4 +1,4 @@
-package main
+package worlds
 
 import (
 	"log"
@@ -7,7 +7,7 @@ import (
 )
 
 type portalObject struct {
-	worldKey int
+	worldKey int // we use key because not all worlds are set when the portals are being init'd
 	x        int
 	y        int
 }
@@ -25,7 +25,7 @@ func assertPortalData(o *resolv.Object) *portalObject {
 		return data
 	}
 
-	log.Fatalf("hitbox data is not set, this a critical error: ID:%v\nContents:%v\n", &o.Data, o.Data)
+	log.Fatal("portal data is not set, this a critical error")
 	return nil
 }
 

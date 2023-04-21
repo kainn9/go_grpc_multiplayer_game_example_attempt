@@ -21,6 +21,16 @@ type AttackData struct {
 	HitBoxSequence HitBoxSequence
 }
 
+// currently not setup/used
+// intended for future plans...
+type Projectile struct {
+	Speed       int
+	Gravity     int
+	Height      int
+	Width       int
+	Consequence *Consequence
+}
+
 type Windup struct {
 	Duration int
 	*ChargeEffect

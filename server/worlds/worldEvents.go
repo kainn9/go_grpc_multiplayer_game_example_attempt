@@ -1,4 +1,4 @@
-package main
+package worlds
 
 import (
 	"log"
@@ -22,7 +22,7 @@ const (
 )
 
 // Starts a new ticker loop that calls processEventsPerTick with the given world
-func newTickLoop(w *world) {
+func newTickLoop(w *World) {
 
 	log.Printf("Starting Tick Loop for %v\n", w.name)
 
@@ -37,7 +37,7 @@ func newTickLoop(w *world) {
 }
 
 // Process events in the given world, removing each event as it is processed
-func processEventsPerTick(w *world) {
+func processEventsPerTick(w *World) {
 	w.eventsMutex.Lock()
 	defer w.eventsMutex.Unlock()
 
@@ -73,9 +73,9 @@ func processEventsPerTick(w *world) {
 		dupeKey := ev.Id + string(ev.eventCategory)
 
 		// If there is a player associated with the event, handle the event with the player and world
-		w.wPlayersMutex.RLock()
-		cp := w.players[ev.Id]
-		w.wPlayersMutex.RUnlock()
+		w.WPlayersMutex.RLock()
+		cp := w.Players[ev.Id]
+		w.WPlayersMutex.RUnlock()
 
 		if cp != nil && (dupeEvents[dupeKey] < 2) {
 			w.Update(cp, ev.Input)
@@ -162,7 +162,7 @@ TODO:
 // 	}
 // }
 
-func newEvent(req *pb.PlayerReq, stalled bool) *event {
+func NewEvent(req *pb.PlayerReq, stalled bool) *event {
 
 	e := &event{
 		PlayerReq: req,
@@ -180,13 +180,13 @@ func newEvent(req *pb.PlayerReq, stalled bool) *event {
 	return e
 }
 
-func (e *event) enqueue(w *world) {
+func (e *event) Enqueue(w *World) {
 	w.eventsMutex.Lock()
 	w.events = append(w.events, e)
 	w.eventsMutex.Unlock()
 }
 
-func logHighEventCount(w *world) {
+func logHighEventCount(w *World) {
 	if len(w.events) > 25 {
 		log.Printf("WORLD: %v\n", w.name)
 		log.Printf("LEN! 25 %v\n", len(w.events) > 25)
