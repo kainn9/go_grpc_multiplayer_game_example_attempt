@@ -127,6 +127,7 @@ func NewPlayer(pid string, world World) *Player {
 	randomRole[3] = r.Werewolf
 	randomRole[4] = r.Mage
 	randomRole[5] = r.HeavyKnight
+	randomRole[6] = r.BirdDroid
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())

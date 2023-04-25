@@ -89,7 +89,7 @@ func initClient() {
 		enablePPROF:      false,
 		showHelp:         true,
 		roles:            make(map[int32]*r.Role),
-		showPlayerHitbox: false,
+		showPlayerHitbox: true,
 		imageCache:       sync.Map{},
 	}
 
@@ -99,6 +99,7 @@ func initClient() {
 	clientConfig.roles[3] = r.InitWerewolf()
 	clientConfig.roles[4] = r.InitMage()
 	clientConfig.roles[5] = r.InitHeavyKnight()
+	clientConfig.roles[6] = r.InitBirdDroid()
 
 	devConfig = &devSettings{
 		rulerW:         utClient.LoadImage("./sprites/rulers/wRuler.png"),
