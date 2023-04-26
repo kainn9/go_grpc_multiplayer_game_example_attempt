@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	evt "github.com/kainn9/grpc_game/server/event"
 	gc "github.com/kainn9/grpc_game/server/globalConstants"
 	pl "github.com/kainn9/grpc_game/server/player"
 
@@ -20,7 +21,7 @@ type World struct {
 	Players         map[string]*pl.Player // A map of players currently in the world
 	name            string                // The name of the world
 	Index           int                   // index in worlds map
-	events          []*event              // An queue of events to be processed(world scoped)
+	events          []*evt.Event          // An queue of events to be processed(world scoped)
 	eventsMutex     sync.RWMutex
 	hitboxMutex     sync.RWMutex
 	WPlayersMutex   sync.RWMutex
@@ -42,7 +43,7 @@ func NewWorld(height float64, width float64, worldBuilder builderFunc, name stri
 		eventsMutex:   sync.RWMutex{},
 		hitboxMutex:   sync.RWMutex{},
 		WPlayersMutex: sync.RWMutex{},
-		events:        make([]*event, 0),
+		events:        make([]*evt.Event, 0),
 		WorldSpawnCords: &worldSpawnCords{
 			Y: spawnY,
 			X: spawnX,
@@ -157,8 +158,9 @@ func (world *World) Update(cp *pl.Player, input string) {
 	if c := cp.Object.Check(wallNext, 0, "solid"); cp.WallSliding != nil && c == nil {
 		cp.WallSliding = nil
 	}
-	world.hitboxMutex.Lock() // TODO: maybe??
-	cp.Object.Update()       // Update the player's position in the space.
+
+	world.hitboxMutex.Lock()
+	cp.Object.Update()
 	world.hitboxMutex.Unlock()
 
 }

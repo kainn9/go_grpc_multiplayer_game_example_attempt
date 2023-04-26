@@ -11,7 +11,6 @@ func WerewolfAttacks() map[AtKey]*AttackData {
 	atks = werewolfPrimaryAtk(atks)
 	atks = werewolfSecondaryAtk(atks)
 	atks = werewolfTertAtk(atks)
-	atks[QuaternaryAttackKey] = atks[PrimaryAttackKey]
 
 	return atks
 }
@@ -39,7 +38,8 @@ func InitWerewolf() *Role {
 
 func werewolfPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 	atks[PrimaryAttackKey] = &AttackData{
-		Name: PrimaryAttackKey,
+		Name:     PrimaryAttackKey,
+		Cooldown: 1700,
 		Consequence: &Consequence{
 			Damage:             65,
 			KnockbackX:         se.StunFloat,

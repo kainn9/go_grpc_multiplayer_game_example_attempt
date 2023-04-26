@@ -2,7 +2,6 @@ package util
 
 import (
 	"math/rand"
-	"reflect"
 	"time"
 )
 
@@ -12,8 +11,25 @@ func RandomInt(n int64) int64 {
 	return r.Int63n(n)
 }
 
-func ToInterfacePtr(val interface{}) interface{} {
-	ptr := reflect.New(reflect.TypeOf(val))
-	ptr.Elem().Set(reflect.ValueOf(val))
-	return ptr.Interface()
+func SetNthCharTo1(str string, n int) string {
+
+	// Convert the string to a byte slice
+	bytes := []byte(str)
+
+	// Set the nth byte to 49 ('1' in ASCII)
+	bytes[n] = 49
+
+	// Convert the byte slice back to a string
+	return string(bytes)
+}
+
+func SetNthCharTo0(str string, n int) string {
+	// Convert the string to a byte slice
+	bytes := []byte(str)
+
+	// Set the nth byte to 48 ('0' in ASCII)
+	bytes[n] = 48
+
+	// Convert the byte slice back to a string
+	return string(bytes)
 }

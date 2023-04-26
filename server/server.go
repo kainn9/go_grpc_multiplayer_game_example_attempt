@@ -6,6 +6,7 @@ import (
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
+	evt "github.com/kainn9/grpc_game/server/event"
 	pl "github.com/kainn9/grpc_game/server/player"
 	wr "github.com/kainn9/grpc_game/server/worlds"
 	"google.golang.org/grpc/codes"
@@ -77,8 +78,8 @@ func (s *server) PlayerLocation(stream pb.PlayersService_PlayerLocationServer) e
 		}
 		w.WPlayersMutex.Unlock()
 
-		newEvent := wr.NewEvent(req, false)
-		newEvent.Enqueue(w)
+		newEvent := evt.NewEvent(req, false)
+		wr.Enqueue(w, newEvent)
 
 		responseHandler(stream, pid)
 
@@ -161,6 +162,7 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 			Defending:      curr.Defending,
 			Role:           wr.WorldsConfig.Roles[curr.Role],
 			Dead:           curr.Dying,
+			Cooldowns:      curr.CdString,
 		}
 
 		res.Players = append(res.Players, p)
@@ -195,8 +197,8 @@ func (s *stalledWrapper) stalledHandler(pid string, prevReq *pb.PlayerReq) {
 						return
 					}
 
-					prevEvent := wr.NewEvent(prevReq, true)
-					prevEvent.Enqueue(w)
+					prevEvent := evt.NewEvent(prevReq, true)
+					wr.Enqueue(w, prevEvent)
 				} else {
 					return
 				}

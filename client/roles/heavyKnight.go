@@ -86,6 +86,8 @@ func InitHeavyKnight() *Role {
 		Health:        sr.HeavyKnight.Health,
 		HitBoxW:       sr.HeavyKnight.HitBoxW,
 		HitBoxH:       sr.HeavyKnight.HitBoxH,
+		AttackCount:   len(sr.HeavyKnight.Attacks),
+		HasDefense:    sr.HeavyKnight.Defense != nil,
 		HealthBarOffset: &Offset{
 			X: 80,
 			Y: 50,

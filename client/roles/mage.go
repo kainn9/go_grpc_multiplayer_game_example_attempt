@@ -92,6 +92,8 @@ func InitMage() *Role {
 		Health:        sr.Mage.Health,
 		HitBoxW:       sr.Mage.HitBoxW,
 		HitBoxH:       sr.Mage.HitBoxH,
+		AttackCount:   len(sr.Mage.Attacks),
+		HasDefense:    sr.Mage.Defense != nil,
 		HealthBarOffset: &Offset{
 			X: 75,
 			Y: 28,

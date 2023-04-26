@@ -3,6 +3,8 @@ package player
 import (
 	"math"
 	"time"
+
+	ut "github.com/kainn9/grpc_game/util"
 )
 
 func (cp *Player) DefenseHandler(input string) {
@@ -11,12 +13,14 @@ func (cp *Player) DefenseHandler(input string) {
 		return
 	}
 
-	if input == "defense" && !cp.DefenseCooldown {
+	if input == "defense" && !cp.defenseOnCD() {
 
 		delay := cp.Defense.Delay
 		time.AfterFunc(time.Duration(delay)*time.Millisecond, func() {
 
 			cp.Defending = true
+			cp.SetDefCd()
+			cp.handleDefenseCoolDown()
 
 			if cp.Defense.DefenseDuration != 0 {
 				cp.handleDefenseDuration()
@@ -53,9 +57,7 @@ func (cp *Player) HandleDefenseMovement() {
 		if distTraveled > maxDist {
 			cp.Defending = false
 			cp.MovmentStartX = noMovmentStartSet
-			cp.DefenseCooldown = true
 
-			cp.handleDefenseCoolDown()
 		}
 	}
 }
@@ -67,7 +69,11 @@ func (cp *Player) endDefenseMovement() {
 
 func (cp *Player) handleDefenseCoolDown() {
 	time.AfterFunc(time.Duration(cp.Defense.Cooldown)*time.Millisecond, func() {
-		cp.DefenseCooldown = false
+		cp.CdStringMutex.Lock()
+		defer cp.CdStringMutex.Unlock()
+
+		newCdString := ut.SetNthCharTo0(cp.CdString, 4)
+		cp.CdString = newCdString
 	})
 }
 
@@ -76,4 +82,18 @@ func (cp *Player) handleDefenseDuration() {
 		cp.Defending = false
 
 	})
+}
+
+func (cp *Player) defenseOnCD() bool {
+	cp.CdStringMutex.RLock()
+	defer cp.CdStringMutex.RUnlock()
+
+	return string(cp.CdString[4]) == "1"
+}
+
+func (cp *Player) SetDefCd() {
+	cp.CdStringMutex.Lock()
+	defer cp.CdStringMutex.Unlock()
+	newCdString := ut.SetNthCharTo1(cp.CdString, 4)
+	cp.CdString = newCdString
 }

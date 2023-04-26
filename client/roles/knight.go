@@ -110,6 +110,8 @@ func InitKnight() *Role {
 		Health:        sr.Knight.Health,
 		HitBoxW:       sr.Knight.HitBoxW,
 		HitBoxH:       sr.Knight.HitBoxH,
+		AttackCount:   len(sr.Knight.Attacks),
+		HasDefense:    sr.Knight.Defense != nil,
 		HealthBarOffset: &Offset{
 			X: -5,
 			Y: -10,

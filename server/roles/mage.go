@@ -11,7 +11,6 @@ func MageAttacks() map[AtKey]*AttackData {
 	atks = magePrimaryAtk(atks)
 	atks = mageSecondaryAtk(atks)
 	atks = mageTertAtk(atks)
-	atks[QuaternaryAttackKey] = atks[TertAttackKey]
 
 	return atks
 }

@@ -26,7 +26,7 @@ func InitKnight() *Role {
 
 	d := &Defense{
 		Delay:           0,
-		Cooldown:        100,
+		Cooldown:        0,
 		DefenseType:     DefenseDodge,
 		DefenseMovement: dm,
 	}
@@ -149,7 +149,7 @@ func knightTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 		ChargeEffect: &ChargeEffect{
 			MultFactorMvDist:   200,
 			MultFactorMvSpeed:  1.5,
-			MultFactorDmg:      8,
+			MultFactorDmg:      15,
 			MultFactorKbxSpeed: 1.5,
 			MultFactorKbxDur:   333,
 			MultFactorKbyDur:   333,

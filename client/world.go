@@ -183,6 +183,7 @@ func (world *World) DrawPlayers() {
 		p.defending = ps.Defending
 		p.Role = *clientConfig.roles[ps.Role]
 		p.dead = ps.Dead
+		p.cooldowns = ps.Cooldowns
 
 		newPlayerMap[ps.Id] = p
 

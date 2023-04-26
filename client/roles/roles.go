@@ -20,6 +20,8 @@ type Role struct {
 	HitBoxH            float64
 	HealthBarOffset    *Offset
 	StatusEffectOffset *Offset
+	AttackCount        int
+	HasDefense         bool
 }
 
 type Animation struct {

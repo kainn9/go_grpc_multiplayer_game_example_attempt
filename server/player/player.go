@@ -6,7 +6,7 @@ import (
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
-	"github.com/kainn9/grpc_game/server/roles"
+
 	r "github.com/kainn9/grpc_game/server/roles"
 	se "github.com/kainn9/grpc_game/server/statusEffects"
 	"github.com/solarlune/resolv"
@@ -34,14 +34,17 @@ type Player struct {
 	PrevEvent            *pb.PlayerReq
 	Health               int
 	Defending            bool
-	DefenseCooldown      bool
 	Hits                 map[string]bool
+	HitsMutex            sync.RWMutex
 	Dying                bool
 	DeathCallBackPending bool
 	KbStamp              time.Time
 	KbStampMutex         sync.RWMutex
 	roleMutex            sync.RWMutex
 	CurrentWorld         World
+	CdString             string
+	CdStringMutex        sync.RWMutex
+	InvincibleNoBox      bool
 }
 
 // playerPh represents the physics parameters of a player
@@ -61,7 +64,7 @@ type World interface {
 	RemoveHitboxFromSpace(*resolv.Object)
 	GetIndex() int
 	GetHeight() float64
-	SpawnAtkBox(*Player, *roles.AttackData, int, string)
+	SpawnAtkBox(*Player, *r.AttackData, int, string)
 }
 
 func (cp *Player) IsCC() se.CCString {
@@ -139,9 +142,9 @@ func NewPlayer(pid string, world World) *Player {
 		keys = append(keys, k)
 	}
 
-	randomKey := keys[rand.Intn(len(keys))]
+	// randomKey := keys[rand.Intn(len(keys))]
 
-	role := randomRole[randomKey] // change to lock role
+	role := randomRole[6] // change to lock role
 	// end of the temp code
 
 	p := &Player{
@@ -153,6 +156,9 @@ func NewPlayer(pid string, world World) *Player {
 		Hits:          make(map[string]bool),
 		KbStampMutex:  sync.RWMutex{},
 		roleMutex:     sync.RWMutex{},
+		CdString:      "00000",
+		CdStringMutex: sync.RWMutex{},
+		HitsMutex:     sync.RWMutex{},
 	}
 
 	ph := &PlayerPh{
@@ -180,7 +186,7 @@ func (cp *Player) GravBoostHandler(input string) {
 	}
 }
 
-func (cp *Player) RotateRoleData(newRole *roles.Role) {
+func (cp *Player) RotateRoleData(newRole *r.Role) {
 	cp.roleMutex.Lock()
 	defer cp.roleMutex.Unlock()
 

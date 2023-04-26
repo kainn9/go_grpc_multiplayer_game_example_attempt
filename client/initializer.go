@@ -33,6 +33,7 @@ type gameSettings struct {
 	roles            map[int32]*r.Role
 	showPlayerHitbox bool
 	imageCache       sync.Map
+	actionBar        *actionBar
 }
 
 type devSettings struct {
@@ -89,7 +90,7 @@ func initClient() {
 		enablePPROF:      false,
 		showHelp:         true,
 		roles:            make(map[int32]*r.Role),
-		showPlayerHitbox: true,
+		showPlayerHitbox: false,
 		imageCache:       sync.Map{},
 	}
 
@@ -127,6 +128,8 @@ func initClient() {
 	clientConfig.worldsMap[3] = *NewWorldData(480, 960, wBgHelper.landOfYohoPassageOne)
 	clientConfig.worldsMap[4] = *NewWorldData(756, 1100, wBgHelper.landOfYohoPassageTwo)
 	clientConfig.worldsMap[5] = *NewWorldData(600, 3278, wBgHelper.landOfYohoVillage)
+
+	clientConfig.actionBar = initActionBar()
 
 	fixedAnims = make(map[string]*fixedAnimTracker)
 

@@ -44,18 +44,19 @@ func (cp *Player) AttackedHandler() {
 
 // returns true if the attack is invalid, used to skip collision
 func hitIsInvalid(cp *Player, hitBoxData *hitBoxData) bool {
-	// worldsConfig.mutex.RLock()
+	cp.HitsMutex.RLock()
 	hit := cp.Hits[hitBoxData.Aid]
-	// worldsConfig.mutex.RUnlock()
+	cp.HitsMutex.RUnlock()
 	return hit || hitBoxData.Player == cp
 }
 
 func (cp *Player) HealthHandler(attacker *Player, atk *r.AttackData, aid string) {
-	// worldsConfig.mutex.Lock()
+	cp.HitsMutex.Lock()
 	cp.Hits[aid] = true
-	// worldsConfig.mutex.Unlock()
+	cp.HitsMutex.Unlock()
 
 	dmg := atk.Damage
+	log.Println("Yo Charge")
 
 	if atk.HasChargeEffect() && atk.UseChargeDmg {
 		dmg += int(math.Round(attacker.ChargeValue * atk.ChargeEffect.MultFactorDmg))
@@ -70,9 +71,9 @@ func (cp *Player) HealthHandler(attacker *Player, atk *r.AttackData, aid string)
 	}
 
 	time.AfterFunc((time.Duration(500))*time.Millisecond, func() {
-		// worldsConfig.mutex.Lock()
+		cp.HitsMutex.Lock()
 		delete(cp.Hits, aid)
-		// worldsConfig.mutex.Unlock()
+		cp.HitsMutex.Unlock()
 	})
 }
 
