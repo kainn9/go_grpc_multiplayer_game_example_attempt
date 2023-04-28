@@ -122,8 +122,9 @@ func monkPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 func monkSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 
 	atks[SecondaryAttackKey] = &AttackData{
-		Name: SecondaryAttackKey,
-		Type: SecondaryAttackKey,
+		Name:     SecondaryAttackKey,
+		Type:     SecondaryAttackKey,
+		FixedKby: true,
 		Consequence: &Consequence{
 			Damage:             65,
 			KnockbackX:         0,

@@ -283,11 +283,6 @@ func (pc *PlayerController) InputListener() {
 		isPressing = true
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
-		pc.inputHandler(evt.ValidEvents[evt.GravBoost])
-		isPressing = true
-	}
-
 	if !isPressing {
 		pc.inputHandler(evt.ValidEvents[evt.Nada])
 	}

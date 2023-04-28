@@ -102,8 +102,6 @@ func (world *World) Update(cp *pl.Player, input string) {
 	worldTransferHandler(cp, input)
 	rotateRole(cp, input)
 
-	cp.GravBoostHandler(input)
-
 	// Can't do reg movement when attacking
 	if !cp.CanAcceptInputs() {
 		cp.SpeedX = 0

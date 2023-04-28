@@ -7,8 +7,6 @@ import (
 	evt "github.com/kainn9/grpc_game/server/event"
 )
 
-// TODO: RESTRICT EVENTS TO ONLY ALLOWED TYPES!!!!
-
 // Starts a new ticker loop that calls processEventsPerTick with the given world
 func newTickLoop(w *World) {
 

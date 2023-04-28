@@ -12,9 +12,14 @@ import (
 // is trash tho
 
 type actionBar struct {
-	opts              *ebiten.DrawImageOptions
-	bg                *ebiten.Image
-	qIconSprite       *ebiten.Image
+	opts            *ebiten.DrawImageOptions
+	bg              *ebiten.Image
+	qIconSprite     *ebiten.Image
+	wIconSprite     *ebiten.Image
+	eIconSprite     *ebiten.Image
+	rIconSprite     *ebiten.Image
+	shiftIconSprite *ebiten.Image
+
 	atkActiveSprite   *ebiten.Image
 	atkIconNoCdSprite *ebiten.Image
 	atkIconOnCdSprite *ebiten.Image
@@ -28,6 +33,7 @@ type actionBar struct {
 	iconWidth         int
 	actionBarBgHeight int
 	atkOrderMap       *atkOrderMap
+	lettersMap        map[int]*ebiten.Image
 }
 type atkOrderMap map[int]sr.AtKey
 
@@ -65,14 +71,24 @@ func initActionBar() *actionBar {
 		iconWidth:         iconWidth,
 		actionBarBgHeight: actionBarBgHeight,
 	}
-
 	initIcons(ab)
+	ab.lettersMap = map[int]*ebiten.Image{
+		0: ab.qIconSprite,
+		1: ab.wIconSprite,
+		2: ab.eIconSprite,
+		3: ab.rIconSprite,
+	}
 
 	return ab
 }
 
 func initIcons(ab *actionBar) {
 	ab.qIconSprite = utClient.LoadImage("./sprites/actionBar/q.png")
+	ab.wIconSprite = utClient.LoadImage("./sprites/actionBar/w.png")
+	ab.eIconSprite = utClient.LoadImage("./sprites/actionBar/e.png")
+	ab.rIconSprite = utClient.LoadImage("./sprites/actionBar/r.png")
+	ab.shiftIconSprite = utClient.LoadImage("./sprites/actionBar/shift.png")
+
 	ab.atkActiveSprite = utClient.LoadImage("./sprites/actionBar/atkIconActive.png")
 	ab.atkIconNoCdSprite = utClient.LoadImage("./sprites/actionBar/atkIconNoCd.png")
 	ab.atkIconOnCdSprite = utClient.LoadImage("./sprites/actionBar/atkIconOnCd.png")
@@ -136,6 +152,7 @@ func (ab *actionBar) drawAtkIcon(p *Player, i int, opts *ebiten.DrawImageOptions
 		ab.bg.DrawImage(ab.atkIconOnCdSprite, opts)
 	} else {
 		ab.bg.DrawImage(ab.atkIconNoCdSprite, opts)
+		ab.bg.DrawImage(ab.lettersMap[i], opts)
 	}
 
 }
@@ -147,5 +164,9 @@ func (ab *actionBar) drawDefIcon(p *Player, opts *ebiten.DrawImageOptions) {
 		ab.bg.DrawImage(ab.defIconOnCdSprite, opts)
 	} else {
 		ab.bg.DrawImage(ab.defIconNoCdSprite, opts)
+
+		shiftOpts := *opts
+		shiftOpts.GeoM.Translate(0, 8)
+		ab.bg.DrawImage(ab.shiftIconSprite, &shiftOpts)
 	}
 }

@@ -31,7 +31,6 @@ const (
 	TertAtk      EventInput = EventInput(sr.TertAttackKey)
 	QuaAtk       EventInput = EventInput(sr.QuaternaryAttackKey)
 	Defense      EventInput = "defense"
-	GravBoost    EventInput = "gravBoost"
 	Nada         EventInput = "nada"
 	Swap         EventInput = "swap"
 	RoleSwap     EventInput = "roleSwap"
@@ -47,7 +46,6 @@ var ValidEvents = map[EventInput]EventInput{
 	TertAtk:      TertAtk,
 	QuaAtk:       QuaAtk,
 	Defense:      Defense,
-	GravBoost:    GravBoost,
 	Nada:         Nada,
 	Swap:         Swap,
 	RoleSwap:     RoleSwap,

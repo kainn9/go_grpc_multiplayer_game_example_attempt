@@ -60,7 +60,7 @@ func LoadMageSprites() {
 	mageSpriteJumpRight = utClient.LoadImage("./sprites/mage/mageJumpRight.png")
 
 	mageSpriteHitRight = utClient.LoadImage("./sprites/mage/mageHitRight.png")
-	mageSpriteHitLeft = utClient.LoadImage("./sprites/mage/mageHitRight.png")
+	mageSpriteHitLeft = utClient.LoadImage("./sprites/mage/mageHitLeft.png")
 
 	mageSpriteKBRight = utClient.LoadImage("./sprites/mage/mageKnockBackRight.png")
 	mageSpriteKBLeft = utClient.LoadImage("./sprites/mage/mageKnockBackLeft.png")

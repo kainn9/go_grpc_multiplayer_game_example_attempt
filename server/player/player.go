@@ -25,7 +25,6 @@ type Player struct {
 	*r.Role                             // The player's role
 	CurrAttack           *r.AttackData  // The player's current attack
 	PlayerPh                            // The player's physics parameters
-	GravBoost            bool           // Whether the player is receiving a gravity boost
 	Windup               r.AtKey
 	ChargeStart          time.Time
 	ChargeValue          float64
@@ -142,9 +141,9 @@ func NewPlayer(pid string, world World) *Player {
 		keys = append(keys, k)
 	}
 
-	// randomKey := keys[rand.Intn(len(keys))]
+	randomKey := keys[rand.Intn(len(keys))]
 
-	role := randomRole[6] // change to lock role
+	role := randomRole[randomKey] // change to lock role
 	// end of the temp code
 
 	p := &Player{
@@ -172,18 +171,6 @@ func NewPlayer(pid string, world World) *Player {
 	p.PlayerPh = *ph
 
 	return p
-}
-
-// TODO: Move make an actual buff system/tracker
-// Implement a gravity boost/buff if the "gravBoost" input is received and the player doesn't have the buff already.
-func (cp *Player) GravBoostHandler(input string) {
-
-	if input == "gravBoost" && !cp.GravBoost {
-		cp.JumpSpd = 15
-		cp.GravBoost = true
-		time.AfterFunc(20*time.Second, func() { cp.JumpSpd = cp.Role.Phys.DefaultJumpSpd })
-		time.AfterFunc(120*time.Second, func() { cp.GravBoost = false })
-	}
 }
 
 func (cp *Player) RotateRoleData(newRole *r.Role) {
