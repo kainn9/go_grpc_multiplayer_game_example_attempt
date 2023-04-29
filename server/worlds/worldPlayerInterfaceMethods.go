@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	par "github.com/kainn9/grpc_game/server/particles"
 	pl "github.com/kainn9/grpc_game/server/player"
 	r "github.com/kainn9/grpc_game/server/roles"
 	"github.com/solarlune/resolv"
@@ -28,6 +29,10 @@ func (w *World) GetIndex() int {
 
 func (w *World) GetHeight() float64 {
 	return w.height
+}
+
+func (w *World) GetParticleSystem() *par.ParticleSystem {
+	return w.ParticleSystem
 }
 
 func (world *World) SpawnAtkBox(cp *pl.Player, atk *r.AttackData, index int, aid string) {

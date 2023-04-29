@@ -6,7 +6,7 @@ import (
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
-
+	par "github.com/kainn9/grpc_game/server/particles"
 	r "github.com/kainn9/grpc_game/server/roles"
 	se "github.com/kainn9/grpc_game/server/statusEffects"
 	"github.com/solarlune/resolv"
@@ -64,6 +64,7 @@ type World interface {
 	GetIndex() int
 	GetHeight() float64
 	SpawnAtkBox(*Player, *r.AttackData, int, string)
+	GetParticleSystem() *par.ParticleSystem
 }
 
 func (cp *Player) IsCC() se.CCString {
@@ -130,6 +131,7 @@ func NewPlayer(pid string, world World) *Player {
 	randomRole[4] = r.Mage
 	randomRole[5] = r.HeavyKnight
 	randomRole[6] = r.BirdDroid
+	randomRole[7] = r.ShadowMan
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())
