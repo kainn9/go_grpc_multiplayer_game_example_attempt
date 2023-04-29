@@ -26,6 +26,7 @@ message Player {
   bool defending = 16;
   int32 role = 17;
   bool dead = 18;
+  string cooldowns = 19;
 }
 
 message PlayerResp {

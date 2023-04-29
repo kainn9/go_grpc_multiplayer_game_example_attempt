@@ -33,6 +33,7 @@ type gameSettings struct {
 	roles            map[int32]*r.Role
 	showPlayerHitbox bool
 	imageCache       sync.Map
+	actionBar        *actionBar
 }
 
 type devSettings struct {
@@ -99,6 +100,7 @@ func initClient() {
 	clientConfig.roles[3] = r.InitWerewolf()
 	clientConfig.roles[4] = r.InitMage()
 	clientConfig.roles[5] = r.InitHeavyKnight()
+	clientConfig.roles[6] = r.InitBirdDroid()
 
 	devConfig = &devSettings{
 		rulerW:         utClient.LoadImage("./sprites/rulers/wRuler.png"),
@@ -126,6 +128,8 @@ func initClient() {
 	clientConfig.worldsMap[3] = *NewWorldData(480, 960, wBgHelper.landOfYohoPassageOne)
 	clientConfig.worldsMap[4] = *NewWorldData(756, 1100, wBgHelper.landOfYohoPassageTwo)
 	clientConfig.worldsMap[5] = *NewWorldData(600, 3278, wBgHelper.landOfYohoVillage)
+
+	clientConfig.actionBar = initActionBar()
 
 	fixedAnims = make(map[string]*fixedAnimTracker)
 

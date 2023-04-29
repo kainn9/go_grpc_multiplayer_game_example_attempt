@@ -85,6 +85,8 @@ func InitMonk() *Role {
 		Health:        sr.Monk.Health,
 		HitBoxW:       sr.Monk.HitBoxW,
 		HitBoxH:       sr.Monk.HitBoxH,
+		AttackCount:   len(sr.Monk.Attacks),
+		HasDefense:    sr.Monk.Defense != nil,
 		HealthBarOffset: &Offset{
 			X: -7,
 			Y: -10,
@@ -163,7 +165,7 @@ func MonkAnims() map[string]*Animation {
 		FrameOY:     0,
 		FrameWidth:  45,
 		FrameHeight: 48,
-		FrameCount:  8,
+		FrameCount:  24,
 		PosOffsetX:  10,
 		PosOffsetY:  7,
 		SpriteSheet: monkDefenseRight,
@@ -172,11 +174,11 @@ func MonkAnims() map[string]*Animation {
 
 	anims[string(DefenseLeft)] = &Animation{
 		Name:        string(DefenseLeft),
-		FrameOX:     360,
+		FrameOX:     1080,
 		FrameOY:     0,
 		FrameWidth:  45,
 		FrameHeight: 48,
-		FrameCount:  8,
+		FrameCount:  24,
 		PosOffsetX:  10,
 		PosOffsetY:  7,
 		SpriteSheet: monkDefenseLeft,

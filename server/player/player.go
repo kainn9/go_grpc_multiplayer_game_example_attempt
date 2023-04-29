@@ -6,7 +6,7 @@ import (
 	"time"
 
 	pb "github.com/kainn9/grpc_game/proto"
-	"github.com/kainn9/grpc_game/server/roles"
+
 	r "github.com/kainn9/grpc_game/server/roles"
 	se "github.com/kainn9/grpc_game/server/statusEffects"
 	"github.com/solarlune/resolv"
@@ -25,7 +25,6 @@ type Player struct {
 	*r.Role                             // The player's role
 	CurrAttack           *r.AttackData  // The player's current attack
 	PlayerPh                            // The player's physics parameters
-	GravBoost            bool           // Whether the player is receiving a gravity boost
 	Windup               r.AtKey
 	ChargeStart          time.Time
 	ChargeValue          float64
@@ -34,14 +33,17 @@ type Player struct {
 	PrevEvent            *pb.PlayerReq
 	Health               int
 	Defending            bool
-	DefenseCooldown      bool
 	Hits                 map[string]bool
+	HitsMutex            sync.RWMutex
 	Dying                bool
 	DeathCallBackPending bool
 	KbStamp              time.Time
 	KbStampMutex         sync.RWMutex
 	roleMutex            sync.RWMutex
 	CurrentWorld         World
+	CdString             string
+	CdStringMutex        sync.RWMutex
+	InvincibleNoBox      bool
 }
 
 // playerPh represents the physics parameters of a player
@@ -61,7 +63,7 @@ type World interface {
 	RemoveHitboxFromSpace(*resolv.Object)
 	GetIndex() int
 	GetHeight() float64
-	SpawnAtkBox(*Player, *roles.AttackData, int, string)
+	SpawnAtkBox(*Player, *r.AttackData, int, string)
 }
 
 func (cp *Player) IsCC() se.CCString {
@@ -127,6 +129,7 @@ func NewPlayer(pid string, world World) *Player {
 	randomRole[3] = r.Werewolf
 	randomRole[4] = r.Mage
 	randomRole[5] = r.HeavyKnight
+	randomRole[6] = r.BirdDroid
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())
@@ -152,6 +155,9 @@ func NewPlayer(pid string, world World) *Player {
 		Hits:          make(map[string]bool),
 		KbStampMutex:  sync.RWMutex{},
 		roleMutex:     sync.RWMutex{},
+		CdString:      "00000",
+		CdStringMutex: sync.RWMutex{},
+		HitsMutex:     sync.RWMutex{},
 	}
 
 	ph := &PlayerPh{
@@ -167,19 +173,7 @@ func NewPlayer(pid string, world World) *Player {
 	return p
 }
 
-// TODO: Move make an actual buff system/tracker
-// Implement a gravity boost/buff if the "gravBoost" input is received and the player doesn't have the buff already.
-func (cp *Player) GravBoostHandler(input string) {
-
-	if input == "gravBoost" && !cp.GravBoost {
-		cp.JumpSpd = 15
-		cp.GravBoost = true
-		time.AfterFunc(20*time.Second, func() { cp.JumpSpd = cp.Role.Phys.DefaultJumpSpd })
-		time.AfterFunc(120*time.Second, func() { cp.GravBoost = false })
-	}
-}
-
-func (cp *Player) RotateRoleData(newRole *roles.Role) {
+func (cp *Player) RotateRoleData(newRole *r.Role) {
 	cp.roleMutex.Lock()
 	defer cp.roleMutex.Unlock()
 

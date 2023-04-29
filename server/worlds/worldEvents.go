@@ -4,21 +4,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/kainn9/grpc_game/proto"
-)
-
-type event struct {
-	*pb.PlayerReq
-	stalled       bool
-	eventCategory eventCategory
-}
-
-type eventCategory string
-
-const (
-	eventRestricted eventCategory = "rest"
-	eventNormal     eventCategory = "norm"
-	eventAdmin      eventCategory = "admin"
+	evt "github.com/kainn9/grpc_game/server/event"
 )
 
 // Starts a new ticker loop that calls processEventsPerTick with the given world
@@ -61,7 +47,7 @@ func processEventsPerTick(w *World) {
 		}
 
 		ev := w.events[i]
-		dupeKey := ev.Id + string(ev.eventCategory)
+		dupeKey := ev.Id + string(ev.EventCategory)
 
 		dupeEvents[dupeKey]++
 	}
@@ -70,15 +56,16 @@ func processEventsPerTick(w *World) {
 	for i := 0; i < eventBatchSize; i++ {
 
 		ev := w.events[i]
-		dupeKey := ev.Id + string(ev.eventCategory)
+		dupeKey := ev.Id + string(ev.EventCategory)
 
 		// If there is a player associated with the event, handle the event with the player and world
 		w.WPlayersMutex.RLock()
 		cp := w.Players[ev.Id]
 		w.WPlayersMutex.RUnlock()
 
-		if cp != nil && (dupeEvents[dupeKey] < 2) {
+		if cp != nil && (dupeEvents[dupeKey] < 2) && ev.Valid() {
 			w.Update(cp, ev.Input)
+
 		}
 
 		dupeEvents[dupeKey]--
@@ -162,25 +149,7 @@ TODO:
 // 	}
 // }
 
-func NewEvent(req *pb.PlayerReq, stalled bool) *event {
-
-	e := &event{
-		PlayerReq: req,
-		stalled:   stalled,
-	}
-
-	if req.Input == "keyLeft" || req.Input == "keyRight" || req.Input == "keyDown" {
-		e.eventCategory = eventRestricted
-	} else if req.Input == "swap" || req.Input == "roleSwap" {
-		e.eventCategory = eventAdmin
-	} else {
-		e.eventCategory = eventNormal
-	}
-
-	return e
-}
-
-func (e *event) Enqueue(w *World) {
+func Enqueue(w *World, e *evt.Event) {
 	w.eventsMutex.Lock()
 	w.events = append(w.events, e)
 	w.eventsMutex.Unlock()

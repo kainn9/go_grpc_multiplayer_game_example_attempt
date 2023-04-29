@@ -97,6 +97,8 @@ func InitWerewolf() *Role {
 		Health:        sr.Werewolf.Health,
 		HitBoxW:       sr.Werewolf.HitBoxW,
 		HitBoxH:       sr.Werewolf.HitBoxH,
+		AttackCount:   len(sr.Werewolf.Attacks),
+		HasDefense:    sr.Werewolf.Defense != nil,
 		HealthBarOffset: &Offset{
 			X: 15,
 			Y: -12,

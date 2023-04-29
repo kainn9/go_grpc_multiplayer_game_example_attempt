@@ -10,7 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	utClient "github.com/kainn9/grpc_game/client_util"
 	pb "github.com/kainn9/grpc_game/proto"
-	sr "github.com/kainn9/grpc_game/server/roles"
+	evt "github.com/kainn9/grpc_game/server/event"
 	camera "github.com/melonfunction/ebiten-camera"
 	"github.com/pborman/uuid"
 	"google.golang.org/grpc"
@@ -167,11 +167,11 @@ func (pc *PlayerController) InputListener() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.Key4) {
-		pc.inputHandler("swap")
+		pc.inputHandler(evt.ValidEvents[evt.Swap])
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyN) {
-		pc.inputHandler("roleSwap")
+		pc.inputHandler(evt.ValidEvents[evt.RoleSwap])
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
@@ -239,58 +239,52 @@ func (pc *PlayerController) InputListener() {
 	isPressing := false
 
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		pc.inputHandler("keyRight")
+		pc.inputHandler(evt.ValidEvents[evt.KeyRight])
 		isPressing = true
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		pc.inputHandler("keyLeft")
+		pc.inputHandler(evt.ValidEvents[evt.KeyLeft])
 		isPressing = true
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		pc.inputHandler("keySpace")
+		pc.inputHandler(evt.ValidEvents[evt.KeySpace])
 		isPressing = true
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyDown) {
-		pc.inputHandler("keyDown")
+		pc.inputHandler(evt.ValidEvents[evt.KeyDown])
 		isPressing = true
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
-		pc.inputHandler(string(sr.PrimaryAttackKey))
+	if ebiten.IsKeyPressed(ebiten.KeyQ) {
+		pc.inputHandler(evt.ValidEvents[evt.PrimaryAtk])
 		isPressing = true
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-		pc.inputHandler(string(sr.SecondaryAttackKey))
+	if ebiten.IsKeyPressed(ebiten.KeyW) {
+		pc.inputHandler(evt.ValidEvents[evt.SecondaryAtk])
 		isPressing = true
 	}
 
-	// Note: Don't use "justPressed" for moves that can be charged!
 	if ebiten.IsKeyPressed(ebiten.KeyE) {
-		pc.inputHandler(string(sr.TertAttackKey))
+		pc.inputHandler(evt.ValidEvents[evt.TertAtk])
 		isPressing = true
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
-		pc.inputHandler(string(sr.QuaternaryAttackKey))
+		pc.inputHandler(evt.ValidEvents[evt.QuaAtk])
 		isPressing = true
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyShift) {
-		pc.inputHandler("defense")
-		isPressing = true
-	}
-
-	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
-		pc.inputHandler("gravBoost")
+		pc.inputHandler(evt.ValidEvents[evt.Defense])
 		isPressing = true
 	}
 
 	if !isPressing {
-		pc.inputHandler("nada")
+		pc.inputHandler(evt.ValidEvents[evt.Nada])
 	}
 }
 
@@ -298,9 +292,9 @@ func (pc *PlayerController) InputListener() {
 Used by Input listener/playerController
 to stream the inputs to server
 */
-func (p *PlayerController) inputHandler(input string) {
+func (p *PlayerController) inputHandler(input evt.EventInput) {
 	go func() {
-		req := pb.PlayerReq{Id: p.pid, Input: input}
+		req := pb.PlayerReq{Id: p.pid, Input: string(input)}
 		devConfig.reqT = time.Now()
 		p.stream.Send(&req)
 	}()

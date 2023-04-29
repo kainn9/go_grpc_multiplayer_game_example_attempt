@@ -13,7 +13,6 @@ func HeavyKnightAttacks() map[AtKey]*AttackData {
 	atks = heavyKnightPrimaryAtk(atks)
 	atks = heavyKnightSecondaryAtk(atks)
 	atks = heavyKnightTertAtk(atks)
-	atks[QuaternaryAttackKey] = atks[TertAttackKey]
 
 	return atks
 }
@@ -124,8 +123,9 @@ func heavyKnightSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 func heavyKnightTertAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 
 	atks[TertAttackKey] = &AttackData{
-		Name: TertAttackKey,
-		Type: TertAttackKey,
+		Name:     TertAttackKey,
+		Type:     TertAttackKey,
+		Cooldown: 3000,
 
 		Consequence: &Consequence{
 			Damage:             30,

@@ -79,6 +79,8 @@ func InitDemon() *Role {
 		Health:        sr.Demon.Health,
 		HitBoxW:       sr.Demon.HitBoxW,
 		HitBoxH:       sr.Demon.HitBoxH,
+		AttackCount:   len(sr.Demon.Attacks),
+		HasDefense:    sr.Demon.Defense != nil,
 		HealthBarOffset: &Offset{
 			X: 30,
 			Y: -10,

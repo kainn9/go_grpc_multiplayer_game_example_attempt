@@ -8,7 +8,7 @@ import (
 )
 
 func validXCollision(cp *Player, otherPlayer *Player) bool {
-	return (!otherPlayer.Defending || otherPlayer.Defense.DefenseType == r.DefenseBlock) && (!cp.Defending || cp.Defense.DefenseType == r.DefenseBlock) && (!cp.Dying && !otherPlayer.Dying)
+	return (!otherPlayer.Defending || otherPlayer.Defense.DefenseType == r.DefenseBlock) && (!cp.Defending || cp.Defense.DefenseType == r.DefenseBlock) && (!cp.Dying && !otherPlayer.Dying) && (!cp.InvincibleNoBox && !otherPlayer.InvincibleNoBox)
 }
 
 // gravityHandler applies gravity to the player, adjusting their speedY accordingly.
@@ -142,22 +142,17 @@ func (cp *Player) VerticalMovmentHandler(input string, world World) {
 				cp.SpeedY = 0
 			}
 
-			// playerOnPlayer y collision
+			// playerOnPlayer Y collision
 			if check := cp.Object.Check(0, cp.SpeedY, "player"); check != nil {
 
-				if cp.Dying || HBoxData(check.Objects[0]).Player.Dying {
-					return
-				}
+				invalidPlayerYCollide := (cp.Dying || HBoxData(check.Objects[0]).Player.Dying)
 
-				if check.Objects[0].Y > cp.Object.Y {
+				if (check.Objects[0].Y > cp.Object.Y) && !invalidPlayerYCollide {
 					dy = check.ContactWithCell(check.Cells[0]).Y()
 					cp.SpeedY = 0
 					cp.OnGround = check.Objects[0]
 				} else {
 					check.Objects[0].Y += dy
-					world.GetHitboxMutex().Lock() // TODO: Maybe???
-					check.Objects[0].Update()
-					world.GetHitboxMutex().Unlock()
 				}
 
 			}

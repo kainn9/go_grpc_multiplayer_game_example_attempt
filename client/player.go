@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+
 	r "github.com/kainn9/grpc_game/client/roles"
 	cse "github.com/kainn9/grpc_game/client/statusEffects"
 	sse "github.com/kainn9/grpc_game/server/statusEffects"
@@ -28,6 +29,7 @@ type Player struct {
 	health           int
 	defending        bool
 	dead             bool
+	cooldowns        string
 }
 
 /*
@@ -322,6 +324,11 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 	// render status effect sprite
 	if p.cc == string(sse.Stun) && !p.dead {
 		p.drawStatusEffect(currentPlayer, world.playerController)
+	}
+
+	// render actionBar
+	if currentPlayer {
+		drawActionBar(pc, clientConfig.actionBar)
 	}
 
 	if clientConfig.showPlayerHitbox {

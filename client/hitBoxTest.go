@@ -54,60 +54,150 @@ func previewPathAllFrames(x float64, y float64, h float64, w float64, path hBoxP
 */
 
 // -----------------------------------------------------------------------------
-// HeavyKnight Tert Attack Example(only works if cp is HeavyKnight)
+// BirdDroid Secondary Attack Example(only works if cp is HeavyKnight)
 // -----------------------------------------------------------------------------
 // */
 
 var (
 	hitBoxTest = &hitboxTest{
-		name:  string(sr.TertAttackKey),
+		name:  string(sr.SecondaryAttackKey),
 		on:    false,
-		count: 9,
+		count: 16,
 		// set to -1 to play whole anim
 		frame:  -1,
 		left:   false,
 		inc:    16.666 * 5, // 1 frame at 60fps,
-		pWidth: 28,
+		pWidth: 16,
 	}
 )
 
 func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
-
-	// frame 0 - 2 no hitboxes
-
-	// frame 3
-	path = path.appendHboxAgg(-50, 0, 35, 35, 3)
-
-	// frame 4
-	path = path.appendHboxAgg(-50, 0, 35, 35, 4)
-
-	// frame 5
-	path = path.appendHboxAgg(-53, -5, 35, 35, 5)
-
-	// frame 6
-	path = path.appendHboxAgg(60, 20, 35, 45, 6)
-	path = path.appendHboxAgg(70, 0, 35, 45, 6)
-	path = path.appendHboxAgg(65, -20, 35, 45, 6)
-	path = path.appendHboxAgg(65, -35, 25, 35, 6)
-	path = path.appendHboxAgg(55, -45, 25, 35, 6)
-	path = path.appendHboxAgg(45, -55, 25, 35, 6)
-	path = path.appendHboxAgg(25, -58, 25, 35, 6)
-	path = path.appendHboxAgg(10, -58, 10, 35, 6)
-	path = path.appendHboxAgg(0, -58, 10, 35, 6)
-	path = path.appendHboxAgg(-10, -53, 10, 10, 6)
-	path = path.appendHboxAgg(-20, -43, 10, 10, 6)
-	path = path.appendHboxAgg(-30, -33, 10, 10, 6)
-
-	// frame 7
-	path = path.appendHboxAgg(60, 20, 35, 30, 7)
-	path = path.appendHboxAgg(90, -10, 40, 10, 7)
+	previewPathAllFrames(51, 18, 10, 137, path, 16)
+	// frame 0 - 7 no hitboxes
 
 	// frame 8
-	path = path.appendHboxAgg(60, 20, 35, 30, 8)
+	path = path.appendHboxAgg(43, 15, 15, 140, 8)
+
+	// frame 9
+	path = path.appendHboxAgg(43, 15, 15, 140, 9)
+
+	// frame 10
+	path = path.appendHboxAgg(43, 15, 15, 140, 10)
+
+	// frame 11
+	path = path.appendHboxAgg(51, 18, 10, 137, 11)
+
+	// frame 12 + no box
 
 	startHitboxSim(screen, cp, inc, path, 0)
 }
+
+/*
+-----------------------------------------------------------------------------
+BirdDroid Secondary Attack Example End
+-----------------------------------------------------------------------------
+*/
+
+// -----------------------------------------------------------------------------
+// BirdDroid Primary Attack Example(only works if cp is HeavyKnight)
+// -----------------------------------------------------------------------------
+// */
+
+// var (
+// 	hitBoxTest = &hitboxTest{
+// 		name:  string(sr.PrimaryAttackKey),
+// 		on:    false,
+// 		count: 9,
+// 		// set to -1 to play whole anim
+// 		frame:  -1,
+// 		left:   false,
+// 		inc:    16.666 * 5, // 1 frame at 60fps,
+// 		pWidth: 16,
+// 	}
+// )
+
+// func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
+// 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
+
+// 	// frame 0 - 3 no hitboxes
+
+// 	// frame 4
+// 	path = path.appendHboxAgg(-3, -40, 70, 20, 4)
+// 	path = path.appendHboxAgg(-50, 0, 30, 120, 4)
+
+// 	// frame 5
+// 	path = path.appendHboxAgg(-50, 0, 30, 120, 5)
+
+// 	// frame 6
+// 	path = path.appendHboxAgg(-50, 0, 30, 120, 6)
+
+// 	// frame 7 + no boxes
+
+// 	startHitboxSim(screen, cp, inc, path, 0)
+// }
+
+/*
+-----------------------------------------------------------------------------
+BirdDroid Primary Attack Example End
+-----------------------------------------------------------------------------
+*/
+
+// -----------------------------------------------------------------------------
+// HeavyKnight Tert Attack Example(only works if cp is HeavyKnight)
+// -----------------------------------------------------------------------------
+// */
+
+// var (
+// 	hitBoxTest = &hitboxTest{
+// 		name:  string(sr.TertAttackKey),
+// 		on:    false,
+// 		count: 9,
+// 		// set to -1 to play whole anim
+// 		frame:  -1,
+// 		left:   false,
+// 		inc:    16.666 * 5, // 1 frame at 60fps,
+// 		pWidth: 28,
+// 	}
+// )
+
+// func hitBoxSim(screen *ebiten.Image, cp *PlayerController) {
+// 	inc, path := hitBoxSimSetup(hitBoxTest.inc)
+
+// 	// frame 0 - 2 no hitboxes
+
+// 	// frame 3
+// 	path = path.appendHboxAgg(-50, 0, 35, 35, 3)
+
+// 	// frame 4
+// 	path = path.appendHboxAgg(-50, 0, 35, 35, 4)
+
+// 	// frame 5
+// 	path = path.appendHboxAgg(-53, -5, 35, 35, 5)
+
+// 	// frame 6
+// 	path = path.appendHboxAgg(60, 20, 35, 45, 6)
+// 	path = path.appendHboxAgg(70, 0, 35, 45, 6)
+// 	path = path.appendHboxAgg(65, -20, 35, 45, 6)
+// 	path = path.appendHboxAgg(65, -35, 25, 35, 6)
+// 	path = path.appendHboxAgg(55, -45, 25, 35, 6)
+// 	path = path.appendHboxAgg(45, -55, 25, 35, 6)
+// 	path = path.appendHboxAgg(25, -58, 25, 35, 6)
+// 	path = path.appendHboxAgg(10, -58, 10, 35, 6)
+// 	path = path.appendHboxAgg(0, -58, 10, 35, 6)
+// 	path = path.appendHboxAgg(-10, -53, 10, 10, 6)
+// 	path = path.appendHboxAgg(-20, -43, 10, 10, 6)
+// 	path = path.appendHboxAgg(-30, -33, 10, 10, 6)
+
+// 	// frame 7
+// 	path = path.appendHboxAgg(60, 20, 35, 30, 7)
+// 	path = path.appendHboxAgg(90, -10, 40, 10, 7)
+
+// 	// frame 8
+// 	path = path.appendHboxAgg(60, 20, 35, 30, 8)
+
+// 	startHitboxSim(screen, cp, inc, path, 0)
+// }
 
 /*
 -----------------------------------------------------------------------------

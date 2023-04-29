@@ -18,7 +18,9 @@ type AttackData struct {
 	*Windup
 	*Movement
 	*Consequence
-	HitBoxSequence HitBoxSequence
+	HitBoxSequence  HitBoxSequence
+	Cooldown        int // ms
+	InvincibleNoBox bool
 }
 
 // currently not setup/used
@@ -120,6 +122,13 @@ const (
 	QuaternaryAttackKey AtKey = "quaAtk"
 )
 
+var AtkOrderMap = map[AtKey]int{
+	PrimaryAttackKey:    0,
+	SecondaryAttackKey:  1,
+	TertAttackKey:       2,
+	QuaternaryAttackKey: 3,
+}
+
 const noBox = -10000 // TODO deprecate these as you can just use nil for the path in attack sequence
 
 func (path HBoxPath) appendHboxAgg(x float64, y float64, h float64, w float64, index int) HBoxPath {
@@ -146,7 +155,7 @@ func (atk *AttackData) HasChargeEffect() bool {
 		return false
 	}
 
-	if atk.Windup != nil {
+	if atk.Windup == nil {
 		return false
 	}
 

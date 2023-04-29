@@ -129,7 +129,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		to be on highest z-index
 	*/
 	msg := fmt.Sprintf(
-		"Press M to hide this menu!!!!\nPING(Calc is a bit busted rn): %v\nControls: Arrow Keys for Movment(you can use down arrow to drop from platform)\nSpace to jump(you can wall jump too)\nUse shift key for defensive move(not all characters have one)\nAttacks(Note! not all chars have 4 attacks):\nQ-key for primary Atk\nW-key for secondary Atk\nE-key for tertiary Atk\nR-key for quaternary Atk\nBuffs:\nT-key for 20 sec gravity boost(2 min CD)\nClient Controls:\n0-key to toggle full-screen\nZ/X-keys to control volume\nCurr volume: %v\n1-key to toggle dev-camera\n3-key to turn on dev world builder preview\nL-key for hitbox mode(Note: this will break client until restart)\n4-key to swap worlds\nTPS: %0.2f\nhealth: %v\n",
+		"Press M to hide this menu!!!!\n\nPING(Calc is a bit busted rn): %v\nCurr volume: %v\nTPS: %0.2f\nhealth: %v\n\nBasic Player Controls: Arrow Keys for Movment(you can use down arrow to drop from platform)\nSpace to jump(you can wall jump too)\n\nClient Controls:\n0-key to toggle full-screen\nZ/X-keys to control volume\n\nAdmin/Dev Controls:\n1-key to toggle dev-camera\n3-key to turn on dev world builder preview\nL-key for hitbox mode(Note: this will clear background until client restart)\n4-key to swap worlds\n",
 		devConfig.ping,
 		clientConfig.volume128,
 		ebiten.ActualTPS(),

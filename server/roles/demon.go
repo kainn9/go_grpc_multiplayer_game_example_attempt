@@ -11,10 +11,6 @@ func DemonAttacks() map[AtKey]*AttackData {
 	atks = demonPrimaryAtk(atks)
 	atks = demonSecondaryAtk(atks)
 
-	// only two attacks for demon
-	atks[TertAttackKey] = atks[SecondaryAttackKey]
-	atks[QuaternaryAttackKey] = atks[SecondaryAttackKey]
-
 	return atks
 }
 

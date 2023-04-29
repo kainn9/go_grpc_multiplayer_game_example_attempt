@@ -43,6 +43,10 @@ func (world *World) SpawnAtkBox(cp *pl.Player, atk *r.AttackData, index int, aid
 		cp.CurrAttack = nil
 		cp.ChargeValue = 0
 		cp.ChargeStart = time.Time{}
+
+		if cp.InvincibleNoBox {
+			cp.InvincibleNoBox = false
+		}
 		return
 	}
 

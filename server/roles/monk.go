@@ -11,10 +11,6 @@ func MonkAttacks() map[AtKey]*AttackData {
 	atks = monkPrimaryAtk(atks)
 	atks = monkSecondaryAtk(atks)
 
-	// temp
-	atks[TertAttackKey] = atks[SecondaryAttackKey]
-	atks[QuaternaryAttackKey] = atks[SecondaryAttackKey]
-
 	return atks
 }
 
@@ -22,8 +18,8 @@ func InitMonk() *Role {
 
 	d := &Defense{
 		Delay:           0,
-		Cooldown:        100,
-		DefenseDuration: 700,
+		Cooldown:        3000,
+		DefenseDuration: 2000,
 		DefenseType:     DefenseBlock,
 	}
 
@@ -57,7 +53,8 @@ func monkPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 			KnockbackXDuration: 1650,
 			KnockbackYDuration: 1650,
 		},
-		Type: PrimaryAttackKey,
+		Cooldown: 3000,
+		Type:     PrimaryAttackKey,
 	}
 
 	PrimaryAtkSeq := HitBoxSequence{
@@ -125,8 +122,9 @@ func monkPrimaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 func monkSecondaryAtk(atks map[AtKey]*AttackData) map[AtKey]*AttackData {
 
 	atks[SecondaryAttackKey] = &AttackData{
-		Name: SecondaryAttackKey,
-		Type: SecondaryAttackKey,
+		Name:     SecondaryAttackKey,
+		Type:     SecondaryAttackKey,
+		FixedKby: true,
 		Consequence: &Consequence{
 			Damage:             65,
 			KnockbackX:         0,
