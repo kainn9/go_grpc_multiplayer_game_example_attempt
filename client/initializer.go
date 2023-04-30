@@ -17,23 +17,25 @@ import (
 */
 
 type gameSettings struct {
-	screenWidth      int
-	screenHeight     int
-	streamInit       bool
-	ticks            int
-	worldsMap        map[int]worldData
-	game             *Game
-	addr             string
-	fullScreen       bool
-	enablePPROF      bool
-	connRef          *grpc.ClientConn
-	audPlayer        *audio.Player
-	volume128        int
-	showHelp         bool
-	roles            map[int32]*r.Role
-	showPlayerHitbox bool
-	imageCache       sync.Map
-	actionBar        *actionBar
+	screenWidth       int
+	screenHeight      int
+	streamInit        bool
+	ticks             int
+	worldsMap         map[int]worldData
+	game              *Game
+	addr              string
+	fullScreen        bool
+	enablePPROF       bool
+	connRef           *grpc.ClientConn
+	audPlayer         *audio.Player
+	volume128         int
+	showHelp          bool
+	roles             map[int32]*r.Role
+	showPlayerHitbox  bool
+	imageCache        sync.Map
+	actionBar         *actionBar
+	defaultWindowPosX int
+	defaultWindowPosY int
 }
 
 type devSettings struct {
@@ -134,4 +136,11 @@ func initClient() {
 	fixedAnims = make(map[string]*fixedAnimTracker)
 
 	clientConfig.game = NewGame()
+
+}
+
+func (*gameSettings) setWindowDefaults() {
+	wx, wy := ebiten.WindowPosition()
+	clientConfig.defaultWindowPosX = wx
+	clientConfig.defaultWindowPosY = wy
 }

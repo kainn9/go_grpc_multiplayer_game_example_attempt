@@ -192,7 +192,8 @@ func main() {
 		}()
 	}
 
-	ebiten.SetFullscreen(clientConfig.fullScreen)
+	ebiten.SetWindowResizable(true)
+
 	/*
 		RunGame starts the main loop and runs the game. game's
 		Update function is called every tick to update the game logic.
@@ -203,10 +204,23 @@ func main() {
 	*/
 
 	clientConfig.game.InitMusic()
+
 	ebiten.RunGame(clientConfig.game)
 
-	// TODO:
-	// does this work?
-	// low key was never closing client connection on close...
 	defer clientConfig.connRef.Close()
+}
+
+func toggleFS() {
+	if clientConfig.fullScreen {
+		if clientConfig.defaultWindowPosX == 0 || clientConfig.defaultWindowPosY == 0 {
+			clientConfig.setWindowDefaults()
+		}
+
+		screenWidth, screenHeight := ebiten.ScreenSizeInFullscreen()
+		ebiten.SetWindowSize(screenWidth, screenHeight)
+		ebiten.SetWindowPosition(0, 0)
+	} else {
+		ebiten.SetWindowSize(clientConfig.screenWidth, clientConfig.screenHeight)
+		ebiten.SetWindowPosition(clientConfig.defaultWindowPosX, clientConfig.defaultWindowPosY)
+	}
 }

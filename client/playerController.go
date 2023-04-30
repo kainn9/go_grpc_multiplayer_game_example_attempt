@@ -8,7 +8,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	utClient "github.com/kainn9/grpc_game/client_util"
 	pb "github.com/kainn9/grpc_game/proto"
 	evt "github.com/kainn9/grpc_game/server/event"
 	camera "github.com/melonfunction/ebiten-camera"
@@ -163,7 +162,7 @@ func (pc *PlayerController) InputListener() {
 
 	if inpututil.IsKeyJustPressed(ebiten.Key0) {
 		clientConfig.fullScreen = !clientConfig.fullScreen
-		ebiten.SetFullscreen(clientConfig.fullScreen)
+		toggleFS()
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.Key4) {
@@ -350,18 +349,12 @@ func (pc *PlayerController) SetCameraPosition() {
 		ny := y - yOff
 		nx := (ScreenWidth / 2) - x
 
-		nx = utClient.CamLerp(pc.playerCam.X, nx)
-		ny = utClient.CamLerp(pc.playerCam.Y, ny)
-
 		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft && xBoundTop {
 
 		nx := (ScreenWidth / 2) - x
 		ny := (ScreenHeight / 2) - y
-
-		nx = utClient.CamLerp(pc.playerCam.X, nx)
-		ny = utClient.CamLerp(pc.playerCam.Y, ny)
 
 		pc.playerCam.SetPosition(nx, ny)
 
@@ -372,9 +365,6 @@ func (pc *PlayerController) SetCameraPosition() {
 		nx := x - ((ScreenWidth / 2) - (gw - pc.x))
 		ny := y - yOff
 
-		nx = utClient.CamLerp(pc.playerCam.X, nx)
-		ny = utClient.CamLerp(pc.playerCam.Y, ny)
-
 		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundRight && xBoundTop {
@@ -382,28 +372,19 @@ func (pc *PlayerController) SetCameraPosition() {
 		nx := x - ((ScreenWidth / 2) - (gw - pc.x))
 		ny := (ScreenHeight / 2) - y
 
-		nx = utClient.CamLerp(pc.playerCam.X, nx)
-		ny = utClient.CamLerp(pc.playerCam.Y, ny)
-
 		pc.playerCam.SetPosition(nx, ny)
 
 	} else if xBoundLeft {
 
 		nx := (ScreenWidth / 2) - x
 
-		nx = utClient.CamLerp(pc.playerCam.X, nx)
-		ny := utClient.CamLerp(pc.playerCam.Y, y)
-
-		pc.playerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, y)
 
 	} else if xBoundRight {
 
 		nx := x - ((ScreenWidth / 2) - (gw - pc.x))
 
-		nx = utClient.CamLerp(pc.playerCam.X, nx)
-		ny := utClient.CamLerp(pc.playerCam.Y, y)
-
-		pc.playerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(nx, y)
 
 	} else if xBoundBottom {
 
@@ -411,25 +392,17 @@ func (pc *PlayerController) SetCameraPosition() {
 
 		ny := y - yOff
 
-		nx := utClient.CamLerp(pc.playerCam.X, x)
-		ny = utClient.CamLerp(pc.playerCam.Y, ny)
-
-		pc.playerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(x, ny)
 
 	} else if xBoundTop {
 
 		ny := (ScreenHeight / 2) - y
 
-		nx := utClient.CamLerp(pc.playerCam.X, x)
-		ny = utClient.CamLerp(pc.playerCam.Y, ny)
-
-		pc.playerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(x, ny)
 
 	} else {
-		nx := utClient.CamLerp(pc.playerCam.X, x)
-		ny := utClient.CamLerp(pc.playerCam.Y, y)
 
-		pc.playerCam.SetPosition(nx, ny)
+		pc.playerCam.SetPosition(x, y)
 
 	}
 }
