@@ -165,12 +165,21 @@ func (pc *PlayerController) InputListener() {
 		toggleFS()
 	}
 
+	// temp/admin/dev stuff:
 	if inpututil.IsKeyJustPressed(ebiten.Key4) {
 		pc.inputHandler(evt.ValidEvents[evt.Swap])
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyN) {
 		pc.inputHandler(evt.ValidEvents[evt.RoleSwap])
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyU) {
+		pc.inputHandler(evt.ValidEvents[evt.RandomSpawnToggle])
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyI) {
+		pc.inputHandler(evt.ValidEvents[evt.VillageSpawnToggle])
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {

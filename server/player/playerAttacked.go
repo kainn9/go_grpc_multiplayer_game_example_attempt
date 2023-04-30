@@ -56,7 +56,6 @@ func (cp *Player) HealthHandler(attacker *Player, atk *r.AttackData, aid string)
 	cp.HitsMutex.Unlock()
 
 	dmg := atk.Damage
-	log.Println("Yo Charge")
 
 	if atk.HasChargeEffect() && atk.UseChargeDmg {
 		dmg += int(math.Round(attacker.ChargeValue * atk.ChargeEffect.MultFactorDmg))

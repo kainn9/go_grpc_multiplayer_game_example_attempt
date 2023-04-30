@@ -2,6 +2,7 @@ package worlds
 
 import (
 	"errors"
+	"log"
 	"sync"
 	"time"
 
@@ -101,6 +102,7 @@ func (world *World) Update(cp *pl.Player, input string) {
 
 	worldTransferHandler(cp, input)
 	rotateRole(cp, input)
+	world.handleDevSpawnCommands(input)
 
 	// Can't do reg movement when attacking
 	if !cp.CanAcceptInputs() {
@@ -348,4 +350,37 @@ func CurrentPlayerWorldOrDefault(pid string) (world *World, worldKey int) {
 		return WorldsConfig.startingWorld, WorldsConfig.startingWorld.Index
 	}
 	return w, k
+}
+
+func (w *World) handleDevSpawnCommands(input string) {
+
+	rsToggleEvent := input == string(evt.RandomSpawnToggle)
+	vsToggleEvent := input == string(evt.VillageSpawnToggle)
+	rSpawnOn := WorldsConfig.randomSpawn
+
+	logRspawnStatus := func() {
+
+		if rSpawnOn {
+			log.Println("Note: RandomSpawnSetting is currently taking prio")
+		}
+	}
+
+	if rsToggleEvent && !rSpawnOn {
+		log.Println("Enabling RandomSpawn")
+		WorldsConfig.randomSpawn = true
+	} else if rsToggleEvent {
+		log.Println("Disabling RandomSpawn")
+		WorldsConfig.randomSpawn = false
+	}
+
+	if vsToggleEvent && WorldsConfig.startingWorld == worlds.worldOne {
+		log.Println("Setting Spawn to Village")
+		logRspawnStatus()
+		WorldsConfig.startingWorld = worlds.landOfYohoVillage
+	} else if vsToggleEvent {
+		log.Println("Setting Spawn to IntroZone")
+		logRspawnStatus()
+		WorldsConfig.startingWorld = worlds.worldOne
+	}
+
 }

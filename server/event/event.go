@@ -22,33 +22,37 @@ const (
 type EventInput string
 
 const (
-	KeyLeft      EventInput = "keyLeft"
-	KeyRight     EventInput = "keyRight"
-	KeySpace     EventInput = "keySpace"
-	KeyDown      EventInput = "keyDown"
-	PrimaryAtk   EventInput = EventInput(sr.PrimaryAttackKey)
-	SecondaryAtk EventInput = EventInput(sr.SecondaryAttackKey)
-	TertAtk      EventInput = EventInput(sr.TertAttackKey)
-	QuaAtk       EventInput = EventInput(sr.QuaternaryAttackKey)
-	Defense      EventInput = "defense"
-	Nada         EventInput = "nada"
-	Swap         EventInput = "swap"
-	RoleSwap     EventInput = "roleSwap"
+	KeyLeft            EventInput = "keyLeft"
+	KeyRight           EventInput = "keyRight"
+	KeySpace           EventInput = "keySpace"
+	KeyDown            EventInput = "keyDown"
+	PrimaryAtk         EventInput = EventInput(sr.PrimaryAttackKey)
+	SecondaryAtk       EventInput = EventInput(sr.SecondaryAttackKey)
+	TertAtk            EventInput = EventInput(sr.TertAttackKey)
+	QuaAtk             EventInput = EventInput(sr.QuaternaryAttackKey)
+	Defense            EventInput = "defense"
+	Nada               EventInput = "nada"
+	Swap               EventInput = "swap"
+	RoleSwap           EventInput = "roleSwap"
+	RandomSpawnToggle  EventInput = "rsToggle"
+	VillageSpawnToggle EventInput = "vsToggle"
 )
 
 var ValidEvents = map[EventInput]EventInput{
-	KeyLeft:      KeyLeft,
-	KeyRight:     KeyRight,
-	KeySpace:     KeySpace,
-	KeyDown:      KeyDown,
-	PrimaryAtk:   PrimaryAtk,
-	SecondaryAtk: SecondaryAtk,
-	TertAtk:      TertAtk,
-	QuaAtk:       QuaAtk,
-	Defense:      Defense,
-	Nada:         Nada,
-	Swap:         Swap,
-	RoleSwap:     RoleSwap,
+	KeyLeft:            KeyLeft,
+	KeyRight:           KeyRight,
+	KeySpace:           KeySpace,
+	KeyDown:            KeyDown,
+	PrimaryAtk:         PrimaryAtk,
+	SecondaryAtk:       SecondaryAtk,
+	TertAtk:            TertAtk,
+	QuaAtk:             QuaAtk,
+	Defense:            Defense,
+	Nada:               Nada,
+	Swap:               Swap,
+	RoleSwap:           RoleSwap,
+	RandomSpawnToggle:  RandomSpawnToggle,
+	VillageSpawnToggle: VillageSpawnToggle,
 }
 
 var AttackEvents = map[EventInput]EventInput{
@@ -67,8 +71,10 @@ var PhysEvents = map[EventInput]EventInput{
 }
 
 var AdminEvents = map[EventInput]EventInput{
-	Swap:     Swap,
-	RoleSwap: RoleSwap,
+	Swap:               Swap,
+	RoleSwap:           RoleSwap,
+	RandomSpawnToggle:  RandomSpawnToggle,
+	VillageSpawnToggle: VillageSpawnToggle,
 }
 
 func NewEvent(req *pb.PlayerReq, stalled bool) *Event {
