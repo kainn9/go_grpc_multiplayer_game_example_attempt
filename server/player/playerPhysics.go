@@ -28,7 +28,7 @@ func (cp *Player) JumpHandler(input string) {
 
 	if input == "keySpace" {
 		if input == "keyDown" && cp.OnGround != nil && cp.OnGround.HasTags("platform") {
-			cp.IgnorePlatform = cp.OnGround
+			// cp.IgnorePlatform = cp.OnGround
 		} else {
 			if cp.OnGround != nil {
 				cp.SpeedY = -cp.JumpSpd
@@ -118,7 +118,9 @@ func (cp *Player) VerticalMovmentHandler(input string, world World) {
 					}
 				}
 
-				cp.OnGround = minP
+				if cp.SpeedY >= 0 && cp.Object.Bottom() < minP.Y+4 {
+					cp.OnGround = minP
+				}
 
 				if input == "keyDown" && cp.OnGround != nil && cp.OnGround.HasTags("platform") {
 					cp.IgnorePlatform = cp.OnGround
@@ -126,7 +128,6 @@ func (cp *Player) VerticalMovmentHandler(input string, world World) {
 
 				if minP != cp.IgnorePlatform && cp.SpeedY >= 0 && cp.Object.Bottom() < minP.Y+4 {
 					dy = check.ContactWithObject(minP).Y()
-
 					cp.SpeedY = 0
 				}
 			}
