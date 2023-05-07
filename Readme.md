@@ -1,4 +1,5 @@
-### ReadMe
+## Game Demo(5/7)
+https://user-images.githubusercontent.com/85503587/236705026-3f053803-35cb-465e-9791-850127b56687.mp4
 
 ## Disclaimer(2/13/23 & beyond)
 
@@ -9,18 +10,22 @@ At its core, this boilerplate/game is my way of embarking on the journey of lear
 ## Why?
 Professionally, I work primarily with TypeScript/Ruby for web development, and I have a lot of room to grow in that department too. I wanted a side project that could help me grow professionally while being fun on a personal level: Golang and gRPC's bidirectional streaming seemed like something cool worth exploring.
 
-## Game Demo
-https://user-images.githubusercontent.com/85503587/227413557-50e5fd0f-9d15-41e8-abb9-ff26a85e217b.mp4
-
 ## Controls
+### Player Controls
 - Arrow keys for movement
 - Space to jump/wall-jump
-- Shift to dodge
+- Shift for defense(if applicable to character)
 - Q, W, E, R for attacks
-- T for gravity/jump boost(lasts 20 sec, 2 min cooldown)
-- 4 key to swap world/arena
+
+### Client Controls
 - z/x to control volume
 - M key to hide instructions(its a wall of text on the screen)
+
+### Admin/Dev Controls
+- N key to change character type
+- U key to enable random world spawn
+- I key to enable village spawn(random spawn setting takes precedence if also toggled)
+- 4 key to swap world/arena
 - 1 for dev mode camera
 - 2 to rotate dev ruler(when dev move cam is active)
 - w/s to increase/decrease ruler/camera speed(when dev move cam is active)
@@ -38,6 +43,7 @@ protoc -Iproto --go_out=. --go_opt=module=github.com/kainn9/grpc_game --go-grpc_
 - Otherwise to get started:
   - Install deps with
 ```bash
+go mod download
 go mod tidy
 ```
 - run server with:
@@ -70,17 +76,20 @@ https://user-images.githubusercontent.com/85503587/227417644-ac291714-92b1-4e58-
 
 
 ## Library Credz
-- https://github.com/hajimehoshi/ebiten <-- 2D GOLANG GAME ENGINE
+- https://github.com/hajimehoshi/ebiten <-- 2D GOLANG GAME Library
 - https://github.com/SolarLune/resolv <- collison lib for GO(commonly used w/ ebiten). The backend platformer "physics" is heavily based on the repo's [world platformer example](https://github.com/SolarLune/resolv/blob/master/examples/worldPlatformer.go)
 
 ## Asset Credz
 - Knight Sprite: https://szadiart.itch.io/2d-soulslike-character
 - Monk Sprite: https://chierit.itch.io/elementals-ground-monk
+- Demon Sprite: https://chierit.itch.io/boss-demon-slime
+- Mage: https://chierit.itch.io/monthly-character-002
+- Werewolf: https://chierit.itch.io/mc-003-werewolf
+- Heavy Knight: https://luizmelo.itch.io/heavy-armor
+- Bird Droid: https://penusbmic.itch.io/sci-fi-character-pack-5
+- Action Bar Stuff: https://penusbmic.itch.io/the-dark-series-skill-icons-numbers
+- Portals: https://creativekind.itch.io/animated
+- Stun Effect Sprite: https://bdragon1727.itch.io/fire-pixel-bullet-16x16
 - Asset Pack used to create worlds/arenas: https://itch.io/s/88510/ssworlds-bundle
-- Game Music: https://greenpiccolo.bandcamp.com/track/ride-with-me
-- Game Demo Song: https://www.youtube.com/watch?v=42IrFGsIRYY&t=4s
-
-
-
-# TODO NAME THESE
-https://bdragon1727.itch.io/fire-pixel-bullet-16x16
+- In Game Music: https://greenpiccolo.bandcamp.com/track/ride-with-me
+- Game Demo Video Song: https://www.youtube.com/watch?v=QZluIr6PeEA
