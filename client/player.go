@@ -42,11 +42,17 @@ func NewPlayer() *Player {
 	return p
 }
 
-func animationSubImage(anim *r.Animation, s *ebiten.Image, i int, right bool) *ebiten.Image {
-	sx, sy := (anim.FrameOX)+i*(anim.FrameWidth), (anim.FrameOY)
+func animationSubImage(anim *r.Animation, s *ebiten.Image, i int, right bool, VerticalSheet bool) *ebiten.Image {
+	var sx, sy int
+	if !VerticalSheet {
+		sx, sy = (anim.FrameOX)+i*(anim.FrameWidth), (anim.FrameOY)
+	} else {
+		sx, sy = (anim.FrameOX), (anim.FrameOY)+i*(anim.FrameHeight)
+	}
+
 	sub := s.SubImage(image.Rect(sx, sy, sx+(anim.FrameWidth), sy+(anim.FrameHeight))).(*ebiten.Image)
 
-	if !right {
+	if !right && !VerticalSheet {
 		sx, sy = (anim.FrameOX)-i*(anim.FrameWidth), (anim.FrameOY)
 		sub = s.SubImage(image.Rect(sx, sy, sx-(anim.FrameWidth), sy+(anim.FrameHeight))).(*ebiten.Image)
 	}
@@ -79,7 +85,7 @@ func (p *Player) drawStatusEffect(currentPlayer bool, pc *PlayerController) {
 	anim := cse.Stun.Anim
 	i := (clientConfig.ticks / 5) % anim.FrameCount
 	img := cse.Stun.Img
-	sub := animationSubImage(anim, img, i, true)
+	sub := animationSubImage(anim, img, i, true, p.currentAnimation.VerticalSheet)
 
 	pc.playerCam.Surface.DrawImage(sub, &statusOps)
 }
@@ -309,7 +315,7 @@ func DrawPlayer(world *World, p *Player, currentPlayer bool) {
 		playerOps = pc.playerCam.GetTranslation(playerOps, p.currentAnimation.PosOffsetX+(-p.HitBoxOffsetX)+x-(pc.playerCXpos/2)-float64(p.currentAnimation.FrameWidth-prevAnim.FrameWidth), -p.currentAnimation.PosOffsetY+y-(pc.playerCYpos/2)-p.HitBoxOffsetY)
 	}
 
-	sub := animationSubImage(p.currentAnimation, s, i, p.facingRight)
+	sub := animationSubImage(p.currentAnimation, s, i, p.facingRight, p.currentAnimation.VerticalSheet)
 
 	if hitBoxTest.on && hitBoxTest.frame >= 0 {
 		sub = getAnimationFrame(p, hitBoxTest.frame, s)

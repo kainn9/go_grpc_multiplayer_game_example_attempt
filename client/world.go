@@ -16,6 +16,7 @@ type World struct {
 	playerController *PlayerController
 	state            []*pb.Player
 	playerMap        map[string]*Player
+	particleSystem   pb.ParticleSystem
 	worldTex         sync.RWMutex
 	worldData
 }
@@ -113,6 +114,7 @@ func (w *World) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{135, 206, 250, 255})
 	w.DrawBg()
 	w.DrawPlayers()
+	w.DrawParticles()
 }
 
 /*
@@ -145,6 +147,19 @@ func (w *World) DrawBg() {
 				ebitenutil.DrawRect(w.bg, o.X, o.Y, o.W, o.H, drawColor)
 			}
 		}
+	}
+}
+
+/*
+Renders particles from server
+*/
+func (world *World) DrawParticles() {
+	// who doesn't love potatoes?
+	potato := &world.particleSystem
+
+	for i := range potato.Particles {
+		currentParticle := potato.Particles[i]
+		DrawParticle(world, currentParticle)
 	}
 }
 

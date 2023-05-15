@@ -35,6 +35,8 @@ type Animation struct {
 	SpriteSheet *ebiten.Image
 	PosOffsetX  float64
 	PosOffsetY  float64
+	// If we are using a vertical spreadsheet
+	VerticalSheet bool
 }
 
 type AnimKey string

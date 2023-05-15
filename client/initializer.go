@@ -103,6 +103,7 @@ func initClient() {
 	clientConfig.roles[4] = r.InitMage()
 	clientConfig.roles[5] = r.InitHeavyKnight()
 	clientConfig.roles[6] = r.InitBirdDroid()
+	clientConfig.roles[7] = r.InitShadowMan()
 
 	devConfig = &devSettings{
 		rulerW:         utClient.LoadImage("./sprites/rulers/wRuler.png"),

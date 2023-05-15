@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/kainn9/grpc_game/proto"
 	pb "github.com/kainn9/grpc_game/proto"
 	evt "github.com/kainn9/grpc_game/server/event"
 	camera "github.com/melonfunction/ebiten-camera"
@@ -466,6 +467,11 @@ func (pc *PlayerController) SubscribeToState() {
 			world.state = res.Players
 			wTex.Unlock()
 
+			// Handle ParticleSystem messages
+			particleSystem := proto.ParticleSystem{
+				Particles: res.ParticleSystem.Particles,
+			}
+			world.particleSystem = particleSystem
 		}
 	}()
 }

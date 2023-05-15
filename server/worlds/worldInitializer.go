@@ -78,6 +78,7 @@ func Initializer() {
 	WorldsConfig.Roles[r.Mage] = 4
 	WorldsConfig.Roles[r.HeavyKnight] = 5
 	WorldsConfig.Roles[r.BirdDroid] = 6
+	WorldsConfig.Roles[r.ShadowMan] = 7
 
 	// Start tick loops for each world.
 	for _, w := range WorldsConfig.worldsMap {

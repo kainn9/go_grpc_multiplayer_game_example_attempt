@@ -3,7 +3,12 @@ package player
 import (
 	"time"
 
+	"image/color"
+	"math/rand"
+
+	particle "github.com/kainn9/grpc_game/server/particles"
 	r "github.com/kainn9/grpc_game/server/roles"
+	"github.com/kainn9/grpc_game/util"
 	ut "github.com/kainn9/grpc_game/util"
 )
 
@@ -16,6 +21,11 @@ func (cp *Player) AttackHandler(input string, world World) {
 	}
 
 	if input == string(r.PrimaryAttackKey) {
+		// lol testing
+		if cp.Role.Attacks[r.PrimaryAttackKey].Damage == 420 {
+			ps := world.GetParticleSystem()
+			createRandomParticles(ps, 50, cp)
+		}
 		cp.attack(world, r.PrimaryAttackKey)
 	}
 
@@ -69,4 +79,21 @@ func (cp *Player) attack(world World, atKey r.AtKey) {
 
 	cp.windupPhase(atk, atKey)
 
+}
+
+func createRandomParticles(particleSystem *particle.ParticleSystem, count int, cp *Player) {
+	for i := 0; i < count; i++ {
+		position := util.Vector2{
+			X: cp.Object.X,
+			Y: cp.Object.Y,
+		}
+		velocity := util.Vector2{
+			X: rand.Float64()*100 + 3, // random value between 1 and 3
+			Y: rand.Float64() * 20,    // random value between 0 and 2
+		}
+		size := rand.Float64()*15 + 1       // random value between 1 and 5
+		color := color.RGBA{R: 255, A: 255} // fixed color: red
+		lifetime := rand.Float64()*3 + 2    // random value between 2 and 5 seconds
+		particleSystem.AddParticle(position, velocity, size, color, lifetime)
+	}
 }

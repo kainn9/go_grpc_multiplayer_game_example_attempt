@@ -7,6 +7,7 @@ import (
 
 	pb "github.com/kainn9/grpc_game/proto"
 	evt "github.com/kainn9/grpc_game/server/event"
+	particle "github.com/kainn9/grpc_game/server/particles"
 	pl "github.com/kainn9/grpc_game/server/player"
 	wr "github.com/kainn9/grpc_game/server/worlds"
 	"google.golang.org/grpc/codes"
@@ -168,6 +169,10 @@ func responseHandler(stream pb.PlayersService_PlayerLocationServer, pid string) 
 		res.Players = append(res.Players, p)
 	}
 	w.WPlayersMutex.RUnlock()
+
+	// Convert ParticleSystem to proto version (look for better way)
+	testParticleSystem := w.ParticleSystem
+	res.ParticleSystem = particle.ConvertToProtoParticleSystem(testParticleSystem)
 
 	err := stream.Send(res)
 

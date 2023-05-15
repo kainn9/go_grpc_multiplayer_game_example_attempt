@@ -10,6 +10,7 @@ import (
 	gc "github.com/kainn9/grpc_game/server/globalConstants"
 	pl "github.com/kainn9/grpc_game/server/player"
 
+	p "github.com/kainn9/grpc_game/server/particles"
 	"github.com/kainn9/grpc_game/server/roles"
 	ut "github.com/kainn9/grpc_game/util"
 	"github.com/solarlune/resolv"
@@ -27,6 +28,7 @@ type World struct {
 	hitboxMutex     sync.RWMutex
 	WPlayersMutex   sync.RWMutex
 	WorldSpawnCords *worldSpawnCords
+	ParticleSystem  *p.ParticleSystem
 }
 
 type worldSpawnCords struct {
@@ -49,8 +51,8 @@ func NewWorld(height float64, width float64, worldBuilder builderFunc, name stri
 			Y: spawnY,
 			X: spawnX,
 		},
+		ParticleSystem: nil,
 	}
-
 	// Initialize the world with the specified builder function.
 	w.Init(worldBuilder)
 	return w
@@ -60,6 +62,9 @@ func NewWorld(height float64, width float64, worldBuilder builderFunc, name stri
 func (world *World) Init(worldBuilder builderFunc) {
 	gw := world.width
 	gh := world.height
+
+	particleSystem := p.ParticleSystem{}
+	world.ParticleSystem = &particleSystem
 
 	// Define the world's Resolv Space. A Space is essentially a grid made up of 16x16 cells.
 	// Each cell can have 0 or more Objects within it, and collisions can be found by checking the Space to see if the Cells at specific positions contain (or would contain) Objects.
@@ -163,6 +168,10 @@ func (world *World) Update(cp *pl.Player, input string) {
 	cp.Object.Update()
 	world.hitboxMutex.Unlock()
 
+	// Calculate the time delta (dt) since the last frame
+	dt := 1 / 60.0 // Assuming a fixed timestep of 1/60 seconds (60 FPS) we can fix dis later
+
+	world.ParticleSystem.Update(dt)
 }
 
 // addPlayerToSpace adds a player to a Resolv space with the given coordinates
