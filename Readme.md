@@ -3,7 +3,7 @@ https://user-images.githubusercontent.com/85503587/236705026-3f053803-35cb-465e-
 
 ## Disclaimer(2/13/23 & beyond)
 
-This Project could be a lot better. It's messy, and presumably, it's not following best practices, at least not yet. It's very likely that gRPC/TCP is a weird/bad choice for multiplayer gaming(I'm learning these technologies with the hope they can be useful outside scope of this project). I am not a game developer, and aside from tinkering around as a child, I have no experience/no idea what I'm doing here(I would like to be a indie game dev guy once I retire though haha). Furthermore, I'm also a Golang/gRPC/Protobuf noob. 
+This Project could be a lot better. It's messy, and presumably, it's not following best practices, at least not yet. GRPC/HTTP2 is likely a weird, perhaps even bad, choice for a real-time multiplayer fighter game. I am not a game developer, and aside from tinkering around as a child, I have no experience/no idea what I'm doing here(I would like to be an indie game dev guy once I retire though haha).
 
 At its core, this boilerplate/game is my way of embarking on the journey of learning Golang + the other stuff(but mostly Go) through the lens of an old passion. After all, my initial love for creating software stems from my love of video games as a child. MMORPGs from 2007-2010 have a special place in my heart. This Project will not be able to support an MMO scale(obviously lol), but perhaps some tiny multiplayer shenanigans.
 
