@@ -1,14 +1,26 @@
 ## Game Demo(5/7)
 https://user-images.githubusercontent.com/85503587/236705026-3f053803-35cb-465e-9791-850127b56687.mp4
 
-## Disclaimer(2/13/23 & beyond)
+## Please Read
+While working on this project has been an incredibly enjoyable experience, I must confess that it is a bit of a chaotic endeavor. Whether you look at it from an architectural, design, or implementation perspective, it doesn't make sense. However, despite its clear messiness, I want to emphasize that this project has been far from a waste of time. Going into it, I had several specific goals in mind:
 
-This Project could be a lot better. It's messy, and presumably, it's not following best practices, at least not yet. GRPC/HTTP2 is likely a weird, perhaps even bad, choice for a real-time multiplayer fighter game. I am not a game developer, and aside from tinkering around as a child, I have no experience/no idea what I'm doing here(I would like to be an indie game dev guy once I retire though haha).
+Get Comfortable with Golang: The project provided an excellent opportunity for me to become more proficient in Golang.
 
-At its core, this boilerplate/game is my way of embarking on the journey of learning Golang + the other stuff(but mostly Go) through the lens of an old passion. After all, my initial love for creating software stems from my love of video games as a child. MMORPGs from 2007-2010 have a special place in my heart. This Project will not be able to support an MMO scale(obviously lol), but perhaps some tiny multiplayer shenanigans.
+- Learn Protobuf/GRPC: Exploring Protobuf/GRPC was a significant aspect of my learning journey, even if it might not have been the most suitable choice for real-time multiplayer.
 
-## Why?
-Professionally, I work primarily with TypeScript/Ruby for web development, and I have a lot of room to grow in that department too. I wanted a side project that could help me grow professionally while being fun on a personal level: Golang and gRPC's bidirectional streaming seemed like something cool worth exploring.
+- Explore Gaming Netcode: The endeavor allowed me to delve into gaming netcode, discovering both its challenges and opportunities.
+
+- Host a Multiplayer Gaming Server via AWS: Setting up and managing a multiplayer gaming server on AWS was a valuable experience that added a practical dimension to my skills.
+
+Admittedly, using http2/GRPC for real-time multiplayer might not have been the most efficient choice, as protocols like UDP or a custom TCP setup could have offered less overhead. However, the project presented the chance to experiment with bidirectional GRPC streams, showcasing the versatility of the technology.
+
+Yes, I might have organized packages and files without a deep understanding of proper game design paradigms initially. Nonetheless, this led me to delve into the Entity-Component-System (ECS) pattern, which has become a fundamental part of my new project/game and physics library.
+
+Acknowledging that  I took advantage of Golang's concurrency features to create a complex web of time-based callbacks and race conditions, it did provide an opportunity to learn more about the sync package.
+
+In essence, this project represents a journey of learning what to do by initially implementing what not to do—a common aspect of the learning process. If you decide to explore the code, don't expect perfection; it may not be pretty, elegant, or robust, and that's perfectly fine. Hidden beneath the layers of imperfection, there might be some valuable insights. For instance, I surprisingly find merit in the simple CI/CD GitHub actions, which stands out as a positive outcome amidst the challenges encountered during this development journey.
+
+
 
 ## Controls
 ### Player Controls
